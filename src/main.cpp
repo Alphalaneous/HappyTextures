@@ -25,7 +25,7 @@ class $modify(CCSpriteBatchNode) {
 	
 	bool initWithTexture(CCTexture2D* texture, unsigned int capacity){
 
-		if(s_isInCreateTextLayers){
+		if(s_isInCreateTextLayers && texture == CCTextureCache::sharedTextureCache()->addImage("bigFont.png", false)){
 			return CCSpriteBatchNode::initWithTexture(CCTextureCache::sharedTextureCache()->addImage("bigFont.png"_spr, false), capacity);
 		}
 
@@ -49,8 +49,6 @@ class $modify(CCLabelBMFont) {
 class $modify(GameManager) {
 
 	const char* getFontTexture(int val){
-
-		log::info("{}", val);
 
 		if(val > 58){
 			val = 59;
