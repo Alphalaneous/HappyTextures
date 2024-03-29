@@ -31,11 +31,12 @@ jobs:
 
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
-        bindings: Alphalaneous/bindings
+        
         with:
           sdk: nightly
           combine: true
           target: ${{ matrix.config.target }}
+          bindings: Alphalaneous/bindings
       
   package:
     name: Package builds
