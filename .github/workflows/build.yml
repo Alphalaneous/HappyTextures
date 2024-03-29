@@ -14,9 +14,6 @@ jobs:
         config:
         - name: Windows
           os: windows-latest
-          
-        - name: macOS
-          os: macos-latest
 
         - name: Android32
           os: ubuntu-latest
@@ -34,6 +31,7 @@ jobs:
 
       - name: Build the mod
         uses: geode-sdk/build-geode-mod@main
+        bindings: Alphalaneous/bindings
         with:
           sdk: nightly
           combine: true
