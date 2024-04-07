@@ -8,7 +8,7 @@
 
 #define public_cast(value, member) [](auto* v) { \
     class FriendClass__; \
-    using T = std::remove_pointer<decltype(v)>::type; \
+    using T = typename std::remove_pointer<decltype(v)>::type; \
     class FriendeeClass__: public T { \
     protected: \
         friend FriendClass__; \
