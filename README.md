@@ -5,7 +5,7 @@ A Geometry Dash mod that brings texture packs to the next level!
 ## Features
 
 - Replacing bigFont (Pusab) will not replace the font within levels.
-- Fixed overlapping texture issues with CCScale9Sprite(Transparent textures in the level search look good now)
+- Fixed overlapping texture issues with CCScale9Sprite (Transparent textures in the level search look good now)
 - Extensive Data Driven UI support with JSON
 
 ## Data Driven UI
@@ -485,7 +485,7 @@ When it comes to using the position attribute, you can change the x and y coordi
 <table>
 
 <tr>
-<td> Position </td> <td> Example</td>
+<td> Position </td> <td> Location </td>
 </tr>
 
 <tr>
