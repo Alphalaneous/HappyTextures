@@ -68,7 +68,6 @@ Within MenuLayer, we can see there is a menu, the main menu, which has three but
 
             }
         }
-        
     }
 }
 ```
