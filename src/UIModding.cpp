@@ -1,6 +1,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCScene.hpp>
 #include <Geode/modify/GJDropDownLayer.hpp>
+#include <Geode/modify/LoadingLayer.hpp>
 #include "FileWatcher.h"
 #include "Utils.h"
 #include "CCLabelBMFont.h"
@@ -19,14 +20,25 @@ void setPosition(CCNode* node, matjson::Object attributes);
 void setColor(CCNode* node, matjson::Object attributes);
 void setText(CCNode* node, matjson::Object attributes);
 void setScaleMult(CCNode* node, matjson::Object attributes);
+void setZOrder(CCNode* node, matjson::Object attributes);
+void setFont(CCNode* node, matjson::Object attributes);
 void setLayout(CCNode* node, matjson::Object attributes);
-
 void updateLayout(CCNode* node, matjson::Object attributes);
 void runAction(CCNode* node, matjson::Object attributes);
 CCActionInterval* createAction(matjson::Value action);
 CCActionInterval* getEasingType(std::string name, CCActionInterval* action, float rate);
 void handleModifications(CCNode* node, matjson::Object nodeObject);
 void doUICheck(CCNode* node);
+std::vector<std::string> getActivePacks();
+bool endsWith(std::string value, std::string ending);
+void startFileListeners();
+
+class $modify(LoadingLayer){
+    void loadingFinished(){
+        startFileListeners();
+        LoadingLayer::loadingFinished();
+    }
+};
 
 class $modify(GJDropDownLayer){
 	void showLayer(bool p0){
@@ -43,9 +55,7 @@ class $modify(MyCCScene, CCScene){
 
 	static CCScene* create(){
 		auto ret = CCScene::create();
-
 		bool doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
-
 		if(doModify){
 			ret->schedule(schedule_selector(MyCCScene::checkForUpdates));
 		}
@@ -53,9 +63,7 @@ class $modify(MyCCScene, CCScene){
 	}
 
 	void checkForUpdates(float dt){
-
 		if(this->getChildrenCount() != m_fields->currentCount){
-
 			int idx = 0;
 			for(CCNode* node : CCArrayExt<CCNode*>(this->getChildren())){
 				idx++;
@@ -170,8 +178,8 @@ CCActionInterval* createAction(matjson::Value action){
 						matjson::Value yValue = valueValue["y"];
 
 						if(xValue.is_number() && yValue.is_number()){
-							float x = xValue.as_double();
-							float y = yValue.as_double();
+							x = xValue.as_double();
+							y = yValue.as_double();
 						}
 					}
 				}
@@ -497,6 +505,56 @@ void setLayout(CCNode* node, matjson::Object attributes){
 	}
 }
 
+void setZOrder(CCNode* node, matjson::Object attributes){
+    if(attributes.contains("z-order")){
+        matjson::Value zOrderVal = attributes["z-order"];
+        if(zOrderVal.is_number()){
+            int zOrder = zOrderVal.as_int();
+            node->setZOrder(zOrder);
+        }
+    }
+}
+
+void setFont(CCNode* node, matjson::Object attributes){
+    if(attributes.contains("font")){
+		matjson::Value fontVal = attributes["font"];
+		if(fontVal.is_string()){
+
+            CCLabelBMFont* textObject;
+
+			std::string font = fontVal.as_string();
+			if(CCLabelBMFont* textNode = dynamic_cast<CCLabelBMFont*>(node)) {
+                textObject = textNode;
+			}
+            else if(CCMenuItemSpriteExtra* buttonNode = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+                if(SearchButton* searchButton = getChildOfType<SearchButton>(node, 0)){
+                    textObject = getChildOfType<CCLabelBMFont>(searchButton, 0);
+                }
+                else if(ButtonSprite* buttonSprite = getChildOfType<ButtonSprite>(node, 0)){
+                    textObject = getChildOfType<CCLabelBMFont>(buttonSprite, 0);
+                }
+                else{
+                    textObject = getChildOfType<CCLabelBMFont>(node, 0);
+                }
+            }
+            if(textObject){
+
+                if(endsWith(font, ".fnt")){
+                    MyCCLabelBMFont* myTextObject = static_cast<MyCCLabelBMFont*>(textObject);
+                    
+                    CCLabelBMFont* dummyTextObject = CCLabelBMFont::create("", font.c_str());
+                    if(dummyTextObject){
+                        textObject->setFntFile(font.c_str());
+
+                        if(myTextObject->m_fields->m_isLimited){
+                            textObject->limitLabelWidth(myTextObject->m_fields->m_limitWidth, myTextObject->m_fields->m_limitDefaultScale, myTextObject->m_fields->m_limitMinScale);
+                        }
+                    }
+                }
+            }
+		}
+	}
+}
 
 void setPosition(CCNode* node, matjson::Object attributes){
 	if(attributes.contains("position")){
@@ -513,8 +571,6 @@ void setPosition(CCNode* node, matjson::Object attributes){
 				if(xVal.is_number() && yVal.is_number()){
 					x = xVal.as_double();
 					y = yVal.as_double();
-
-					
 				}
 			}
 			if(position.contains("relative")){
@@ -876,6 +932,8 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
 			setPosition(node, nodeAttributesObject);
             setText(node, nodeAttributesObject);
             setScaleMult(node, nodeAttributesObject);
+            setZOrder(node, nodeAttributesObject);
+            setFont(node, nodeAttributesObject);
 			setLayout(node, nodeAttributesObject);
 			updateLayout(node, nodeAttributesObject);
 			runAction(node, nodeAttributesObject);
@@ -903,6 +961,7 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
 }
 
 void doUICheck(CCNode* node){
+
 	std::string path = "/ui/" + node->getID() + ".json";
 
 	unsigned long fileSize = 0;
@@ -929,31 +988,81 @@ void doUICheck(CCNode* node){
 	delete[] buffer;
 }
 
-$execute{
-	std::thread t1([]{
+std::vector<FileWatcher> listeners;
 
-		std::string fullPath = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "/Resources/ui");
+void startFileListeners(){
 
-        FileWatcher fw{fullPath, std::chrono::milliseconds(500)};
+    for(FileWatcher fw : listeners){
+        fw.stop();
+    }
 
-        fw.start([] (std::string path_to_watch, FileStatus status) -> void {
-            if(!std::filesystem::is_regular_file(std::filesystem::path(path_to_watch)) && status != FileStatus::erased) {
-                return;
-            }
+    listeners.clear();
 
-            switch(status) {
-                case FileStatus::created:
-                case FileStatus::modified:
-                case FileStatus::erased:
-                    Loader::get()->queueInMainThread([]{
-                        CCScene* scene = CCDirector::sharedDirector()->getRunningScene();
-                        for(CCNode* node : CCArrayExt<CCNode*>(scene->getChildren())){
-                            doUICheck(node);
-                        }
-                    });
-                    break;
-            }
+    std::vector<std::string> packs = getActivePacks();
+
+    for(std::string path : packs){
+        std::string uiPath = fmt::format("{}{}", path, "ui\\");
+        std::thread thread([uiPath]{
+
+            FileWatcher fw{uiPath, std::chrono::milliseconds(500)};
+
+            fw.start([] (std::string pathToWatch, FileStatus status) -> void {
+                if(!std::filesystem::is_regular_file(std::filesystem::path(pathToWatch)) && status != FileStatus::erased) {
+                    return;
+                }
+                Loader::get()->queueInMainThread([]{
+                    CCScene* scene = CCDirector::sharedDirector()->getRunningScene();
+                    for(CCNode* node : CCArrayExt<CCNode*>(scene->getChildren())){
+                        doUICheck(node);
+                    }
+                });
+            });
+            listeners.push_back(fw);
         });
-	});
-	t1.detach();
+        thread.detach();
+    }
 }
+
+std::vector<std::string> getActivePacks(){
+
+    gd::vector<gd::string> paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
+
+    std::vector<std::string> packPaths;
+
+    Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
+
+    ghc::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
+
+    std::string packDirStr = fmt::format("{}{}", textureLoaderPacks, "\\packs");
+    ghc::filesystem::path packDir = ghc::filesystem::path(packDirStr);
+
+    for(std::string path : paths){
+
+        ghc::filesystem::path fpath = ghc::filesystem::path(path);
+
+        if(fpath.parent_path().parent_path() == packDir){
+            if(std::find(packPaths.begin(), packPaths.end(), fpath.string()) == packPaths.end()) {
+                packPaths.push_back(fpath.string());
+            }
+        }
+    }
+
+    std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "Resources\\");
+    packPaths.push_back(resourcesDir);
+
+    return packPaths;
+}
+
+bool endsWith(std::string value, std::string ending){
+    for(auto& c : value){
+        c = tolower(c);
+    }
+
+    for(auto& c : ending){
+        c = tolower(c);
+    }
+
+    if (ending.size() > value.size()) return false;
+    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+}
+
