@@ -367,6 +367,136 @@ When it comes to using the position attribute, you can change the x and y coordi
 </tr>
 
 <tr>
+<td> text </td>
+<td> Set the text of a label or button. </td>
+<td>
+    
+```json
+"text": "example"
+```
+
+</td>
+
+<td>
+
+
+</td>
+</tr>
+
+</tr>
+
+<tr>
+<td> scale-multiplier </td>
+<td> Set the scale multiplier for when you click on a button. </td>
+<td>
+    
+```json
+"scale-multiplier": 1.4
+```
+
+</td>
+
+<td>
+
+
+</td>
+</tr>
+
+<tr>
+<td> z-order </td>
+<td> Set the z order of a node. </td>
+<td>
+    
+```json
+"z-order": 2
+```
+
+</td>
+
+<td>
+
+
+</td>
+</tr>
+
+<tr>
+<td> font </td>
+<td> Set the bitmap font of a label or button. </td>
+<td>
+    
+```json
+"font": "chatFont.fnt"
+```
+
+</td>
+
+<td>
+
+
+</td>
+</tr>
+
+<tr>
+<td> blending </td>
+<td> Set the blending of a node, see OpenGL documentation for how to use blending modes. </td>
+<td>
+    
+```json
+"blending": {
+    "source": "GL_ONE_MINUS_SRC_COLOR",
+    "destination": "GL_ONE_MINUS_SRC_ALPHA"
+}
+```
+
+</td>
+
+<td>
+
+
+</td>
+</tr>
+
+<tr>
+<td> sound </td>
+<td> Set a sound to play on node attribute change. Useful for onHover and onClick events. </td>
+<td>
+    
+```json
+"sound": "effect.ogg"
+```
+
+</td>
+
+<td>
+
+
+</td>
+</tr>
+
+<tr>
+<td> link </td>
+<td> Set a link to open on node attribute change. Useful for onClick events. Can be a URL or link to a "profile" or "level" with the type attribute. </td>
+<td>
+    
+```json
+"link": "https://google.com"
+```
+
+</td>
+
+<td>
+
+```json
+"link": {
+    "type": "profile",
+    "id": 123456,
+}
+```
+
+</td>
+</tr>
+
+<tr>
 <td> position </td>
 <td> Set the position of a node, uses x and y coordinates from the bottom left by default, set the relative position with "relative". Available relative positions are mentioned later. </td>
 <td>

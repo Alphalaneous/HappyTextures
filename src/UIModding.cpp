@@ -2,42 +2,13 @@
 #include <Geode/modify/CCScene.hpp>
 #include <Geode/modify/GJDropDownLayer.hpp>
 #include <Geode/modify/MenuLayer.hpp>
+#include <Geode/utils/web.hpp>
 #include "FileWatcher.h"
 #include "Utils.h"
 #include "CCLabelBMFont.h"
-#include <Geode/utils/web.hpp>
+#include "UIModding.h"
 
 using namespace geode::prelude;
-
-void recursiveModify(CCNode* node, matjson::Object elements);
-void setVisible(CCNode* node, matjson::Object attributes);
-void setIgnoreAnchorPos(CCNode* node, matjson::Object attributes);
-void setScale(CCNode* node, matjson::Object attributes);
-void setRotation(CCNode* node, matjson::Object attributes);
-void setSkew(CCNode* node, matjson::Object attributes);
-void setAnchorPoint(CCNode* node, matjson::Object attributes);
-void setContentSize(CCNode* node, matjson::Object attributes);
-void setPosition(CCNode* node, matjson::Object attributes);
-void setColor(CCNode* node, matjson::Object attributes);
-void setText(CCNode* node, matjson::Object attributes);
-void setScaleMult(CCNode* node, matjson::Object attributes);
-void setZOrder(CCNode* node, matjson::Object attributes);
-void setFont(CCNode* node, matjson::Object attributes);
-void setBlending(CCNode* node, matjson::Object attributes);
-void playSound(CCNode* node, matjson::Object attributes);
-void openLink(CCNode* node, matjson::Object attributes);
-void setLayout(CCNode* node, matjson::Object attributes);
-void updateLayout(CCNode* node, matjson::Object attributes);
-void runAction(CCNode* node, matjson::Object attributes);
-CCActionInterval* createAction(matjson::Value action);
-CCActionInterval* getEasingType(std::string name, CCActionInterval* action, float rate);
-unsigned int stringToBlendingMode(std::string value);
-void handleModifications(CCNode* node, matjson::Object nodeObject);
-void doUICheck(CCNode* node);
-std::vector<std::string> getActivePacks();
-bool endsWith(std::string value, std::string ending);
-bool startsWith(std::string value, std::string start);
-void startFileListeners();
 
 class $modify(MenuLayer){
     bool init(){
@@ -315,60 +286,26 @@ CCActionInterval* getEasingType(std::string name, CCActionInterval* action, floa
 	if(name == "none"){
 		easingType = action;
 	}
-	else if(name == "EaseInOut"){
-		easingType = CCEaseInOut::create(action, rate);
-	}
-	else if(name == "EaseIn"){
-		easingType = CCEaseIn::create(action, rate);
-	}
-	else if(name == "EaseOut"){
-		easingType = CCEaseOut::create(action, rate);
-	}
-	else if(name == "ElasticInOut"){
-		easingType = CCEaseElasticInOut::create(action, rate);
-	}
-	else if(name == "ElasticIn"){
-		easingType = CCEaseElasticIn::create(action, rate);
-	}
-	else if(name == "ElasticOut"){
-		easingType = CCEaseElasticOut::create(action, rate);
-	}
-	else if(name == "BounceInOut"){
-		easingType = CCEaseBounceInOut::create(action);
-	}
-	else if(name == "BounceIn"){
-		easingType = CCEaseBounceIn::create(action);
-	}
-	else if(name == "BounceOut"){
-		easingType = CCEaseBounceOut::create(action);
-	}
-	else if(name == "ExponentialInOut"){
-		easingType = CCEaseExponentialInOut::create(action);
-	}
-	else if(name == "ExponentialOut"){
-		easingType = CCEaseExponentialOut::create(action);
-	}
-	else if(name == "ExponentialIn"){
-		easingType = CCEaseExponentialIn::create(action);
-	}
-	else if(name == "SineInOut"){
-		easingType = CCEaseSineInOut::create(action);
-	}
-	else if(name == "SineOut"){
-		easingType = CCEaseSineOut::create(action);
-	}
-	else if(name == "SineIn"){
-		easingType = CCEaseSineIn::create(action);
-	}
-	else if(name == "BackInOut"){
-		easingType = CCEaseBackInOut::create(action);
-	}
-	else if(name == "BackOut"){
-		easingType = CCEaseBackOut::create(action);
-	}
-	else if(name == "BackIn"){
-		easingType = CCEaseBackIn::create(action);
-	}
+
+    typeForEaseCC(EaseInOut);
+    typeForEaseCC(EaseIn);
+    typeForEaseCC(EaseOut);
+    typeForEaseRate(ElasticInOut);
+    typeForEaseRate(ElasticIn);
+    typeForEaseRate(ElasticOut);
+    typeForEase(BounceInOut);
+    typeForEase(BounceIn);
+    typeForEase(BounceOut);
+    typeForEase(ExponentialInOut);
+    typeForEase(ExponentialIn);
+    typeForEase(ExponentialOut);
+    typeForEase(SineInOut);
+    typeForEase(SineIn);
+    typeForEase(SineOut);
+    typeForEase(BackInOut);
+    typeForEase(BackIn);
+    typeForEase(BackOut);
+
 	return easingType;
 }
 
@@ -1058,47 +995,111 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
 		if(nodeAttributes.is_object()){
 			matjson::Object nodeAttributesObject = nodeAttributes.as_object();
 
-			setScale(node, nodeAttributesObject);
-			setRotation(node, nodeAttributesObject);
-			setSkew(node, nodeAttributesObject);
-			setAnchorPoint(node, nodeAttributesObject);
-			setContentSize(node, nodeAttributesObject);
-			setVisible(node, nodeAttributesObject);
-			setIgnoreAnchorPos(node, nodeAttributesObject);
-			setColor(node, nodeAttributesObject);
-			setOpacity(node, nodeAttributesObject);
-			setSprite(node, nodeAttributesObject);
-			setSpriteFrame(node, nodeAttributesObject);
-			setPosition(node, nodeAttributesObject);
-            setText(node, nodeAttributesObject);
-            setScaleMult(node, nodeAttributesObject);
-            setZOrder(node, nodeAttributesObject);
-            setFont(node, nodeAttributesObject);
-            setBlending(node, nodeAttributesObject);
-			setLayout(node, nodeAttributesObject);
-			updateLayout(node, nodeAttributesObject);
-			runAction(node, nodeAttributesObject);
-            playSound(node, nodeAttributesObject);
-            openLink(node, nodeAttributesObject);
+            nodesFor(Scale);
+            nodesFor(Rotation);
+            nodesFor(Skew);
+            nodesFor(AnchorPoint);
+            nodesFor(ContentSize);
+            nodesFor(Visible);
+            nodesFor(IgnoreAnchorPos);
+            nodesFor(Color);
+            nodesFor(Opacity);
+            nodesFor(Sprite);
+            nodesFor(SpriteFrame);
+            nodesFor(Position);
+            nodesFor(Text);
+            nodesFor(ScaleMult);
+            nodesFor(ZOrder);
+            nodesFor(Font);
+            nodesFor(Blending);
+            nodesFor(Layout);
+            nodesForMethod(updateLayout);
+            nodesForMethod(runAction);
+            nodesForMethod(playSound);
+            nodesForMethod(openLink);
 		}
 	}
 
 	if(nodeObject.contains("children")){
-		matjson::Value nodeChildren = nodeObject["children"];
-		if(nodeChildren.is_object()){
-			matjson::Object nodeChildrenObject = nodeChildren.as_object();
-			recursiveModify(node, nodeChildrenObject);
-		}
-	}
+		matjson::Value childrenVal = nodeObject["children"];
+		if(childrenVal.is_object()){
+            matjson::Object childrenObject = childrenVal.as_object();
 
-	if(nodeObject.contains("all-children")){
+            if(childrenVal.contains("node")){
+                matjson::Value nodeChildrenVal = childrenObject["node"];
+                if(nodeChildrenVal.is_object()){
+                    matjson::Object nodeChildrenObject = nodeChildrenVal.as_object();
+			        recursiveModify(node, nodeChildrenObject);
+                }
+            }
+            if(childrenVal.contains("index")){
+                matjson::Value indexChildrenVal = childrenObject["index"];
+                if(indexChildrenVal.is_array()){
+                    matjson::Array nodeChildrenArray = indexChildrenVal.as_array();
 
-		matjson::Value nodeAllChildren = nodeObject["all-children"];
-		if(nodeAllChildren.is_object()){
-			matjson::Object nodeAllChildrenObject = nodeAllChildren.as_object();
-			for(CCNode* node : CCArrayExt<CCNode*>(node->getChildren())){
-				handleModifications(node, nodeAllChildrenObject);
-			}
+                    for(matjson::Value value : nodeChildrenArray){
+                        if(value.is_object()){
+                            matjson::Object childObject = value.as_object();
+
+                            int index = 0;
+                            std::string type = "CCNode";
+                            if(value.contains("index")){
+                                matjson::Value indexVal = value["index"];
+                                if(indexVal.is_number()){
+                                    index = indexVal.as_int();
+                                }
+                            }
+                            if(value.contains("type")){
+                                matjson::Value typeVal = value["type"];
+                                if(typeVal.is_string()){
+                                    type = typeVal.as_string();
+                                }
+                            }
+
+                            modifyForType(CCSprite);
+                            modifyForType(CCMenu);
+                            modifyForType(CCMenuItemSpriteExtra);
+                            modifyForType(CCLabelBMFont);
+                            modifyForType(CCLayer);
+                            modifyForType(CCScale9Sprite);
+                            modifyForType(CCSpriteBatchNode);
+                            modifyForType(CCTextInputNode);
+                            modifyForType(CCTextFieldTTF);
+                            modifyForType(TextArea);
+                            modifyForType(MultilineBitmapFont);
+                            modifyForType(Slider);
+                            modifyForType(ButtonSprite);
+                            modifyForType(CircleButtonSprite);
+                            modifyForType(SearchButton);
+                            modifyForType(LoadingCircle);
+                            modifyForType(BoomScrollLayer);
+                            modifyForType(ListButtonBar);
+                            modifyForType(ExtendedLayer);
+                            modifyForType(SimplePlayer);
+                            modifyForType(DailyLevelNode);
+                            modifyForType(GJListLayer);
+                            modifyForType(CustomListView);
+                            modifyForType(TableView);
+                            modifyForType(CCContentLayer);
+                            modifyForType(CCLayerColor);
+                            modifyForType(LevelCell);
+                            modifyForType(CustomSongWidget);
+                            modifyForType(GJDifficultySprite);
+                            modifyForType(GJCommentListLayer);
+
+                        }
+                    }
+                }
+            }
+            if(childrenVal.contains("all")){
+                matjson::Value allChildrenVal = childrenObject["all"];
+                if(allChildrenVal.is_object()){
+                    matjson::Object allChildrenObject = allChildrenVal.as_object();
+                    for(CCNode* node : CCArrayExt<CCNode*>(node->getChildren())){
+                        handleModifications(node, allChildrenObject);
+                    }
+                }
+            }
 		}
 	}
 }
@@ -1113,15 +1114,12 @@ void doUICheck(CCNode* node){
 	if (buffer && fileSize != 0) {
 		
 		std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
-
 		std::string error;
-
 		std::optional<matjson::Value> value = matjson::parse(data, error);
 
 		if(value.has_value()){
 
 			matjson::Value expandedValue = value.value();
-
 			if(!expandedValue.is_null()){
 				matjson::Object object = expandedValue.as_object();
 				handleModifications(node, object);
@@ -1134,15 +1132,11 @@ void doUICheck(CCNode* node){
 std::vector<FileWatcher*> listeners;
 
 void startFileListeners(){
-
     for(FileWatcher* fw : listeners){
         fw->stop();
     }
-
     listeners.clear();
-
     std::vector<std::string> packs = getActivePacks();
-
     for(std::string path : packs){
         std::string uiPath = fmt::format("{}{}", path, "ui\\");
 
@@ -1169,13 +1163,9 @@ void startFileListeners(){
 std::vector<std::string> getActivePacks(){
 
     gd::vector<gd::string> paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
-
     std::vector<std::string> packPaths;
-
     Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
-
     ghc::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
-
     std::string packDirStr = fmt::format("{}{}", textureLoaderPacks, "\\packs");
     ghc::filesystem::path packDir = ghc::filesystem::path(packDirStr);
 
@@ -1196,25 +1186,22 @@ std::vector<std::string> getActivePacks(){
     return packPaths;
 }
 
-bool endsWith(std::string value, std::string ending){
+void toLower(std::string value){
     for(auto& c : value){
         c = tolower(c);
     }
-    for(auto& c : ending){
-        c = tolower(c);
-    }
+}
+
+bool endsWith(std::string value, std::string ending){
+    toLower(value);
+    toLower(ending);
 
     return value.ends_with(ending);
 }
 
 bool startsWith(std::string value, std::string start){
-    for(auto& c : value){
-        c = tolower(c);
-    }
-    for(auto& c : start){
-        c = tolower(c);
-    }
+    toLower(value);
+    toLower(start);
 
     return value.starts_with(start);
 }
-
