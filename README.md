@@ -32,14 +32,40 @@ You can expand these elements in DevTools to find what you may want to modify. E
       ...
 ```
 
+Every node can have `"children"`, there are three ways of accessing them, either with `"node"` to get them by name, `"index"` an array of objects to get them by their index in the node tree and optionally by type, and `"all"` which selects all the children to modify. For example:
+
+```json
+{
+    "children": {
+        "node": {
+            "example-node":{
+
+            }
+        },
+        "index": [
+            {
+                "type": "CCSprite",
+                "index": 0
+            }
+        ],
+        "all": {
+
+        }
+    }
+}
+```
+
 Within MenuLayer, we can see there is a menu, the main menu, which has three buttons. Any or all of these buttons can be modified within that MenuLayer.json file. We would first want to get the main menu by grabbing the children of the MenuLayer, and finding the `"main-menu"` ID:
 
 ```json
 {
     "children": {
-        "main-menu":{
+        "node": {
+            "main-menu":{
 
+            }
         }
+        
     }
 }
 ```
@@ -49,9 +75,11 @@ Any node can have it's own children, in this example, we grab the children of th
 ```json
 {
     "children": {
-        "main-menu": {
-            "children": {
+        "node": {
+            "main-menu": {
+                "children": {
 
+                }
             }
         }
     }
@@ -65,11 +93,15 @@ Let's say we want to edit the play button, and scale it to twice it's original s
 ```json
 {
     "children": {
-        "main-menu": {
-            "children": {
-                "play-button": {
-                    "attributes": {
-                        "scale": 2
+        "node": {
+            "main-menu": {
+                "children": {
+                    "node":{
+                        "play-button": {
+                            "attributes": {
+                                "scale": 2
+                            }
+                        }
                     }
                 }
             }
@@ -89,58 +121,62 @@ When it comes to using the position attribute, you can change the x and y coordi
 ```json
 {
     "children": {
-        "social-media-menu": {
-            "attributes": {
-                "visible": false
-            }
-        },
-        "profile-menu": {
-            "attributes": {
-                "position": {
-                    "relative": "bottom-left",
-                    "x": 140,
-                    "y": 50
-                }
-            }
-        },
-        "player-username": {
-            "attributes": {
-                "position": {
-                    "relative": "bottom-left",
-                    "x": 94,
-                    "y": 84
-                }
-            }
-        },
-        "main-menu": {
-            "all-children": {
+        "node": {
+            "social-media-menu": {
                 "attributes": {
-                    "actions": [
-                        {
-                            "type": "RotateBy",
-                            "repeat": true,
-                            "value": 180,
-                            "duration": 1
-                        }
-                    ]
+                    "visible": false
                 }
-            }
-        },
-        "bottom-menu": {
-            "attributes": {
-                "layout": {
-                    "flip-axis": false,
-                    "gap": 0,
-                    "axis": "column"
-                },
-                "content-size": {
-                    "width": 30,
-                    "height": 250
-                },
-                "position": {
-                    "relative": "center-left",
-                    "x": 25,
-                    "y": -15
+            },
+            "profile-menu": {
+                "attributes": {
+                    "position": {
+                        "relative": "bottom-left",
+                        "x": 140,
+                        "y": 50
+                    }
+                }
+            },
+            "player-username": {
+                "attributes": {
+                    "position": {
+                        "relative": "bottom-left",
+                        "x": 94,
+                        "y": 84
+                    }
+                }
+            },
+            "main-menu": {
+                "children": {
+                    "all":{
+                        "attributes": {
+                            "actions": [
+                                {
+                                    "type": "RotateBy",
+                                    "repeat": true,
+                                    "value": 180,
+                                    "duration": 1
+                                }
+                            ]
+                        }
+                    }
+                }
+            },
+            "bottom-menu": {
+                "attributes": {
+                    "layout": {
+                        "flip-axis": false,
+                        "gap": 0,
+                        "axis": "column"
+                    },
+                    "content-size": {
+                        "width": 30,
+                        "height": 250
+                    },
+                    "position": {
+                        "relative": "center-left",
+                        "x": 25,
+                        "y": -15
+                    }
                 }
             }
         }
