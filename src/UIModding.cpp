@@ -1,10 +1,11 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCScene.hpp>
 #include <Geode/modify/GJDropDownLayer.hpp>
-#include <Geode/modify/LoadingLayer.hpp>
+#include <Geode/modify/MenuLayer.hpp>
 #include "FileWatcher.h"
 #include "Utils.h"
 #include "CCLabelBMFont.h"
+#include <Geode/utils/web.hpp>
 
 using namespace geode::prelude;
 
@@ -22,21 +23,26 @@ void setText(CCNode* node, matjson::Object attributes);
 void setScaleMult(CCNode* node, matjson::Object attributes);
 void setZOrder(CCNode* node, matjson::Object attributes);
 void setFont(CCNode* node, matjson::Object attributes);
+void setBlending(CCNode* node, matjson::Object attributes);
+void playSound(CCNode* node, matjson::Object attributes);
+void openLink(CCNode* node, matjson::Object attributes);
 void setLayout(CCNode* node, matjson::Object attributes);
 void updateLayout(CCNode* node, matjson::Object attributes);
 void runAction(CCNode* node, matjson::Object attributes);
 CCActionInterval* createAction(matjson::Value action);
 CCActionInterval* getEasingType(std::string name, CCActionInterval* action, float rate);
+unsigned int stringToBlendingMode(std::string value);
 void handleModifications(CCNode* node, matjson::Object nodeObject);
 void doUICheck(CCNode* node);
 std::vector<std::string> getActivePacks();
 bool endsWith(std::string value, std::string ending);
+bool startsWith(std::string value, std::string start);
 void startFileListeners();
 
-class $modify(LoadingLayer){
-    void loadingFinished(){
+class $modify(MenuLayer){
+    bool init(){
         startFileListeners();
-        LoadingLayer::loadingFinished();
+        return MenuLayer::init();
     }
 };
 
@@ -58,12 +64,16 @@ class $modify(MyCCScene, CCScene){
 		bool doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 		if(doModify){
 			ret->schedule(schedule_selector(MyCCScene::checkForUpdates));
+            for(CCNode* node : CCArrayExt<CCNode*>(ret->getChildren())){
+				doUICheck(node);
+			}
 		}
 		return ret;
 	}
 
 	void checkForUpdates(float dt){
-		if(this->getChildrenCount() != m_fields->currentCount){
+		if(this->getChildrenCount() != m_fields->currentCount && this->getChildrenCount() != 1){
+            log::info("update {}", this->getChildrenCount());
 			int idx = 0;
 			for(CCNode* node : CCArrayExt<CCNode*>(this->getChildren())){
 				idx++;
@@ -131,6 +141,7 @@ CCActionInterval* createAction(matjson::Value action){
 			int repeatCount = INT32_MAX;
 
 			std::string easingType = "none";
+			std::string link = "";
 
 			CCActionInterval* actionToDo = nullptr;
 
@@ -146,7 +157,6 @@ CCActionInterval* createAction(matjson::Value action){
 					easingRate = easingRateVal.as_double();
 				}
 			}
-
 			if(action.contains("repeat")){
 				matjson::Value repeatVal = action["repeat"];
 				if(repeatVal.is_bool()){
@@ -156,7 +166,6 @@ CCActionInterval* createAction(matjson::Value action){
 					repeatCount = repeatVal.as_int();
 				}
 			}
-
 			if(action.contains("duration")){
 				matjson::Value durationValue = action["duration"];
 				if(durationValue.is_number()){
@@ -213,7 +222,6 @@ CCActionInterval* createAction(matjson::Value action){
 						actionToDo = CCSequence::create(sequentialActions);
 					}
 				}
-
 				if(type == "ScaleTo"){
 					if(!isNumber){
 						actionToDo = CCScaleTo::create(duration, x, y);
@@ -505,6 +513,79 @@ void setLayout(CCNode* node, matjson::Object attributes){
 	}
 }
 
+std::string getSound(std::string sound){
+
+    std::string soundRet = "";
+
+    gd::vector<gd::string> paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
+
+    for(std::string path : paths){
+        std::string soundPathStr = fmt::format("{}{}", path, sound);
+        ghc::filesystem::path soundPath = ghc::filesystem::path(soundPathStr);
+        if(ghc::filesystem::exists(soundPath)){
+            soundRet = soundPath.string();
+            break;
+        }
+    }
+
+    return soundRet;
+}
+
+
+void playSound(CCNode* node, matjson::Object attributes){
+    if(attributes.contains("sound")){
+        matjson::Value soundVal = attributes["sound"];
+        if(soundVal.is_string()){
+            std::string sound = soundVal.as_string();
+
+#ifndef GEODE_IS_ANDROID
+            FMODAudioEngine::sharedEngine()->m_currentSoundChannel->setPaused(false);
+            FMODAudioEngine::sharedEngine()->m_backgroundMusicChannel->setPaused(false);
+            FMODAudioEngine::sharedEngine()->m_globalChannel->setPaused(false);
+            FMODAudioEngine::sharedEngine()->m_system->update();
+#endif
+            std::string soundPath = getSound(sound);
+            if(soundPath != ""){
+		        FMODAudioEngine::sharedEngine()->playEffectAdvanced(soundPath, 1, 0, 1, 1, true, false, 0, 0, 0, 0, false, 0, false, true, 0, 0, 0, 0);
+
+            }
+        }
+    }
+}
+
+void openLink(CCNode* node, matjson::Object attributes){
+    if(attributes.contains("link")){
+        matjson::Value linkVal = attributes["link"];
+
+        if(linkVal.is_string()){
+            std::string link = linkVal.as_string();
+            web::openLinkInBrowser(link);
+        }
+        if(linkVal.is_object()){
+            matjson::Object linkObject = linkVal.as_object();
+            if(linkObject.contains("type") && linkObject.contains("id")){
+                matjson::Value typeVal = linkObject["type"];
+                matjson::Value idVal = linkObject["id"];
+
+                if(typeVal.is_string() && idVal.is_number()){
+                    std::string type = typeVal.as_string();
+                    int id = idVal.as_int();
+
+                    if(type == "profile"){
+                        ProfilePage::create(id, false)->show();
+                    }
+                    if(type == "level"){
+                        auto searchObject = GJSearchObject::create(SearchType::Type19, fmt::format("{}&gameVersion=22", id));
+                        auto scene = LevelBrowserLayer::scene(searchObject);
+                        CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 void setZOrder(CCNode* node, matjson::Object attributes){
     if(attributes.contains("z-order")){
         matjson::Value zOrderVal = attributes["z-order"];
@@ -513,6 +594,65 @@ void setZOrder(CCNode* node, matjson::Object attributes){
             node->setZOrder(zOrder);
         }
     }
+}
+
+void setBlending(CCNode* node, matjson::Object attributes){
+
+    if(attributes.contains("blending")){
+        
+        matjson::Value blendingVal = attributes["blending"];
+		if(blendingVal.is_object()){
+            matjson::Object blendingObj = blendingVal.as_object();
+            if(blendingObj.contains("source") && blendingObj.contains("destination")){
+                matjson::Value sourceVal = blendingObj["source"];
+                matjson::Value destinationVal = blendingObj["destination"];
+
+                if(sourceVal.is_string() && destinationVal.is_string()){
+
+                    std::string source = sourceVal.as_string();
+                    std::string destination = destinationVal.as_string();
+
+                    unsigned int src = stringToBlendingMode(source);
+                    unsigned int dst = stringToBlendingMode(destination);
+
+                    if(src != -1 && dst != -1){
+                        if(CCBlendProtocol* blendable = dynamic_cast<CCBlendProtocol*>(node)) {
+                            blendable->setBlendFunc({src, dst});
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+std::map<std::string, unsigned int> strBlend = {
+    {"GL_ZERO", GL_ZERO},
+    {"GL_ONE", GL_ONE},
+    {"GL_SRC_COLOR", GL_SRC_COLOR},
+    {"GL_ONE_MINUS_SRC_COLOR", GL_ONE_MINUS_SRC_COLOR},
+    {"GL_DST_COLOR", GL_DST_COLOR},
+    {"GL_ONE_MINUS_DST_COLOR", GL_ONE_MINUS_DST_COLOR},
+    {"GL_SRC_ALPHA", GL_SRC_ALPHA},
+    {"GL_ONE_MINUS_SRC_ALPHA", GL_ONE_MINUS_SRC_ALPHA},
+    {"GL_DST_ALPHA", GL_DST_ALPHA},
+    {"GL_ONE_MINUS_DST_ALPHA", GL_ONE_MINUS_DST_ALPHA},
+    {"GL_SRC_ALPHA_SATURATE", GL_SRC_ALPHA_SATURATE},
+    {"GL_CONSTANT_COLOR", GL_CONSTANT_COLOR},
+    {"GL_ONE_MINUS_CONSTANT_COLOR", GL_ONE_MINUS_CONSTANT_COLOR},
+    {"GL_CONSTANT_ALPHA", GL_CONSTANT_ALPHA},
+    {"GL_ONE_MINUS_CONSTANT_ALPHA", GL_ONE_MINUS_CONSTANT_ALPHA}
+};
+
+unsigned int stringToBlendingMode(std::string value){
+
+    unsigned int val = -1;
+
+    if(strBlend.contains(value)){
+        val = strBlend[value];
+    }
+
+    return val;
 }
 
 void setFont(CCNode* node, matjson::Object attributes){
@@ -934,9 +1074,12 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
             setScaleMult(node, nodeAttributesObject);
             setZOrder(node, nodeAttributesObject);
             setFont(node, nodeAttributesObject);
+            setBlending(node, nodeAttributesObject);
 			setLayout(node, nodeAttributesObject);
 			updateLayout(node, nodeAttributesObject);
 			runAction(node, nodeAttributesObject);
+            playSound(node, nodeAttributesObject);
+            openLink(node, nodeAttributesObject);
 		}
 	}
 
@@ -988,12 +1131,12 @@ void doUICheck(CCNode* node){
 	delete[] buffer;
 }
 
-std::vector<FileWatcher> listeners;
+std::vector<FileWatcher*> listeners;
 
 void startFileListeners(){
 
-    for(FileWatcher fw : listeners){
-        fw.stop();
+    for(FileWatcher* fw : listeners){
+        fw->stop();
     }
 
     listeners.clear();
@@ -1002,11 +1145,12 @@ void startFileListeners(){
 
     for(std::string path : packs){
         std::string uiPath = fmt::format("{}{}", path, "ui\\");
-        std::thread thread([uiPath]{
 
-            FileWatcher fw{uiPath, std::chrono::milliseconds(500)};
+        FileWatcher* fw = new FileWatcher(uiPath, std::chrono::milliseconds(500));
+        listeners.push_back(fw);
 
-            fw.start([] (std::string pathToWatch, FileStatus status) -> void {
+        std::thread thread([=](FileWatcher* self){
+            self->start([=] (std::string pathToWatch, FileStatus status) -> void {
                 if(!std::filesystem::is_regular_file(std::filesystem::path(pathToWatch)) && status != FileStatus::erased) {
                     return;
                 }
@@ -1017,8 +1161,7 @@ void startFileListeners(){
                     }
                 });
             });
-            listeners.push_back(fw);
-        });
+        }, fw);
         thread.detach();
     }
 }
@@ -1057,12 +1200,21 @@ bool endsWith(std::string value, std::string ending){
     for(auto& c : value){
         c = tolower(c);
     }
-
     for(auto& c : ending){
         c = tolower(c);
     }
 
-    if (ending.size() > value.size()) return false;
-    return std::equal(ending.rbegin(), ending.rend(), value.rbegin());
+    return value.ends_with(ending);
+}
+
+bool startsWith(std::string value, std::string start){
+    for(auto& c : value){
+        c = tolower(c);
+    }
+    for(auto& c : start){
+        c = tolower(c);
+    }
+
+    return value.starts_with(start);
 }
 
