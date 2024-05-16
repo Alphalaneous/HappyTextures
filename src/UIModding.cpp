@@ -12,7 +12,10 @@ using namespace geode::prelude;
 
 class $modify(MenuLayer){
     bool init(){
-        startFileListeners();
+        bool doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+		if(doModify){
+            startFileListeners();
+        }
         return MenuLayer::init();
     }
 };
@@ -20,7 +23,10 @@ class $modify(MenuLayer){
 class $modify(GJDropDownLayer){
 	void showLayer(bool p0){
 		GJDropDownLayer::showLayer(p0);
-		doUICheck(this);
+        bool doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+		if(doModify){
+		    doUICheck(this);
+        }
 	}
 };
 
