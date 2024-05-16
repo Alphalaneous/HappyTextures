@@ -616,7 +616,7 @@ void setFont(CCNode* node, matjson::Object attributes){
             }
             if(textObject){
 
-                if(endsWith(font, ".fnt")){
+                if(Utils::endsWith(font, ".fnt")){
                     MyCCLabelBMFont* myTextObject = static_cast<MyCCLabelBMFont*>(textObject);
                     
                     CCLabelBMFont* dummyTextObject = CCLabelBMFont::create("", font.c_str());
@@ -1184,24 +1184,4 @@ std::vector<std::string> getActivePacks(){
     packPaths.push_back(resourcesDir);
 
     return packPaths;
-}
-
-void toLower(std::string value){
-    for(auto& c : value){
-        c = tolower(c);
-    }
-}
-
-bool endsWith(std::string value, std::string ending){
-    toLower(value);
-    toLower(ending);
-
-    return value.ends_with(ending);
-}
-
-bool startsWith(std::string value, std::string start){
-    toLower(value);
-    toLower(start);
-
-    return value.starts_with(start);
 }

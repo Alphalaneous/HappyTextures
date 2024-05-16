@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef UIMODDING_H
+#define UIMODDING_H
+
 #include <Geode/Geode.hpp>
 
 void recursiveModify(CCNode* node, matjson::Object elements);
@@ -28,8 +31,6 @@ unsigned int stringToBlendingMode(std::string value);
 void handleModifications(CCNode* node, matjson::Object nodeObject);
 void doUICheck(CCNode* node);
 std::vector<std::string> getActivePacks();
-bool endsWith(std::string value, std::string ending);
-bool startsWith(std::string value, std::string start);
 void startFileListeners();
 
 #define typeForEaseCC(easingTypeName) \
@@ -55,3 +56,5 @@ if(type == #typeName){\
 #define nodesFor(methodName) set##methodName(node, nodeAttributesObject)
 
 #define nodesForMethod(methodName) methodName(node, nodeAttributesObject)
+
+#endif

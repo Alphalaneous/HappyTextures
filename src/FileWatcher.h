@@ -1,5 +1,8 @@
 #pragma once
 
+#ifndef FILEWATCHER_H
+#define FILEWATCHER_H
+
 #include <filesystem>
 #include <chrono>
 #include <thread>
@@ -77,3 +80,5 @@ private:
         return el != m_paths.end();
     }
 };
+
+#endif
