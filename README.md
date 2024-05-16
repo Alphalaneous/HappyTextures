@@ -478,7 +478,7 @@ When it comes to using the position attribute, you can change the x and y coordi
 
 <tr>
 <td> sound </td>
-<td> Set a sound to play on node attribute change. Useful for onHover and onClick events. </td>
+<td> Set a sound to play on node attribute change. Useful for on-hover and on-click events. </td>
 <td>
     
 ```json
@@ -495,7 +495,7 @@ When it comes to using the position attribute, you can change the x and y coordi
 
 <tr>
 <td> link </td>
-<td> Set a link to open on node attribute change. Useful for onClick events. Can be a URL or link to a "profile" or "level" with the type attribute. </td>
+<td> Set a link to open on node attribute change. Useful for on-click events. Can be a URL or link to a "profile" or "level" with the type attribute. </td>
 <td>
     
 ```json
