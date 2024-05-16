@@ -70,24 +70,6 @@ Within MenuLayer, we can see there is a menu, the main menu, which has three but
 }
 ```
 
-Any node can have it's own children, in this example, we grab the children of the main-menu if we want to get the buttons from within it:
-
-```json
-{
-    "children": {
-        "node": {
-            "main-menu": {
-                "children": {
-
-                }
-            }
-        }
-    }
-}
-```
-
-Alternatively, you can select all the children of a node with `"all-children"` instead of `"children"`.
-
 Let's say we want to edit the play button, and scale it to twice it's original size, we would get the `"play-button"` child of the main-menu and then edit it's `"attributes"`:
 
 ```json
