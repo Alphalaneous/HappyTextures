@@ -27,5 +27,25 @@
 			"resources/bigFont-hd.fnt",
 			"resources/bigFont-uhd.fnt"
         ]
-    }
+    },
+	"settings": {
+		"ccscale9sprite-fix": {
+            "name": "CCScale9Sprite Fix",
+			"description": "Fix sprite overlapping when you have transparent CCScale9Sprites (Such as on the level search page).",
+            "type": "bool",
+            "default": true
+        },
+		"pusab-fix": {
+            "name": "Pusab Fix",
+			"description": "Makes changing pusab in texture packs not affect the font within levels.",
+            "type": "bool",
+            "default": true
+        },
+		"ui-modifications": {
+            "name": "Allow UI Modifications",
+			"description": "Allow Tetxure Packs to edit the game's interface.",
+            "type": "bool",
+            "default": true
+        }
+	}
 }
