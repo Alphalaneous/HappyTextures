@@ -45,7 +45,10 @@ Every node can have `"children"`, there are three ways of accessing them, either
         "index": [
             {
                 "type": "CCSprite",
-                "index": 0
+                "index": 0,
+                "attributes": {
+
+                }
             }
         ],
         "all": {
