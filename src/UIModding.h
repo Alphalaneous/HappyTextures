@@ -49,7 +49,7 @@ if(name == #easingTypeName){\
     easingType = CCEase##easingTypeName::create(action);\
 }
 
-#define modifyForType(typeName) \
+#define handleModifyForType(typeName) \
 if(type == #typeName){\
     handleModifications(getChildOfType<typeName>(node, index), childObject);\
 }
@@ -72,5 +72,17 @@ if(type == #typeName){\
                 actionToDo = CC##name::create##params; \
             } \
         }
+
+#define modifyNodeForType(name, method, params, values) \
+class $modify(name){    \
+    bool method##params { \
+        if(!name##::##method##values)  return false;\
+        bool doModify = Mod::get()->getSettingValue<bool>("ui-modifications");\
+        if(doModify){\
+            doUICheckForType(#name, this);\
+        }\
+        return true;\
+    }\
+};
 
 #endif
