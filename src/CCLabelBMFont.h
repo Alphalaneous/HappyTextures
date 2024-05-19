@@ -12,7 +12,7 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
         float m_limitMinScale = 1;
         bool m_isLimited = false;
     };
-
+    
     void limitLabelWidth(float width, float defaultScale, float minScale){
 
         m_fields->m_limitWidth = width;

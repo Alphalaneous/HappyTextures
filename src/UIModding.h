@@ -35,17 +35,17 @@ void startFileListeners();
 
 #define typeForEaseCC(easingTypeName) \
 if(name == #easingTypeName){\
-	easingType = CC##easingTypeName::create(action, rate);\
+    easingType = CC##easingTypeName::create(action, rate);\
 }
 
 #define typeForEaseRate(easingTypeName) \
 if(name == #easingTypeName){\
-	easingType = CCEase##easingTypeName::create(action, rate);\
+    easingType = CCEase##easingTypeName::create(action, rate);\
 }
 
 #define typeForEase(easingTypeName) \
 if(name == #easingTypeName){\
-	easingType = CCEase##easingTypeName::create(action);\
+    easingType = CCEase##easingTypeName::create(action);\
 }
 
 #define modifyForType(typeName) \
