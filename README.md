@@ -518,7 +518,7 @@ When it comes to using the position attribute, you can change the x and y coordi
 
 <tr>
 <td> position </td>
-<td> Set the position of a node, uses x and y coordinates from the bottom left by default, set the relative position with "relative". Available relative positions are mentioned later. </td>
+<td> Set the position of a node, uses x and y coordinates from the bottom left by default, set the anchor position with "anchor". You can choose the relative node using `"relative"` in the anchor object and then using `"to"` to chose the position, the relative nodes are `"parent"` and `"screen"`. Available anchor positions are mentioned later. </td>
 <td>
     
 ```json
@@ -536,11 +536,15 @@ When it comes to using the position attribute, you can change the x and y coordi
 "position": {
     "x": 30,
     "y": -30,
-    "relative": "top-left"
+     "anchor": {
+        "to": "top-right",
+        "relative": "screen"
+    }
 }
 ```
 
 </td>
+
 </tr>
 
 <tr>
@@ -630,7 +634,7 @@ When it comes to using the position attribute, you can change the x and y coordi
 
 </table>
 
-## Relative Positions
+## Anchor Positions
 
 <table>
 

@@ -12,11 +12,18 @@ using namespace geode::prelude;
 
 class $modify(MenuLayer){
     bool init(){
+
+		if(!MenuLayer::init()){
+			return false;
+		}
+
         bool doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 		if(doModify){
             startFileListeners();
+			doUICheck(this);
         }
-        return MenuLayer::init();
+
+        return true;
     }
 };
 
@@ -41,18 +48,15 @@ class $modify(MyCCScene, CCScene){
 		bool doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 		if(doModify){
 			ret->schedule(schedule_selector(MyCCScene::checkForUpdates));
-            for(CCNode* node : CCArrayExt<CCNode*>(ret->getChildren())){
-				doUICheck(node);
-			}
 		}
 		return ret;
 	}
 
 	void checkForUpdates(float dt){
-		if(this->getChildrenCount() != m_fields->currentCount && this->getChildrenCount() != 1){
-            log::info("update {}", this->getChildrenCount());
+		if(this->getChildrenCount() != m_fields->currentCount && (this->getChildrenCount() != 1 || m_fields->currentCount == 0)){
 			int idx = 0;
 			for(CCNode* node : CCArrayExt<CCNode*>(this->getChildren())){
+				if(node->getID() == "MenuLayer") continue;
 				idx++;
 				if(idx >= m_fields->currentCount){
 					doUICheck(node);
@@ -656,46 +660,71 @@ void setPosition(CCNode* node, matjson::Object attributes){
 					y = yVal.as_double();
 				}
 			}
-			if(position.contains("relative")){
-				matjson::Value relativeValue = position["relative"];
-				if(relativeValue.is_string()){
-					std::string relative = relativeValue.as_string();
+			if(position.contains("anchor")){
+				matjson::Value anchorValue = position["anchor"];
 
-					CCSize winSize = CCDirector::sharedDirector()->getWinSize();
+				if(anchorValue.is_object() || anchorValue.is_string()){
+					CCSize nodeSize = node->getParent()->getContentSize();
 
-					if(relative == "top-left"){
-						y += winSize.height;
+					if(!anchorValue.is_string()){
+						if(anchorValue.contains("relative")){
+							matjson::Value relativeValue = anchorValue["relative"];
+							if(relativeValue.is_string()){
+								std::string relative = relativeValue.as_string();
+								if(relative == "screen"){
+									nodeSize = CCDirector::sharedDirector()->getWinSize();
+								}
+								else if(relative == "parent"){
+									nodeSize = node->getParent()->getContentSize();
+								}
+							}
+						}
 					}
-					else if(relative == "top-center"){
-						x += winSize.width/2;
-						y += winSize.height;
+
+					if(anchorValue.contains("to") || anchorValue.is_string()){
+						matjson::Value anchorToValue;
+						if(anchorValue.is_string()){
+							anchorToValue = anchorValue;
+						}
+						else if (anchorValue.contains("to")){
+							anchorToValue = anchorValue["to"];
+						}
+						if(anchorToValue.is_string()){
+							std::string anchorTo = anchorToValue.as_string();
+							if(anchorTo == "top-left"){
+								y += nodeSize.height;
+							}
+							else if(anchorTo == "top-center"){
+								x += nodeSize.width/2;
+								y += nodeSize.height;
+							}
+							else if(anchorTo == "top-right"){
+								x += nodeSize.width;
+								y += nodeSize.height;
+							}
+							else if(anchorTo == "center-left"){
+								y += nodeSize.height/2;
+							}
+							else if(anchorTo == "center"){
+								x += nodeSize.width/2;
+								y += nodeSize.height/2;
+							}
+							else if(anchorTo == "center-right"){
+								x += nodeSize.width;
+								y += nodeSize.height/2;
+							}
+							else if(anchorTo == "bottom-center"){
+								x += nodeSize.width/2;
+							}
+							else if(anchorTo == "bottom-right"){
+								x += nodeSize.width;
+							}
+							else if(anchorTo == "self"){
+								x += node->getPosition().x;
+								y += node->getPosition().y;
+							}
+						}
 					}
-					else if(relative == "top-right"){
-						x += winSize.width;
-						y += winSize.height;
-					}
-					else if(relative == "center-left"){
-						y += winSize.height/2;
-					}
-					else if(relative == "center"){
-						x += winSize.width/2;
-						y += winSize.height/2;
-					}
-					else if(relative == "center-right"){
-						x += winSize.width;
-						y += winSize.height/2;
-					}
-					else if(relative == "bottom-center"){
-						x += winSize.width/2;
-					}
-					else if(relative == "bottom-right"){
-						x += winSize.width;
-					}
-					else if(relative == "self"){
-						x += node->getPosition().x;
-						y += node->getPosition().y;
-					}
-					//bottom-left is 0,0
 				}
 			}
 			node->setPosition({x, y});
