@@ -175,7 +175,6 @@ CCActionInterval* createAction(matjson::Value action){
                 }
             }
 
-
             matjson::Value typeValue = action["type"];
             if(typeValue.is_string()){
                 std::string type = typeValue.as_string();
@@ -203,73 +202,19 @@ CCActionInterval* createAction(matjson::Value action){
                         actionToDo = CCSequence::create(sequentialActions);
                     }
                 }
-                if(type == "ScaleTo"){
-                    if(!isNumber){
-                        actionToDo = CCScaleTo::create(duration, x, y);
-                    }
-                    else {
-                        actionToDo = CCScaleTo::create(duration, value);
-                    }
-                }
-                if(type == "ScaleBy"){
-                    if(!isNumber){
-                        actionToDo = CCScaleBy::create(duration, x, y);
-                    }
-                    else {
-                        actionToDo = CCScaleBy::create(duration, value);
-                    }
-                }
-                if(type == "RotateBy"){
-                    if(!isNumber){
-                        actionToDo = CCRotateBy::create(duration, x, y);
-                    }
-                    else {
-                        actionToDo = CCRotateBy::create(duration, value);
-                    }
-                }
-                if(type == "RotateTo"){
-                    if(!isNumber){
-                        actionToDo = CCRotateTo::create(duration, x, y);
-                    }
-                    else {
-                        actionToDo = CCRotateTo::create(duration, value);
-                    }
-                }
-                if(type == "MoveBy"){
-                    if(!isNumber){
-                        actionToDo = CCMoveBy::create(duration, {x, y});
-                    }
-                }
-                if(type == "MoveTo"){
-                    if(!isNumber){
-                        actionToDo = CCMoveTo::create(duration, {x, y});
-                    }
-                }
-                if(type == "SkewBy"){
-                    if(!isNumber){
-                        actionToDo = CCSkewBy::create(duration, x, y);
-                    }
-                }
-                if(type == "SkewTo"){
-                    if(!isNumber){
-                        actionToDo = CCSkewTo::create(duration, x, y);
-                    }
-                }
-                if(type == "FadeIn"){
-                    if(!isNumber){
-                        actionToDo = CCFadeIn::create(duration);
-                    }
-                }
-                if(type == "FadeOut"){
-                    if(!isNumber){
-                        actionToDo = CCFadeOut::create(duration);
-                    }
-                }
-                if(type == "FadeTo"){
-                    if(!isNumber){
-                        actionToDo = CCFadeTo::create(duration, value);
-                    }
-                }
+
+                actionForName(MoveBy, (duration, {x, y}));
+                actionForName(MoveTo, (duration, {x, y}));
+                actionForName(SkewBy, (duration, x, y));
+                actionForName(SkewTo, (duration, x, y));
+                actionForName(FadeIn, (duration));
+                actionForName(FadeOut, (duration));
+                actionForName(FadeTo, (duration, value));
+                actionForName2(ScaleTo, x, y, value);
+                actionForName2(ScaleBy, x, y, value);
+                actionForName2(RotateBy, x, y, value);
+                actionForName2(RotateTo, x, y, value);
+
             }
             if(actionToDo){
 
@@ -395,19 +340,7 @@ void setLayout(CCNode* node, matjson::Object attributes){
                     matjson::Value axisAlignmentValue = layoutValue["axis-alignment"];
                     if(axisAlignmentValue.is_string()){
                         std::string axisAlignmentStr = axisAlignmentValue.as_string();
-                        AxisAlignment axisAlignment;
-                        if(axisAlignmentStr == "start"){
-                            axisAlignment = AxisAlignment::Start;
-                        }
-                        if(axisAlignmentStr == "center"){
-                            axisAlignment = AxisAlignment::Center;
-                        }
-                        if(axisAlignmentStr == "end"){
-                            axisAlignment = AxisAlignment::End;
-                        }
-                        if(axisAlignmentStr == "even"){
-                            axisAlignment = AxisAlignment::Even;
-                        }
+                        AxisAlignment axisAlignment = getAxisAlignment(axisAlignmentStr);
                         layout->setAxisAlignment(axisAlignment);
 
                     }
@@ -416,19 +349,7 @@ void setLayout(CCNode* node, matjson::Object attributes){
                     matjson::Value crossAxisAlignmentValue = layoutValue["cross-axis-alignment"];
                     if(crossAxisAlignmentValue.is_string()){
                         std::string crossAxisAlignmentStr = crossAxisAlignmentValue.as_string();
-                        AxisAlignment axisAlignment;
-                        if(crossAxisAlignmentStr == "start"){
-                            axisAlignment = AxisAlignment::Start;
-                        }
-                        if(crossAxisAlignmentStr == "center"){
-                            axisAlignment = AxisAlignment::Center;
-                        }
-                        if(crossAxisAlignmentStr == "end"){
-                            axisAlignment = AxisAlignment::End;
-                        }
-                        if(crossAxisAlignmentStr == "even"){
-                            axisAlignment = AxisAlignment::Even;
-                        }
+                        AxisAlignment axisAlignment = getAxisAlignment(crossAxisAlignmentStr);
                         layout->setCrossAxisAlignment(axisAlignment);
 
                     }
@@ -437,19 +358,7 @@ void setLayout(CCNode* node, matjson::Object attributes){
                     matjson::Value crossAxisLineAlignmentValue = layoutValue["cross-axis-line-alignment"];
                     if(crossAxisLineAlignmentValue.is_string()){
                         std::string crossAxisLineAlignmentStr = crossAxisLineAlignmentValue.as_string();
-                        AxisAlignment axisAlignment;
-                        if(crossAxisLineAlignmentStr == "start"){
-                            axisAlignment = AxisAlignment::Start;
-                        }
-                        if(crossAxisLineAlignmentStr == "center"){
-                            axisAlignment = AxisAlignment::Center;
-                        }
-                        if(crossAxisLineAlignmentStr == "end"){
-                            axisAlignment = AxisAlignment::End;
-                        }
-                        if(crossAxisLineAlignmentStr == "even"){
-                            axisAlignment = AxisAlignment::Even;
-                        }
+                        AxisAlignment axisAlignment = getAxisAlignment(crossAxisLineAlignmentStr);
                         layout->setCrossAxisLineAlignment(axisAlignment);
 
                     }
@@ -1219,4 +1128,21 @@ std::vector<std::string> getActivePacks(){
     packPaths.push_back(resourcesDir);
 
     return packPaths;
+}
+
+AxisAlignment getAxisAlignment(std::string name){
+    AxisAlignment axisAlignment = AxisAlignment::Start;
+    if(name == "start"){
+        axisAlignment = AxisAlignment::Start;
+    }
+    if(name == "center"){
+        axisAlignment = AxisAlignment::Center;
+    }
+    if(name == "end"){
+        axisAlignment = AxisAlignment::End;
+    }
+    if(name == "even"){
+        axisAlignment = AxisAlignment::Even;
+    }
+    return axisAlignment;
 }

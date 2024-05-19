@@ -32,6 +32,7 @@ void handleModifications(CCNode* node, matjson::Object nodeObject);
 void doUICheck(CCNode* node);
 std::vector<std::string> getActivePacks();
 void startFileListeners();
+AxisAlignment getAxisAlignment(std::string name);
 
 #define typeForEaseCC(easingTypeName) \
 if(name == #easingTypeName){\
@@ -56,5 +57,20 @@ if(type == #typeName){\
 #define nodesFor(methodName) set##methodName(node, nodeAttributesObject)
 
 #define nodesForMethod(methodName) methodName(node, nodeAttributesObject)
+
+#define actionForName2(name, x, y, param2) if(type == #name){ \
+            if(!isNumber){ \
+                actionToDo = CC##name::create(duration, x, y); \
+            } \
+            else { \
+                actionToDo = CC##name::create(duration, param2); \
+            } \
+        }
+
+#define actionForName(name, params) if(type == #name){ \
+            if(!isNumber){ \
+                actionToDo = CC##name::create##params; \
+            } \
+        }
 
 #endif
