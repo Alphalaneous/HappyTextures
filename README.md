@@ -47,12 +47,30 @@ Every node can have `"children"`, there are three ways of accessing them, either
                 "type": "CCSprite",
                 "index": 0,
                 "attributes": {
-
+                    ...
                 }
             }
         ],
         "all": {
 
+        }
+    }
+}
+```
+
+You can also get the parent from a child:
+
+```json
+{
+    "children": {
+        "node": {
+            "example-node":{
+                "parent": {
+                    "attributes":{
+                        ...
+                    }
+                }
+            }
         }
     }
 }
@@ -65,7 +83,7 @@ Within MenuLayer, we can see there is a menu, the main menu, which has three but
     "children": {
         "node": {
             "main-menu":{
-
+                ...
             }
         }
     }

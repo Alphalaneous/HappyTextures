@@ -62,8 +62,8 @@ class $modify(MyCCScene, CCScene){
                     doUICheck(node);
                 }
             }
-            m_fields->currentCount = this->getChildrenCount();
         }
+        m_fields->currentCount = this->getChildrenCount();
     }
 };
 
@@ -387,7 +387,6 @@ std::string getSound(std::string sound){
     return soundRet;
 }
 
-
 void playSound(CCNode* node, matjson::Object attributes){
     if(attributes.contains("sound")){
         matjson::Value soundVal = attributes["sound"];
@@ -440,7 +439,6 @@ void openLink(CCNode* node, matjson::Object attributes){
         }
     }
 }
-
 
 void setZOrder(CCNode* node, matjson::Object attributes){
     if(attributes.contains("z-order")){
@@ -961,6 +959,17 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
             nodesForMethod(runAction);
             nodesForMethod(playSound);
             nodesForMethod(openLink);
+        }
+    }
+
+    if(nodeObject.contains("parent")){
+        matjson::Value parentVal = nodeObject["parent"];
+        if(parentVal.is_object()){
+            matjson::Object parentObject = parentVal.as_object();
+            CCNode* parent = node->getParent();
+            if(parent){
+                handleModifications(parent, parentObject);
+            }
         }
     }
 
