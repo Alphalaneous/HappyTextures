@@ -114,7 +114,7 @@ When it comes to using the position attribute, you can change the x and y coordi
             "profile-menu": {
                 "attributes": {
                     "position": {
-                        "relative": "bottom-left",
+                        "anchor": "bottom-left",
                         "x": 140,
                         "y": 50
                     }
@@ -123,7 +123,7 @@ When it comes to using the position attribute, you can change the x and y coordi
             "player-username": {
                 "attributes": {
                     "position": {
-                        "relative": "bottom-left",
+                        "anchor": "bottom-left",
                         "x": 94,
                         "y": 84
                     }
@@ -157,7 +157,7 @@ When it comes to using the position attribute, you can change the x and y coordi
                         "height": 250
                     },
                     "position": {
-                        "relative": "center-left",
+                        "anchor": "center-left",
                         "x": 25,
                         "y": -15
                     }
