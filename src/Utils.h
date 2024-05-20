@@ -19,22 +19,23 @@
 
 namespace Utils {
 
-    inline void toLower(std::string value){
-        for(auto& c : value){
+    inline std::string toLower(std::string s) {        
+        for(char &c : s){
             c = tolower(c);
         }
+        return s;
     }
 
     inline bool endsWith(std::string value, std::string ending){
-        toLower(value);
-        toLower(ending);
+        value = toLower(value);
+        ending = toLower(ending);
 
         return value.ends_with(ending);
     }
 
     inline bool startsWith(std::string value, std::string start){
-        toLower(value);
-        toLower(start);
+        value = toLower(value);
+        start = toLower(start);
 
         return value.starts_with(start);
     }
