@@ -28,15 +28,10 @@ namespace Utils {
     inline void updateSprite(CCMenuItemSpriteExtra* button) {
 
 		auto sprite = button->getNormalImage();
-
 		auto size = sprite->getScaledContentSize();
-
 		sprite->setPosition(size / 2);
-
 		sprite->setAnchorPoint({ .5f, .5f });
-
 		button->setContentSize(size);
-
 	}
 }
 #endif

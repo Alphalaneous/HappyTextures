@@ -851,7 +851,8 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
 
                                     if(spr && fnt){
                                         auto buttonSprite = ButtonSprite::create(caption.c_str(), width, absolute, font.c_str(), texture.c_str(), height, scale);
-                                        buttonNode->setSprite(buttonSprite);
+                                        buttonNode->setNormalImage(buttonSprite);
+		                                Utils::updateSprite(buttonNode);
                                     }
 
                                 }
