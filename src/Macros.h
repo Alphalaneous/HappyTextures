@@ -45,7 +45,7 @@ if(type == #typeName){\
 
 #define actionForName(name, params) if(type == #name){ \
             if(!isNumber){ \
-                actionToDo = CC##name::create##params; \
+                actionToDo = CC##name::create params; \
             } \
         }
 
@@ -57,7 +57,7 @@ class $modify(name){    \
     }\
 \
     bool method params { \
-        if(!name::method##values)  return false;\
+        if(!name::method values)  return false;\
         if(UIModding::get()->doModify){\
             UIModding::get()->doUICheckForType(#name, this);\
         }\
@@ -73,7 +73,7 @@ class $modify(name){    \
     }\
 \
     static name* method params { \
-        auto ret = name::method##values; \
+        auto ret = name::method values; \
         if(UIModding::get()->doModify){\
             UIModding::get()->doUICheckForType(#name, ret);\
         }\
