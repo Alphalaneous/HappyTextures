@@ -859,7 +859,7 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
                                     CCSprite* spr = CCSprite::create(spriteName.c_str());
                                     if(spr){
                                         buttonNode->setNormalImage(spr);
-		                                buttonNode->updateSprite();
+                                        Utils::updateSprite(buttonNode);
                                     }
                                 }
                             }
@@ -876,7 +876,7 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
                     CCSprite* spr = CCSprite::create(spriteName.c_str());
                     if(spr){
                         buttonNode->setNormalImage(spr);
-		                buttonNode->updateSprite();
+		                Utils::updateSprite(buttonNode);
                     }
                 }
             }
@@ -901,7 +901,7 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
                 CCSprite* spr = CCSprite::createWithSpriteFrameName(spriteName.c_str());
                 if(spr){
                     buttonNode->setNormalImage(spr);
-		            buttonNode->updateSprite();
+                    Utils::updateSprite(buttonNode);
                 }
             }
         }
