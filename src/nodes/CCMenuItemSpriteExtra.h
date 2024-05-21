@@ -11,6 +11,10 @@ using namespace geode::prelude;
 
 struct EventCCMenuItemSpriteExtra : Modify<EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra> {
 
+    static void onModify(auto& self) {\
+        (void) self.setHookPriority("CCMenuItemSpriteExtra::create", INT_MIN);\
+    }
+
     struct Fields {
         matjson::Object onClick;
         matjson::Object onRelease;
@@ -22,6 +26,10 @@ struct EventCCMenuItemSpriteExtra : Modify<EventCCMenuItemSpriteExtra, CCMenuIte
         bool overrideOnActivate = false;
         bool isHovering = false;
         bool validHover = false;
+        bool hasLayerOnTop = true;
+        int lastLayerCount = 0;
+        bool hasHover = false;
+        bool hasExit = false;
         CCNode* runner = CCNode::create();
     };
     void setOnClick(matjson::Object onClick);
@@ -39,7 +47,7 @@ struct EventCCMenuItemSpriteExtra : Modify<EventCCMenuItemSpriteExtra, CCMenuIte
     void activate();
     void checkTouch(float dt);
     static CCMenuItemSpriteExtra* create(cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3);
-
+    static CCMenuItemSpriteExtra* create(cocos2d::CCNode* p0, cocos2d::CCObject* p1, cocos2d::SEL_MenuHandler p2);
 };
 
 #endif
