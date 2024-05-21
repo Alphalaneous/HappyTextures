@@ -81,6 +81,8 @@ CCMenuItemSpriteExtra* EventCCMenuItemSpriteExtra::create(cocos2d::CCNode* p0, c
     return ret;
 }
 
+
+
 void EventCCMenuItemSpriteExtra::checkTouch(float dt){
 
     CCPoint point = getMousePos();
@@ -93,14 +95,47 @@ void EventCCMenuItemSpriteExtra::checkTouch(float dt){
 
     bool containsPoint = r.containsPoint(local);
 
-    if (containsPoint && !m_fields->isHovering && nodeIsVisible(this)) {
-        m_fields->isHovering = true;
-        runOnHover();
-        return;
+    CCScene* currentScene = CCDirector::get()->getRunningScene();
+    CCNode* buttonLayer;
+
+    for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
+        if(node->getChildrenCount() > 1){
+            buttonLayer = node;
+            break;
+        }
     }
-    if (!containsPoint && m_fields->isHovering){
+
+    bool hasLayerOnTop = false;
+    bool doCheck = false;
+    for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
+        if(node == buttonLayer) {
+            doCheck = true;
+            continue;
+        }
+        if(doCheck){
+            if(node->getContentSize() != CCSize{0,0} && node->isVisible()){
+                hasLayerOnTop = true;
+                break;
+            }
+        }
+    }
+
+    if(getChildOfType<GJDropDownLayer>(buttonLayer, 0)){
+        hasLayerOnTop = true;
+    }
+
+    if(!hasLayerOnTop){
+        if (containsPoint && !m_fields->isHovering && nodeIsVisible(this)) {
+            m_fields->isHovering = true;
+            runOnHover();
+        }
+        if (!containsPoint && m_fields->isHovering){
+            m_fields->isHovering = false;
+            runOnExit();
+        }
+    }
+    else{
         m_fields->isHovering = false;
         runOnExit();
-        return;
     }
 }
