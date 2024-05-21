@@ -5,7 +5,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCLabelBMFont.hpp>
-#include "Utils.h"
+#include "../Utils.h"
 
 using namespace geode::prelude;
 

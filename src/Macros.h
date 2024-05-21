@@ -56,7 +56,7 @@ class $modify(name){    \
         (void) self.setHookPriority(#name "::" #method, INT_MIN);\
     }\
 \
-    bool method##params { \
+    bool method params { \
         if(!name::method##values)  return false;\
         if(UIModding::get()->doModify){\
             UIModding::get()->doUICheckForType(#name, this);\
@@ -72,7 +72,7 @@ class $modify(name){    \
         (void) self.setHookPriority(#name "::" #method, INT_MIN);\
     }\
 \
-    static name* method##params { \
+    static name* method params { \
         auto ret = name::method##values; \
         if(UIModding::get()->doModify){\
             UIModding::get()->doUICheckForType(#name, ret);\
