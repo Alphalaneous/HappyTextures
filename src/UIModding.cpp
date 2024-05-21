@@ -1470,30 +1470,31 @@ std::vector<std::string> UIModding::getActivePacks(){
     gd::vector<gd::string> paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
     std::vector<std::string> packPaths;
     Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
-    ghc::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
-    std::string packDirStr = fmt::format("{}{}", textureLoaderPacks, "\\packs");
-    ghc::filesystem::path packDir = ghc::filesystem::path(packDirStr);
+    if(textureLoader){
+        ghc::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
+        std::string packDirStr = fmt::format("{}{}", textureLoaderPacks, "\\packs");
+        ghc::filesystem::path packDir = ghc::filesystem::path(packDirStr);
 
-    for(std::string path : paths){
+        for(std::string path : paths){
 
-        ghc::filesystem::path fpath = ghc::filesystem::path(path);
-        ghc::filesystem::path pathParent = ghc::filesystem::path(path);
+            ghc::filesystem::path fpath = ghc::filesystem::path(path);
+            ghc::filesystem::path pathParent = ghc::filesystem::path(path);
 
-        while(pathParent.has_parent_path()){
+            while(pathParent.has_parent_path()){
 
-            if(pathParent == packDir){
-                if(std::find(packPaths.begin(), packPaths.end(), fpath.string()) == packPaths.end()) {
-                    packPaths.push_back(fpath.string());
+                if(pathParent == packDir){
+                    if(std::find(packPaths.begin(), packPaths.end(), fpath.string()) == packPaths.end()) {
+                        packPaths.push_back(fpath.string());
+                        break;
+                    }
+                }
+                if(pathParent == ghc::filesystem::current_path().root_path()){
                     break;
                 }
+                pathParent = pathParent.parent_path();
             }
-            if(pathParent == ghc::filesystem::current_path().root_path()){
-                break;
-            }
-            pathParent = pathParent.parent_path();
         }
     }
-
     std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "Resources\\");
     packPaths.push_back(resourcesDir);
 
