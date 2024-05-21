@@ -61,7 +61,7 @@ modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, f
 modifyNodeForType(LoadingCircle, init, (), ());
 
 #include <Geode/modify/BoomScrollLayer.hpp>
-modifyNodeForType(BoomScrollLayer, init, (cocos2d::CCArray* p0, int p1, bool p2, cocos2d::CCArray* p3, DynamicScrollDelegate* p4), (p0, p1, p2, p3, p4));
+modifyNodeForTypeCreate(BoomScrollLayer, create, (cocos2d::CCArray* p0, int p1, bool p2, cocos2d::CCArray* p3, DynamicScrollDelegate* p4), (p0, p1, p2, p3, p4));
 
 #include <Geode/modify/ExtendedLayer.hpp>
 modifyNodeForType(ExtendedLayer, init, (), ());
