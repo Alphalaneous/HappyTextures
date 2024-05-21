@@ -875,7 +875,8 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
                 else if(CCSprite* sprite = getChildOfType<CCSprite>(node, 0)){
                     CCSprite* spr = CCSprite::create(spriteName.c_str());
                     if(spr){
-                        buttonNode->setSprite(spr);
+                        buttonNode->setNormalImage(spr);
+		                buttonNode->updateSprite();
                     }
                 }
             }
@@ -899,7 +900,8 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
             if(CCMenuItemSpriteExtra* buttonNode = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
                 CCSprite* spr = CCSprite::createWithSpriteFrameName(spriteName.c_str());
                 if(spr){
-                    buttonNode->setSprite(spr);
+                    buttonNode->setNormalImage(spr);
+		            buttonNode->updateSprite();
                 }
             }
         }
