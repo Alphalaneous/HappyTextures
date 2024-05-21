@@ -1,97 +1,101 @@
 #include <Geode/Geode.hpp>
-#include <Geode/modify/CCScene.hpp>
-#include <Geode/modify/GJDropDownLayer.hpp>
-#include <Geode/modify/LoadingLayer.hpp>
-#include <Geode/modify/MenuLayer.hpp>
 #include <Geode/utils/web.hpp>
+#include "Macros.h"
 #include "FileWatcher.h"
 #include "Utils.h"
-#include "CCLabelBMFont.h"
+#include "nodes/CCLabelBMFont.h"
+#include "nodes/CCMenuItemSpriteExtra.h"
 #include "UIModding.h"
+#include "DataNode.h"
+#include "alerts/CustomAlert.h"
 
 using namespace geode::prelude;
 
-std::map<std::string, matjson::Value> uiCache;
-bool doModify;
+UIModding* UIModding::instance = nullptr;
 
-class $modify(LoadingLayer){
-    
-    bool init(bool p0){
-        uiCache.clear();
-        return LoadingLayer::init(p0);
-    }
-};
+$execute {
+    UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+}
 
-class $modify(MenuLayer){
-
-    static void onModify(auto& self) {
-        (void) self.setHookPriority("MenuLayer::init", INT_MIN);
-    }
-
-    bool init(){
-
-        if(!MenuLayer::init()){
-            return false;
-        }
-
-        doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
-        if(doModify){
-            startFileListeners();
-            doUICheck(this);
-        }
-
-        return true;
-    }
-};
-
-class $modify(GJDropDownLayer){
-
-    static void onModify(auto& self) {
-        (void) self.setHookPriority("GJDropDownLayer::showLayer", INT_MIN);
-    }
-
-    void showLayer(bool p0){
-        GJDropDownLayer::showLayer(p0);
-        if(doModify){
-            doUICheck(this);
+void UIModding::updateColors(CCNode* node, std::string name){
+    if(CCScale9Sprite* bg = dynamic_cast<CCScale9Sprite*>(node->getChildByIDRecursive(name))){
+        std::optional<ColorData> dataOpt = getColors(name);
+        if(dataOpt.has_value()){
+            ColorData data = dataOpt.value();
+            bg->setColor(data.color);
+            bg->setOpacity(data.alpha);
         }
     }
-};
+}
 
-class $modify(MyCCScene, CCScene){
+std::optional<ColorData> UIModding::getColors(std::string name){
 
-    static void onModify(auto& self) {
-        (void) self.setHookPriority("CCScene::create", INT_MIN);
-    }
-
-    struct Fields {
-        int currentCount = 0;
-    };
-
-    static CCScene* create(){
-        auto ret = CCScene::create();
-        if(doModify){
-            ret->schedule(schedule_selector(MyCCScene::checkForUpdates));
+    if(colorCache.contains(name)){
+        if(colorCache[name].hasColor){
+            return colorCache[name];
         }
-        return ret;
+        else {
+            return std::nullopt;
+        }
     }
 
-    void checkForUpdates(float dt){
-        if(this->getChildrenCount() != m_fields->currentCount && (this->getChildrenCount() != 1 || m_fields->currentCount == 0)){
-            int idx = 0;
-            for(CCNode* node : CCArrayExt<CCNode*>(this->getChildren())){
-                if(node->getID() == "MenuLayer") continue;
-                idx++;
-                if(idx >= m_fields->currentCount){
-                    doUICheck(node);
+    std::string path = "/ui/colors.json";
+
+    unsigned long fileSize = 0;
+    unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
+
+    if (buffer && fileSize != 0) {
+        
+        std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
+        std::string error;
+        std::optional<matjson::Value> value = matjson::parse(data, error);
+
+        if(value.has_value()){
+
+            matjson::Value expandedValue = value.value();
+            if(expandedValue.is_object()){
+
+                matjson::Object object = expandedValue.as_object();
+                if(object.contains(name)){
+                    matjson::Value colorsVal = object[name];
+                    if(colorsVal.is_object()){
+                        matjson::Object colors = colorsVal.as_object();
+                        if(colors.contains("r") && colors.contains("g") && colors.contains("b")){
+                            matjson::Value rValue = colors["r"];
+                            matjson::Value gValue = colors["g"];
+                            matjson::Value bValue = colors["b"];
+                            unsigned char alpha = 255;
+                            if(colors.contains("a")){
+                                matjson::Value aValue = colors["a"];
+                                if(aValue.is_number()) {
+                                    alpha = aValue.as_int();
+                                }
+                            }
+
+                            if(rValue.is_number() && gValue.is_number() && bValue.is_number()){
+                                unsigned char r = rValue.as_int();
+                                unsigned char g = gValue.as_int();
+                                unsigned char b = bValue.as_int();
+
+                                ColorData data = ColorData{ccColor3B{r, g, b}, alpha, true};
+                                colorCache.insert({name, data});
+                                delete[] buffer;
+                                return data;
+                            }
+                        }
+                    }
                 }
             }
         }
-        m_fields->currentCount = this->getChildrenCount();
     }
-};
+    ColorData data = ColorData{ccColor3B{0, 0, 0}, 0, false};
+    colorCache.insert({name, data});
+    delete[] buffer;
 
-void recursiveModify(CCNode* node, matjson::Object elements){
+    return std::nullopt;
+}
+
+void UIModding::recursiveModify(CCNode* node, matjson::Object elements){
 
     for(CCNode* node : CCArrayExt<CCNode*>(node->getChildren())){
         if(elements.contains(node->getID())){
@@ -105,7 +109,7 @@ void recursiveModify(CCNode* node, matjson::Object elements){
     }
 }
 
-void runAction(CCNode* node, matjson::Object attributes){
+void UIModding::runAction(CCNode* node, matjson::Object attributes){
 
     if(attributes.contains("actions")){
         matjson::Value actionsValue = attributes["actions"];
@@ -115,11 +119,12 @@ void runAction(CCNode* node, matjson::Object attributes){
             matjson::Array actionValues = actionsValue.as_array();
 
             for(matjson::Value action : actionValues){
+                if(action.is_object()){
+                    CCActionInterval* actionInterval = createAction(node, action);
 
-                CCActionInterval* actionInterval = createAction(action);
-
-                if(actionInterval){
-                    actionArray->addObject(actionInterval);
+                    if(actionInterval){
+                        actionArray->addObject(actionInterval);
+                    }
                 }
             }
             if(actionArray->count() > 0){
@@ -129,136 +134,136 @@ void runAction(CCNode* node, matjson::Object attributes){
     }
 }
 
-CCActionInterval* createAction(matjson::Value action){
+CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
     CCActionInterval* retAction = nullptr;
 
-    if(action.is_object()){
+    if(action.contains("type")) {
 
-        if(action.contains("type")){
+        bool repeat = false;
 
-            bool repeat = false;
+        float value = 0;
+        float duration = 0;
+        float x = 0;
+        float y = 0;
+        float easingRate = 0;
+        int repeatCount = INT32_MAX;
 
-            float value = 0;
-            float duration = 0;
-            float x = 0;
-            float y = 0;
-            float easingRate = 0;
-            int repeatCount = INT32_MAX;
+        std::string easingType = "none";
+        std::string link = "";
 
-            std::string easingType = "none";
-            std::string link = "";
+        CCActionInterval* actionToDo = nullptr;
 
-            CCActionInterval* actionToDo = nullptr;
-
-            if(action.contains("easing")){
-                matjson::Value easingValue = action["easing"];
-                if(easingValue.is_string()){
-                    easingType = easingValue.as_string();
-                }
+        if(action.contains("easing")){
+            matjson::Value easingValue = action["easing"];
+            if(easingValue.is_string()){
+                easingType = easingValue.as_string();
             }
-            if(action.contains("easing-rate")){
-                matjson::Value easingRateVal = action["easing-rate"];
-                if(easingRateVal.is_number()){
-                    easingRate = easingRateVal.as_double();
-                }
+        }
+        if(action.contains("easing-rate")){
+            matjson::Value easingRateVal = action["easing-rate"];
+            if(easingRateVal.is_number()){
+                easingRate = easingRateVal.as_double();
             }
-            if(action.contains("repeat")){
-                matjson::Value repeatVal = action["repeat"];
-                if(repeatVal.is_bool()){
-                    repeat = repeatVal.as_bool();
-                }
-                if(repeatVal.is_number()){
-                    repeatCount = repeatVal.as_int();
-                }
+        }
+        if(action.contains("repeat")){
+            matjson::Value repeatVal = action["repeat"];
+            if(repeatVal.is_bool()){
+                repeat = repeatVal.as_bool();
             }
-            if(action.contains("duration")){
-                matjson::Value durationValue = action["duration"];
-                if(durationValue.is_number()){
-                    duration = durationValue.as_double();
-                }
+            if(repeatVal.is_number()){
+                repeatCount = repeatVal.as_int();
             }
+        }
+        if(action.contains("duration")){
+            matjson::Value durationValue = action["duration"];
+            if(durationValue.is_number()){
+                duration = durationValue.as_double();
+            }
+        }
 
-            bool isNumber = false;
+        bool isNumber = false;
 
-            if(action.contains("value")){
-                matjson::Value valueValue = action["value"];
-                if(valueValue.is_number()){
-                    isNumber = true;
-                    value = valueValue.as_double();
-                }
-                else if(valueValue.is_object()){
-                    if(valueValue.contains("x") && valueValue.contains("y")){
-                        matjson::Value xValue = valueValue["x"];
-                        matjson::Value yValue = valueValue["y"];
+        if(action.contains("value")){
+            matjson::Value valueValue = action["value"];
+            if(valueValue.is_number()){
+                isNumber = true;
+                value = valueValue.as_double();
+            }
+            else if(valueValue.is_object()){
+                if(valueValue.contains("x") && valueValue.contains("y")){
+                    matjson::Value xValue = valueValue["x"];
+                    matjson::Value yValue = valueValue["y"];
 
-                        if(xValue.is_number() && yValue.is_number()){
-                            x = xValue.as_double();
-                            y = yValue.as_double();
-                        }
+                    if(xValue.is_number() && yValue.is_number()){
+                        x = xValue.as_double();
+                        y = yValue.as_double();
                     }
                 }
             }
+        }
 
-            matjson::Value typeValue = action["type"];
-            if(typeValue.is_string()){
-                std::string type = typeValue.as_string();
+        matjson::Value typeValue = action["type"];
+        if(typeValue.is_string()){
+            std::string type = typeValue.as_string();
 
-                if(type == "Sequence"){
+            if(type == "Sequence"){
 
-                    CCArray* sequentialActions = CCArray::create();
+                CCArray* sequentialActions = CCArray::create();
 
-                    if(action.contains("actions")){
+                if(action.contains("actions")){
 
-                        matjson::Value seqActions = action["actions"];
-                        if(seqActions.is_array()){
-                            matjson::Array seqActionsArr = seqActions.as_array();
-                            for(matjson::Value seqAction : seqActionsArr){
+                    matjson::Value seqActions = action["actions"];
+                    if(seqActions.is_array()){
+                        matjson::Array seqActionsArr = seqActions.as_array();
+                        for(matjson::Value seqAction : seqActionsArr){
 
-                                CCActionInterval* seqActionToDo = createAction(seqAction);
-                                if(seqActionToDo){
-                                    sequentialActions->addObject(seqActionToDo);
-                                }
+                            CCActionInterval* seqActionToDo = createAction(node, seqAction);
+                            if(seqActionToDo){
+                                sequentialActions->addObject(seqActionToDo);
                             }
                         }
                     }
-
-                    if(sequentialActions->count() > 0){
-                        actionToDo = CCSequence::create(sequentialActions);
-                    }
                 }
 
-                actionForName(MoveBy, (duration, {x, y}));
-                actionForName(MoveTo, (duration, {x, y}));
-                actionForName(SkewBy, (duration, x, y));
-                actionForName(SkewTo, (duration, x, y));
-                actionForName(FadeIn, (duration));
-                actionForName(FadeOut, (duration));
-                actionForName(FadeTo, (duration, value));
-                actionForName2(ScaleTo, x, y, value);
-                actionForName2(ScaleBy, x, y, value);
-                actionForName2(RotateBy, x, y, value);
-                actionForName2(RotateTo, x, y, value);
-
+                if(sequentialActions->count() > 0){
+                    actionToDo = CCSequence::create(sequentialActions);
+                }
             }
-            if(actionToDo){
 
-                CCActionInterval* finalAction = getEasingType(easingType, actionToDo, easingRate);
-                if(finalAction){
-                    if(repeat){
-                        retAction = CCRepeat::create(finalAction, repeatCount);
-                    }
-                    else{
-                        retAction = finalAction;
-                    }
+            if(type == "Stop"){ 
+                node->stopAllActions();
+            }
+
+            actionForName(MoveBy, (duration, {x, y}));
+            actionForName(MoveTo, (duration, {x, y}));
+            actionForName(SkewBy, (duration, x, y));
+            actionForName(SkewTo, (duration, x, y));
+            actionForName(FadeIn, (duration));
+            actionForName(FadeOut, (duration));
+            actionForName(FadeTo, (duration, value));
+            actionForName2(ScaleTo, x, y, value);
+            actionForName2(ScaleBy, x, y, value);
+            actionForName2(RotateBy, x, y, value);
+            actionForName2(RotateTo, x, y, value);
+
+        }
+        if(actionToDo){
+
+            CCActionInterval* finalAction = getEasingType(easingType, actionToDo, easingRate);
+            if(finalAction){
+                if(repeat){
+                    retAction = CCRepeat::create(finalAction, repeatCount);
                 }
-                
+                else{
+                    retAction = finalAction;
+                }
             }
         }
     }
     return retAction;
 }
 
-CCActionInterval* getEasingType(std::string name, CCActionInterval* action, float rate){
+CCActionInterval* UIModding::getEasingType(std::string name, CCActionInterval* action, float rate){
 
     CCActionInterval* easingType = nullptr;
     
@@ -288,7 +293,7 @@ CCActionInterval* getEasingType(std::string name, CCActionInterval* action, floa
     return easingType;
 }
 
-void setLayout(CCNode* node, matjson::Object attributes){
+void UIModding::setLayout(CCNode* node, matjson::Object attributes){
 
     if(attributes.contains("layout")){
 
@@ -393,7 +398,7 @@ void setLayout(CCNode* node, matjson::Object attributes){
     }
 }
 
-std::string getSound(std::string sound){
+std::string UIModding::getSound(std::string sound){
 
     std::string soundRet = "";
 
@@ -411,7 +416,7 @@ std::string getSound(std::string sound){
     return soundRet;
 }
 
-void playSound(CCNode* node, matjson::Object attributes){
+void UIModding::playSound(CCNode* node, matjson::Object attributes){
     if(attributes.contains("sound")){
         matjson::Value soundVal = attributes["sound"];
         if(soundVal.is_string()){
@@ -432,7 +437,7 @@ void playSound(CCNode* node, matjson::Object attributes){
     }
 }
 
-void openLink(CCNode* node, matjson::Object attributes){
+void UIModding::openLink(CCNode* node, matjson::Object attributes){
     if(attributes.contains("link")){
         matjson::Value linkVal = attributes["link"];
 
@@ -464,7 +469,24 @@ void openLink(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setZOrder(CCNode* node, matjson::Object attributes){
+void UIModding::setShow(CCNode* node, matjson::Object attributes){
+    if(attributes.contains("show")){
+        matjson::Value showVal = attributes["show"];
+        if(showVal.is_bool()){
+            bool show = showVal.as_bool();
+            if(FLAlertLayer* alert = dynamic_cast<FLAlertLayer*>(node)){
+                if(show){
+                    alert->show();
+                }
+                else{
+                    alert->keyBackClicked();
+                }
+            }
+        }
+    }
+}
+
+void UIModding::setZOrder(CCNode* node, matjson::Object attributes){
     if(attributes.contains("z-order")){
         matjson::Value zOrderVal = attributes["z-order"];
         if(zOrderVal.is_number()){
@@ -474,7 +496,7 @@ void setZOrder(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setBlending(CCNode* node, matjson::Object attributes){
+void UIModding::setBlending(CCNode* node, matjson::Object attributes){
 
     if(attributes.contains("blending")){
         
@@ -522,7 +544,7 @@ std::map<std::string, unsigned int> strBlend = {
     {"GL_ONE_MINUS_CONSTANT_ALPHA", GL_ONE_MINUS_CONSTANT_ALPHA}
 };
 
-unsigned int stringToBlendingMode(std::string value){
+unsigned int UIModding::stringToBlendingMode(std::string value){
 
     unsigned int val = -1;
 
@@ -533,7 +555,7 @@ unsigned int stringToBlendingMode(std::string value){
     return val;
 }
 
-void setFlip(CCNode* node, matjson::Object attributes){
+void UIModding::setFlip(CCNode* node, matjson::Object attributes){
     if(attributes.contains("flip")){
         matjson::Value flipVal = attributes["flip"];
         if(flipVal.is_object()){
@@ -562,7 +584,7 @@ void setFlip(CCNode* node, matjson::Object attributes){
 }
 
 
-void setFont(CCNode* node, matjson::Object attributes){
+void UIModding::setFont(CCNode* node, matjson::Object attributes){
     if(attributes.contains("font")){
         matjson::Value fontVal = attributes["font"];
         if(fontVal.is_string()){
@@ -603,7 +625,7 @@ void setFont(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setPosition(CCNode* node, matjson::Object attributes){
+void UIModding::setPosition(CCNode* node, matjson::Object attributes){
     if(attributes.contains("position")){
         matjson::Value position = attributes["position"];
         if(position.is_object()){
@@ -624,7 +646,14 @@ void setPosition(CCNode* node, matjson::Object attributes){
                 matjson::Value anchorValue = position["anchor"];
 
                 if(anchorValue.is_object() || anchorValue.is_string()){
-                    CCSize nodeSize = node->getParent()->getContentSize();
+                    CCNode* parent = node->getParent();
+                    CCSize nodeSize;
+                    if(parent){
+                        nodeSize = parent->getContentSize();
+                    }
+                    else{
+                        nodeSize = CCDirector::sharedDirector()->getWinSize();
+                    }
 
                     if(!anchorValue.is_string()){
                         if(anchorValue.contains("relative")){
@@ -692,7 +721,7 @@ void setPosition(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setColor(CCNode* node, matjson::Object attributes){
+void UIModding::setColor(CCNode* node, matjson::Object attributes){
     if(attributes.contains("color")){
         matjson::Value color = attributes["color"];
         if(color.is_object()){
@@ -710,13 +739,16 @@ void setColor(CCNode* node, matjson::Object attributes){
                     if(CCNodeRGBA* nodeRGBA = dynamic_cast<CCNodeRGBA*>(node)) {
                         nodeRGBA->setColor(ccColor3B{r, g, b});
                     }
+                    if(CCLayerRGBA* nodeRGBA = dynamic_cast<CCLayerRGBA*>(node)) {
+                        nodeRGBA->setColor(ccColor3B{r, g, b});
+                    }
                 }
             }
         }
     }
 }
 
-void removeChild(CCNode* node, matjson::Object attributes){
+void UIModding::removeChild(CCNode* node, matjson::Object attributes){
     if(attributes.contains("remove")){
         matjson::Value removeVal = attributes["remove"];
         if(removeVal.is_bool()){
@@ -728,7 +760,7 @@ void removeChild(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setScaleMult(CCNode* node, matjson::Object attributes){
+void UIModding::setScaleMult(CCNode* node, matjson::Object attributes){
     if(attributes.contains("scale-multiplier")){
         matjson::Value mulVal = attributes["scale-multiplier"];
         if(mulVal.is_number()){
@@ -740,7 +772,7 @@ void setScaleMult(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setText(CCNode* node, matjson::Object attributes){
+void UIModding::setText(CCNode* node, matjson::Object attributes){
     if(attributes.contains("text")){
         matjson::Value textVal = attributes["text"];
         if(textVal.is_string()){
@@ -775,7 +807,7 @@ void setText(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setSprite(CCNode* node, matjson::Object attributes){
+void UIModding::setSprite(CCNode* node, matjson::Object attributes){
     if(attributes.contains("sprite")){
         matjson::Value sprite = attributes["sprite"];
         if(sprite.is_string()){
@@ -833,20 +865,16 @@ void setSprite(CCNode* node, matjson::Object attributes){
                         }
                     }
                 }
-                else {
-
-                    if(CCSprite* sprite = getChildOfType<CCSprite>(node, 0)){
-                        CCSprite* spr = CCSprite::create(spriteName.c_str());
-                        if(spr){
-                            buttonNode->setSprite(spr);
-                        }
+                if(ButtonSprite* buttonSprite = getChildOfType<ButtonSprite>(node, 0)){
+                    CCSprite* spr = CCSprite::create(spriteName.c_str());
+                    if(spr){
+                        buttonSprite->updateBGImage(spriteName.c_str());
                     }
-                    else if(ButtonSprite* buttonSprite = getChildOfType<ButtonSprite>(node, 0)){
-                        
-                        CCSprite* spr = CCSprite::create(spriteName.c_str());
-                        if(spr){
-                            buttonSprite->updateBGImage(spriteName.c_str());
-                        }
+                }
+                else if(CCSprite* sprite = getChildOfType<CCSprite>(node, 0)){
+                    CCSprite* spr = CCSprite::create(spriteName.c_str());
+                    if(spr){
+                        buttonNode->setSprite(spr);
                     }
                 }
             }
@@ -854,7 +882,7 @@ void setSprite(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setSpriteFrame(CCNode* node, matjson::Object attributes){
+void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
     if(attributes.contains("sprite-frame")){
         matjson::Value sprite = attributes["sprite-frame"];
         if(sprite.is_string()){
@@ -877,7 +905,7 @@ void setSpriteFrame(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setOpacity(CCNode* node, matjson::Object attributes){
+void UIModding::setOpacity(CCNode* node, matjson::Object attributes){
     if(attributes.contains("opacity")){
         matjson::Value opacity = attributes["opacity"];
         if(opacity.is_number()){
@@ -885,11 +913,15 @@ void setOpacity(CCNode* node, matjson::Object attributes){
                 unsigned char opacityNum = opacity.as_int();
                 nodeRGBA->setOpacity(opacityNum);
             }
+            if(CCLayerRGBA* nodeRGBA = dynamic_cast<CCLayerRGBA*>(node)) {
+                unsigned char opacityNum = opacity.as_int();
+                nodeRGBA->setOpacity(opacityNum);
+            }
         }
     }
 }
 
-void setVisible(CCNode* node, matjson::Object attributes){
+void UIModding::setVisible(CCNode* node, matjson::Object attributes){
 
     if(attributes.contains("visible")){
         matjson::Value visible = attributes["visible"];
@@ -903,7 +935,7 @@ void setVisible(CCNode* node, matjson::Object attributes){
     }
 }
 
-void updateLayout(CCNode* node, matjson::Object attributes){
+void UIModding::updateLayout(CCNode* node, matjson::Object attributes){
     if(attributes.contains("update-layout")){
         matjson::Value update = attributes["update-layout"];
         if(update.is_bool()){
@@ -918,7 +950,7 @@ void updateLayout(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setIgnoreAnchorPos(CCNode* node, matjson::Object attributes){
+void UIModding::setIgnoreAnchorPos(CCNode* node, matjson::Object attributes){
     if(attributes.contains("ignore-anchor-pos")){
         matjson::Value ignore = attributes["ignore-anchor-pos"];
         if(ignore.is_bool()){
@@ -928,7 +960,7 @@ void setIgnoreAnchorPos(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setScale(CCNode* node, matjson::Object attributes){
+void UIModding::setScale(CCNode* node, matjson::Object attributes){
     if(attributes.contains("scale")){
         matjson::Value scale = attributes["scale"];
         if(scale.is_object()){
@@ -957,7 +989,7 @@ void setScale(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setRotation(CCNode* node, matjson::Object attributes){
+void UIModding::setRotation(CCNode* node, matjson::Object attributes){
     if(attributes.contains("rotation")){
         matjson::Value rotation = attributes["rotation"];
         if(rotation.is_object()){
@@ -986,7 +1018,7 @@ void setRotation(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setSkew(CCNode* node, matjson::Object attributes){
+void UIModding::setSkew(CCNode* node, matjson::Object attributes){
     if(attributes.contains("skew")){
         matjson::Value skew = attributes["skew"];
         if(skew.is_object()){
@@ -1011,7 +1043,7 @@ void setSkew(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setAnchorPoint(CCNode* node, matjson::Object attributes){
+void UIModding::setAnchorPoint(CCNode* node, matjson::Object attributes){
     if(attributes.contains("anchor-point")){
         matjson::Value anchorPoint = attributes["anchor-point"];
         if(anchorPoint.is_object()){
@@ -1031,7 +1063,7 @@ void setAnchorPoint(CCNode* node, matjson::Object attributes){
     }
 }
 
-void setContentSize(CCNode* node, matjson::Object attributes){
+void UIModding::setContentSize(CCNode* node, matjson::Object attributes){
     if(attributes.contains("content-size")){
         matjson::Value contentSize = attributes["content-size"];
         if(contentSize.is_object()){
@@ -1052,12 +1084,17 @@ void setContentSize(CCNode* node, matjson::Object attributes){
     }
 }
 
-void handleModifications(CCNode* node, matjson::Object nodeObject){
+void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
+
+    if(DataNode* data = dynamic_cast<DataNode*>(node)){
+        node = data->m_data;
+    }
 
     if(nodeObject.contains("attributes")){
         matjson::Value nodeAttributes = nodeObject["attributes"];
         if(nodeAttributes.is_object()){
             matjson::Object nodeAttributesObject = nodeAttributes.as_object();
+            nodeAttributesObject["_pack-name"] = nodeObject["_pack-name"];
 
             nodesFor(setScale);
             nodesFor(setRotation);
@@ -1077,12 +1114,30 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
             nodesFor(setFont);
             nodesFor(setFlip);
             nodesFor(setBlending);
+            nodesFor(setShow);
             nodesFor(setLayout);
             nodesFor(removeChild);
             nodesFor(updateLayout);
             nodesFor(runAction);
             nodesFor(playSound);
             nodesFor(openLink);
+        }
+    }
+
+    if(nodeObject.contains("event")){
+        matjson::Value eventVal = nodeObject["event"];
+        if(eventVal.is_object()){
+            matjson::Object eventObject = eventVal.as_object();
+
+            eventObject["_pack-name"] = nodeObject["_pack-name"];
+
+            if(EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(node)){
+                forEvent(on-click, OnClick);
+                forEvent(on-release, OnRelease);
+                forEvent(on-activate, OnActivate);
+                forEvent(on-hover, OnHover);
+                forEvent(on-exit, OnExit);
+            }
         }
     }
 
@@ -1104,6 +1159,9 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
         matjson::Value childrenVal = nodeObject["children"];
         if(childrenVal.is_object()){
             matjson::Object childrenObject = childrenVal.as_object();
+
+            childrenObject["_pack-name"] = nodeObject["_pack-name"];
+
 
             if(childrenVal.contains("node")){
                 matjson::Value nodeChildrenVal = childrenObject["node"];
@@ -1211,6 +1269,9 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
                                     if(type == "CCMenu"){
                                         newNode = CCMenu::create();
                                     }
+                                    if(type == "CCLayerColor"){
+                                        newNode = CCLayerColor::create();
+                                    }
                                     if(type == "CCMenuItemSpriteExtra"){
                                         newNode = CCMenuItemSpriteExtra::create(CCSprite::create(), nullptr, nullptr, nullptr);
                                     }
@@ -1226,19 +1287,100 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
                                             }
                                         }
                                     }
+                                    if(type == "Alert"){
+                                        if(childObject.contains("attributes")){
+                                            matjson::Value attributesVal = childObject["attributes"];
+                                            if(attributesVal.contains("title") && attributesVal.contains("description")){
+                                                matjson::Value titleVal = attributesVal["title"];
+                                                matjson::Value descVal = attributesVal["description"];
+                                                if(titleVal.is_string() && descVal.is_string()){
+                                                    std::string title = titleVal.as_string();
+                                                    std::string description = descVal.as_string();
+                                                    std::string buttonText = "Okay";
+                                                    if(attributesVal.contains("button-text")){
+                                                        matjson::Value buttonVal = attributesVal["button-text"];
+                                                        if(buttonVal.is_string()){
+                                                            buttonText = buttonVal.as_string();
+                                                        }
+                                                    }
+                                                    FLAlertLayer* alert = geode::createQuickPopup(title.c_str(), description, buttonText.c_str(), nullptr, nullptr, false, true);
+                                                    DataNode* data = DataNode::create(alert);
+                                                    newNode = data;
+                                                }
+                                            }
+                                        }
+                                    }
+                                    if(type == "Popup"){
+                                        if(childObject.contains("attributes")){
+                                            matjson::Value attributesVal = childObject["attributes"];
+                                            
+                                            std::string sprite = "GJ_square01.png";
+                                            std::string title = "";
+                                            float width = 60;
+                                            float height = 60;
+                                            if(attributesVal.contains("sprite")){
+                                                matjson::Value spriteVal = attributesVal["sprite"];
+                                                if(spriteVal.is_string()){
+                                                    sprite = spriteVal.as_string();
+                                                }
+                                            }
+                                            if(attributesVal.contains("popup-size")){
+                                                matjson::Value contentSize = attributesVal["popup-size"];
+                                                    if(contentSize.is_object()){
+                                                    matjson::Object contentSizeAttributes = contentSize.as_object();
+                                                    if(contentSizeAttributes.contains("width") && contentSizeAttributes.contains("height")){
+                                                        matjson::Value contentSizeWidth = contentSizeAttributes["width"];
+                                                        matjson::Value contentSizeHeight = contentSizeAttributes["height"];
+
+                                                        if(contentSizeWidth.is_number() && contentSizeHeight.is_number()){
+                                                            width = contentSizeWidth.as_double();
+                                                            height = contentSizeHeight.as_double();
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                            if(attributesVal.contains("title")){
+                                                matjson::Value titleVal = attributesVal["title"];
+                                                if(titleVal.is_string()){
+                                                    title = titleVal.as_string();
+                                                }
+                                            }
+                                            CustomAlert* alert = CustomAlert::create(width, height, sprite, title);
+                                            DataNode* data = DataNode::create(alert);
+                                            newNode = data;
+                                        }
+                                    }
                                     if(newNode){
                                         
                                         matjson::Value idVal = value["id"];
+                                        std::string fullID;
                                         if(idVal.is_string()){
                                             std::string id = idVal.as_string();
-                                            std::string packName = childObject["_pack-name"].as_string();
-                                            std::string fullID = fmt::format("{}/{}", packName, id);
+                                            std::string packName = "missing";
+                                            if(nodeObject.contains("_pack-name") && nodeObject["_pack-name"].is_string()){
+                                                packName = nodeObject["_pack-name"].as_string();
+                                            }
+                                            fullID = fmt::format("{}/{}", packName, id);
 
-                                            node->removeChildByID(fullID);
                                             newNode->setID(fullID.c_str());
                                         }
+
+                                        if(DataNode* data = dynamic_cast<DataNode*>(newNode)){
+                                            if(FLAlertLayer* alert = dynamic_cast<FLAlertLayer*>(data->m_data)){
+                                                alert->setID(fullID.c_str());
+                                            }
+                                            data->setID(fullID.c_str());
+                                        }
+
+                                        if(FLAlertLayer* alert = dynamic_cast<FLAlertLayer*>(node)){
+                                            alert->m_mainLayer->removeChildByID(fullID);
+                                            alert->m_mainLayer->addChild(newNode);
+                                        }
+                                        else{
+                                            node->removeChildByID(fullID);
+                                            node->addChild(newNode);
+                                        }
                                         
-                                        node->addChild(newNode);
                                         handleModifications(newNode, childObject);
                                     }
                                 }
@@ -1251,7 +1393,7 @@ void handleModifications(CCNode* node, matjson::Object nodeObject){
     }
 }
 
-void doUICheck(CCNode* node){
+void UIModding::doUICheck(CCNode* node){
 
     std::string path = "/ui/" + node->getID() + ".json";
 
@@ -1267,7 +1409,7 @@ void doUICheck(CCNode* node){
         if(value.has_value()){
 
             matjson::Value expandedValue = value.value();
-            if(!expandedValue.is_null()){
+            if(expandedValue.is_object()){
                 matjson::Object object = expandedValue.as_object();
 
                 std::string fullPathStr = CCFileUtils::sharedFileUtils()->fullPathForFilename(path.c_str(), false);
@@ -1287,15 +1429,14 @@ void doUICheck(CCNode* node){
     delete[] buffer;
 }
 
-std::vector<FileWatcher*> listeners;
-
-void startFileListeners(){
+void UIModding::startFileListeners(){
     for(FileWatcher* fw : listeners){
         fw->stop();
     }
     listeners.clear();
     std::vector<std::string> packs = getActivePacks();
     for(std::string path : packs){
+
         std::string uiPath = fmt::format("{}{}", path, "ui\\");
 
         FileWatcher* fw = new FileWatcher(uiPath, std::chrono::milliseconds(500));
@@ -1307,10 +1448,11 @@ void startFileListeners(){
                     return;
                 }
                 Loader::get()->queueInMainThread([]{
-                    uiCache.clear();
+                    UIModding::get()->uiCache.clear();
+                    UIModding::get()->colorCache.clear();
                     CCScene* scene = CCDirector::sharedDirector()->getRunningScene();
                     for(CCNode* node : CCArrayExt<CCNode*>(scene->getChildren())){
-                        doUICheck(node);
+                        UIModding::get()->doUICheck(node);
                     }
                 });
             });
@@ -1319,7 +1461,7 @@ void startFileListeners(){
     }
 }
 
-std::vector<std::string> getActivePacks(){
+std::vector<std::string> UIModding::getActivePacks(){
 
     gd::vector<gd::string> paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
     std::vector<std::string> packPaths;
@@ -1331,11 +1473,20 @@ std::vector<std::string> getActivePacks(){
     for(std::string path : paths){
 
         ghc::filesystem::path fpath = ghc::filesystem::path(path);
+        ghc::filesystem::path pathParent = ghc::filesystem::path(path);
 
-        if(fpath.parent_path().parent_path() == packDir){
-            if(std::find(packPaths.begin(), packPaths.end(), fpath.string()) == packPaths.end()) {
-                packPaths.push_back(fpath.string());
+        while(pathParent.has_parent_path()){
+
+            if(pathParent == packDir){
+                if(std::find(packPaths.begin(), packPaths.end(), fpath.string()) == packPaths.end()) {
+                    packPaths.push_back(fpath.string());
+                    break;
+                }
             }
+            if(pathParent == ghc::filesystem::current_path().root_path()){
+                break;
+            }
+            pathParent = pathParent.parent_path();
         }
     }
 
@@ -1345,7 +1496,7 @@ std::vector<std::string> getActivePacks(){
     return packPaths;
 }
 
-AxisAlignment getAxisAlignment(std::string name){
+AxisAlignment UIModding::getAxisAlignment(std::string name){
     AxisAlignment axisAlignment = AxisAlignment::Start;
     if(name == "start"){
         axisAlignment = AxisAlignment::Start;
@@ -1363,11 +1514,9 @@ AxisAlignment getAxisAlignment(std::string name){
 }
 
 
-void doUICheckForType(std::string type, CCNode* node){
+void UIModding::doUICheckForType(std::string type, CCNode* node){
 
     matjson::Value value;
-
-    //log::info("{}", uiCache.size());
 
     if(uiCache.contains(type)){
         value = uiCache[type];
@@ -1403,88 +1552,3 @@ void doUICheckForType(std::string type, CCNode* node){
     }
 }
 
-#include <Geode/modify/CCNode.hpp>
-modifyNodeForType(CCNode, init, (), ());
-
-#include <Geode/modify/CCSprite.hpp>
-modifyNodeForType(CCSprite, init, (), ());
-modifyNodeForType(CCSprite, initWithTexture, (CCTexture2D *p0, const CCRect& p1, bool p2), (p0, p1, p2));
-modifyNodeForType(CCSprite, initWithSpriteFrame, (CCSpriteFrame *p0), (p0));
-modifyNodeForType(CCSprite, initWithSpriteFrameName, (const char *p0), (p0));
-modifyNodeForType(CCSprite, initWithFile, (const char *p0, const CCRect& p1), (p0, p1));
-
-#include <Geode/modify/CCMenu.hpp>
-modifyNodeForType(CCMenu, init, (), ());
-modifyNodeForType(CCMenu, initWithArray, (CCArray* p0), (p0));
-
-#include <Geode/modify/CCMenuItemSpriteExtra.hpp>
-modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3), (p0, p1, p2, p3));
-
-#include <Geode/modify/CCLabelBMFont.hpp>
-modifyNodeForType(CCLabelBMFont, init, (), ());
-modifyNodeForType(CCLabelBMFont, initWithString, (const char *p0, const char *p1, float p2, CCTextAlignment p3, CCPoint p4), (p0, p1, p2, p3, p4));
-
-#include <Geode/modify/CCLayer.hpp>
-modifyNodeForType(CCLayer, init, (), ());
-
-#include <Geode/modify/CCScale9Sprite.hpp>
-modifyNodeForType(CCScale9Sprite, init, (), ());
-modifyNodeForType(CCScale9Sprite, initWithBatchNode, (CCSpriteBatchNode* p0, CCRect p1, bool p2, CCRect p3), (p0, p1, p2, p3));
-modifyNodeForType(CCScale9Sprite, initWithFile, (const char* p0, CCRect p1,  CCRect p2), (p0, p1, p2));
-modifyNodeForType(CCScale9Sprite, initWithSpriteFrame, (CCSpriteFrame* p0, CCRect p1), (p0, p1));
-modifyNodeForType(CCScale9Sprite, initWithSpriteFrameName, (const char* p0, CCRect p1), (p0, p1));
-
-#include <Geode/modify/CCSpriteBatchNode.hpp>
-modifyNodeForType(CCSpriteBatchNode, init, (), ());
-modifyNodeForType(CCSpriteBatchNode, initWithTexture, (CCTexture2D *p0, unsigned int p1), (p0, p1));
-modifyNodeForType(CCSpriteBatchNode, initWithFile, (const char* p0, unsigned int p1), (p0, p1));
-
-#include <Geode/modify/CCTextInputNode.hpp>
-modifyNodeForTypeCreate(CCTextInputNode, create, (float p0, float p1, char const* p2, char const* p3, int p4, char const* p5), (p0, p1, p2, p3, p4, p5));
-
-#include <Geode/modify/TextArea.hpp>
-modifyNodeForType(TextArea, init, (gd::string p0, char const* p1, float p2, float p3, cocos2d::CCPoint p4, float p5, bool p6), (p0, p1, p2, p3, p4, p5, p6));
-
-#include <Geode/modify/Slider.hpp>
-modifyNodeForType(Slider, init, (cocos2d::CCNode* p0, cocos2d::SEL_MenuHandler p1, char const* p2, char const* p3, char const* p4, char const* p5, float p6), (p0, p1, p2, p3, p4, p5, p6));
-
-#include <Geode/modify/ButtonSprite.hpp>
-modifyNodeForType(ButtonSprite, init, (char const* p0, int p1, int p2, float p3, bool p4, char const* p5, char const* p6, float p7), (p0, p1, p2, p3, p4, p5, p6, p7));
-modifyNodeForType(ButtonSprite, init, (cocos2d::CCSprite* p0, int p1, int p2, float p3, float p4, bool p5, char const* p6, bool p7), (p0, p1, p2, p3, p4, p5, p6, p7));
-
-#include <Geode/modify/SearchButton.hpp>
-modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, float p2, char const* p3), (p0, p1, p2, p3));
-
-#include <Geode/modify/LoadingCircle.hpp>
-modifyNodeForType(LoadingCircle, init, (), ());
-
-#include <Geode/modify/BoomScrollLayer.hpp>
-modifyNodeForType(BoomScrollLayer, init, (cocos2d::CCArray* p0, int p1, bool p2, cocos2d::CCArray* p3, DynamicScrollDelegate* p4), (p0, p1, p2, p3, p4));
-
-#include <Geode/modify/ExtendedLayer.hpp>
-modifyNodeForType(ExtendedLayer, init, (), ());
-
-#include <Geode/modify/SimplePlayer.hpp>
-modifyNodeForType(SimplePlayer, init, (int p0), (p0));
-
-#include <Geode/modify/DailyLevelNode.hpp>
-modifyNodeForType(DailyLevelNode, init, (GJGameLevel* p0, DailyLevelPage* p1, bool p2), (p0, p1, p2));
-
-#include <Geode/modify/GJListLayer.hpp>
-modifyNodeForTypeCreate(GJListLayer, create, (BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, int p5), (p0, p1, p2, p3, p4, p5));
-
-#include <Geode/modify/CCLayerColor.hpp>
-modifyNodeForType(CCLayerColor, init, (), ());
-modifyNodeForType(CCLayerColor, initWithColor, (const ccColor4B& p0, GLfloat p1, GLfloat p2), (p0, p1, p2));
-
-#include <Geode/modify/LevelCell.hpp>
-modifyNodeForType(LevelCell, init, (), ());
-
-#include <Geode/modify/CustomSongWidget.hpp>
-modifyNodeForType(CustomSongWidget, init, (SongInfoObject* p0, CustomSongDelegate* p1, bool p2, bool p3, bool p4, bool p5, bool p6, bool p7), (p0, p1, p2, p3, p4, p5, p6, p7));
-
-#include <Geode/modify/GJDifficultySprite.hpp>
-modifyNodeForType(GJDifficultySprite, init, (int p0, GJDifficultyName p1), (p0, p1));
-
-#include <Geode/modify/GJCommentListLayer.hpp>
-modifyNodeForTypeCreate(GJCommentListLayer, create, (BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, bool p5), (p0, p1, p2, p3, p4, p5));

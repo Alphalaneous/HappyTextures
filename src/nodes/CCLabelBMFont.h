@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef MYCCLABELBMFONT_H
+#define MYCCLABELBMFONT_H
+
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCLabelBMFont.hpp>
 #include "Utils.h"
@@ -23,3 +28,5 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
         CCLabelBMFont::limitLabelWidth(width, defaultScale, minScale);
     }
 };
+
+#endif

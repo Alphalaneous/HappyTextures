@@ -1,6 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCScale9Sprite.hpp>
-#include "Utils.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 
