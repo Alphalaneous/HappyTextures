@@ -858,7 +858,8 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
                                 else if(type == "sprite"){
                                     CCSprite* spr = CCSprite::create(spriteName.c_str());
                                     if(spr){
-                                        buttonNode->setSprite(spr);
+                                        buttonNode->setNormalImage(spr);
+		                                buttonNode->updateSprite();
                                     }
                                 }
                             }
