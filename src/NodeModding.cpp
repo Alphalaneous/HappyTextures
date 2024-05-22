@@ -30,7 +30,6 @@ modifyNodeForType(CCLabelBMFont, initWithString, (const char *p0, const char *p1
 #include <Geode/modify/CCLayer.hpp>
 modifyNodeForType(CCLayer, init, (), ());
 
-#ifndef GEODE_IS_ANDROID
 /////////////////
 
 #include <Geode/modify/CCScale9Sprite.hpp>
@@ -64,6 +63,7 @@ modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, f
 #include <Geode/modify/LoadingCircle.hpp>
 modifyNodeForType(LoadingCircle, init, (), ());
 
+#ifndef GEODE_IS_ANDROID
 /////////
 
 //#include <Geode/modify/BoomScrollLayer.hpp>
