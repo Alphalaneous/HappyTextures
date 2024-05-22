@@ -14,6 +14,8 @@ class $modify(MyLevelCell, LevelCell) {
         (void) self.setHookPriority("LevelCell::updateBGColor", INT_MIN);
     }
 
+    #ifndef GEODE_IS_MACOS
+
 	void updateBGColor(int p0) {
 
 		LevelCell::updateBGColor(p0);
@@ -39,6 +41,8 @@ class $modify(MyLevelCell, LevelCell) {
             }
         }
 	}
+
+    #endif
 };
 
 #endif

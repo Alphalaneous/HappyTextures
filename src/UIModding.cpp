@@ -417,6 +417,9 @@ std::string UIModding::getSound(std::string sound){
 }
 
 void UIModding::playSound(CCNode* node, matjson::Object attributes){
+
+#ifndef GEODE_IS_MACOS
+    
     if(attributes.contains("sound")){
         matjson::Value soundVal = attributes["sound"];
         if(soundVal.is_string()){
@@ -435,6 +438,7 @@ void UIModding::playSound(CCNode* node, matjson::Object attributes){
             }
         }
     }
+#endif
 }
 
 void UIModding::openLink(CCNode* node, matjson::Object attributes){

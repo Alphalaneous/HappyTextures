@@ -51,9 +51,13 @@ modifyNodeForType(TextArea, init, (gd::string p0, char const* p1, float p2, floa
 #include <Geode/modify/Slider.hpp>
 modifyNodeForType(Slider, init, (cocos2d::CCNode* p0, cocos2d::SEL_MenuHandler p1, char const* p2, char const* p3, char const* p4, char const* p5, float p6), (p0, p1, p2, p3, p4, p5, p6));
 
+#ifndef GEODE_IS_MACOS
+
 #include <Geode/modify/ButtonSprite.hpp>
 modifyNodeForType(ButtonSprite, init, (char const* p0, int p1, int p2, float p3, bool p4, char const* p5, char const* p6, float p7), (p0, p1, p2, p3, p4, p5, p6, p7));
 modifyNodeForType(ButtonSprite, init, (cocos2d::CCSprite* p0, int p1, int p2, float p3, float p4, bool p5, char const* p6, bool p7), (p0, p1, p2, p3, p4, p5, p6, p7));
+
+#endif
 
 #include <Geode/modify/SearchButton.hpp>
 modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, float p2, char const* p3), (p0, p1, p2, p3));
@@ -86,8 +90,12 @@ modifyNodeForType(LevelCell, init, (), ());
 #include <Geode/modify/CustomSongWidget.hpp>
 modifyNodeForType(CustomSongWidget, init, (SongInfoObject* p0, CustomSongDelegate* p1, bool p2, bool p3, bool p4, bool p5, bool p6, bool p7), (p0, p1, p2, p3, p4, p5, p6, p7));
 
+#ifndef GEODE_IS_MACOS
+
 #include <Geode/modify/GJDifficultySprite.hpp>
 modifyNodeForType(GJDifficultySprite, init, (int p0, GJDifficultyName p1), (p0, p1));
+
+#endif
 
 #include <Geode/modify/GJCommentListLayer.hpp>
 modifyNodeForTypeCreate(GJCommentListLayer, create, (BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, bool p5), (p0, p1, p2, p3, p4, p5));
