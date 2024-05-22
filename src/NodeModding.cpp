@@ -4,6 +4,7 @@
 
 using namespace geode::prelude;
 
+
 #include <Geode/modify/CCNode.hpp>
 modifyNodeForType(CCNode, init, (), ());
 
@@ -15,8 +16,8 @@ modifyNodeForType(CCSprite, initWithSpriteFrameName, (const char *p0), (p0));
 modifyNodeForType(CCSprite, initWithFile, (const char *p0, const CCRect& p1), (p0, p1));
 
 #include <Geode/modify/CCMenu.hpp>
-modifyNodeForType(CCMenu, init, (), ());
-modifyNodeForType(CCMenu, initWithArray, (CCArray* p0), (p0));
+modifyNodeForTypeCreate(CCMenu, create, (), ());
+modifyNodeForTypeCreate(CCMenu, createWithArray, (CCArray* p0), (p0));
 
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3), (p0, p1, p2, p3));
@@ -90,5 +91,4 @@ modifyNodeForType(GJDifficultySprite, init, (int p0, GJDifficultyName p1), (p0, 
 
 #include <Geode/modify/GJCommentListLayer.hpp>
 modifyNodeForTypeCreate(GJCommentListLayer, create, (BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, bool p5), (p0, p1, p2, p3, p4, p5));
-
 
