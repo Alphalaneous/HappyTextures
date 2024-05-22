@@ -15,10 +15,9 @@ modifyNodeForType(CCSprite, initWithSpriteFrame, (CCSpriteFrame *p0), (p0));
 modifyNodeForType(CCSprite, initWithSpriteFrameName, (const char *p0), (p0));
 modifyNodeForType(CCSprite, initWithFile, (const char *p0, const CCRect& p1), (p0, p1));
 
-
 #include <Geode/modify/CCMenu.hpp>
-modifyNodeForType(CCMenu, init, (), ());
-modifyNodeForType(CCMenu, initWithArray, (CCArray* p0), (p0));
+modifyNodeForTypeCreate(CCMenu, create, (), ());
+modifyNodeForTypeCreate(CCMenu, createWithArray, (CCArray* p0), (p0));
 
 #ifndef GEODE_IS_ANDROID
 
