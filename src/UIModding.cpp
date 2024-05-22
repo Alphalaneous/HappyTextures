@@ -1228,7 +1228,9 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
                             handleModifyForType(CCScale9Sprite);
                             handleModifyForType(CCSpriteBatchNode);
                             handleModifyForType(CCTextInputNode);
+                            #ifndef GEODE_IS_MACOS
                             handleModifyForType(CCTextFieldTTF);
+                            #endif
                             handleModifyForType(TextArea);
                             handleModifyForType(MultilineBitmapFont);
                             handleModifyForType(Slider);
