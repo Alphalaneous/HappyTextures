@@ -4,7 +4,6 @@
 
 using namespace geode::prelude;
 
-
 #include <Geode/modify/CCNode.hpp>
 modifyNodeForType(CCNode, init, (), ());
 

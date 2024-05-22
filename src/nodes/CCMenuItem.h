@@ -4,12 +4,12 @@
 #define MYCCMENUITEMSPRITEXTRA_H
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/CCMenuItemSpriteExtra.hpp>
+#include <Geode/modify/CCMenuItem.hpp>
 #include "CCScene.h"
 
 using namespace geode::prelude;
 
-struct EventCCMenuItemSpriteExtra : Modify<EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra> {
+struct EventCCMenuItem : Modify<EventCCMenuItem, CCMenuItem> {
 
     static void onModify(auto& self) {\
         (void) self.setHookPriority("CCMenuItemSpriteExtra::create", INT_MIN);\
@@ -44,8 +44,6 @@ struct EventCCMenuItemSpriteExtra : Modify<EventCCMenuItemSpriteExtra, CCMenuIte
     void unselected();
     void activate();
     void checkTouch(bool hasLayerOnTop);
-    static CCMenuItemSpriteExtra* create(cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3);
-    static CCMenuItemSpriteExtra* create(cocos2d::CCNode* p0, cocos2d::CCObject* p1, cocos2d::SEL_MenuHandler p2);
 };
 
 #endif

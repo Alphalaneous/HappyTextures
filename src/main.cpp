@@ -1,7 +1,7 @@
 #include <Geode/Geode.hpp>
 #include "nodes/CCLabelBMFont.h"
 #include "nodes/CCMenu.h"
-#include "nodes/CCMenuItemSpriteExtra.h"
+#include "nodes/CCMenuItem.h"
 #include "nodes/CCScene.h"
 #include "nodes/CommentCell.h"
 #include "nodes/EditLevelLayer.h"

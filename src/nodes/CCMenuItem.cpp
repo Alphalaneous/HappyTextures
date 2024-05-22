@@ -1,6 +1,6 @@
-#include "CCMenuItemSpriteExtra.h"
+#include "CCMenuItem.h"
 
-void EventCCMenuItemSpriteExtra::setOnClick(matjson::Object onClick){
+void EventCCMenuItem::setOnClick(matjson::Object onClick){
     m_fields->onClick = onClick;
     if(onClick.contains("override")){
         matjson::Value overrideVal = onClick["override"];
@@ -9,7 +9,7 @@ void EventCCMenuItemSpriteExtra::setOnClick(matjson::Object onClick){
         }
     }
 }
-void EventCCMenuItemSpriteExtra::setOnRelease(matjson::Object onRelease){
+void EventCCMenuItem::setOnRelease(matjson::Object onRelease){
     m_fields->onRelease = onRelease;
     if(onRelease.contains("override")){
         matjson::Value overrideVal = onRelease["override"];
@@ -18,7 +18,7 @@ void EventCCMenuItemSpriteExtra::setOnRelease(matjson::Object onRelease){
         }
     }
 }
-void EventCCMenuItemSpriteExtra::setOnActivate(matjson::Object onActivate){
+void EventCCMenuItem::setOnActivate(matjson::Object onActivate){
     m_fields->onActivate = onActivate;
     if(onActivate.contains("override")){
         matjson::Value overrideVal = onActivate["override"];
@@ -27,65 +27,61 @@ void EventCCMenuItemSpriteExtra::setOnActivate(matjson::Object onActivate){
         }
     }
 }
-void EventCCMenuItemSpriteExtra::setOnHover(matjson::Object onHover){
+void EventCCMenuItem::setOnHover(matjson::Object onHover){
     m_fields->hasHover = true;
     m_fields->onHover = onHover;
 }
-void EventCCMenuItemSpriteExtra::setOnExit(matjson::Object onExit){
+void EventCCMenuItem::setOnExit(matjson::Object onExit){
     m_fields->hasExit = true;
     m_fields->onExit = onExit;
 }
 
-void EventCCMenuItemSpriteExtra::runOnClick(){
+void EventCCMenuItem::runOnClick(){
     UIModding::get()->handleModifications(this, m_fields->onClick);
 }
 
-void EventCCMenuItemSpriteExtra::runOnRelease(){
+void EventCCMenuItem::runOnRelease(){
     UIModding::get()->handleModifications(this, m_fields->onRelease);
 }
 
-void EventCCMenuItemSpriteExtra::runOnActivate(){
+void EventCCMenuItem::runOnActivate(){
     UIModding::get()->handleModifications(this, m_fields->onActivate);
 }
 
-void EventCCMenuItemSpriteExtra::runOnHover(){
+void EventCCMenuItem::runOnHover(){
     UIModding::get()->handleModifications(this, m_fields->onHover);
 }
 
-void EventCCMenuItemSpriteExtra::runOnExit(){
+void EventCCMenuItem::runOnExit(){
     UIModding::get()->handleModifications(this, m_fields->onExit);
 }
 
-void EventCCMenuItemSpriteExtra::selected(){
+void EventCCMenuItem::selected(){
     if(!m_fields->overrideOnClick){
-        CCMenuItemSpriteExtra::selected();
+        CCMenuItem::selected();
     }
     runOnClick();
 }
 
-void EventCCMenuItemSpriteExtra::unselected(){
+void EventCCMenuItem::unselected(){
     if(!m_fields->overrideOnRelease){
-        CCMenuItemSpriteExtra::unselected();
+        CCMenuItem::unselected();
     }
     runOnRelease();
 }
 
-void EventCCMenuItemSpriteExtra::activate(){
+void EventCCMenuItem::activate(){
     if(!m_fields->overrideOnActivate){
-        CCMenuItemSpriteExtra::activate();
+        CCMenuItem::activate();
     }
     runOnActivate();
 }
 
-CCMenuItemSpriteExtra* EventCCMenuItemSpriteExtra::create(cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3){
-    auto ret = CCMenuItemSpriteExtra::create(p0, p1, p2, p3);
 
-    return ret;
-}
-
-void EventCCMenuItemSpriteExtra::checkTouch(bool hasLayerOnTop){
+void EventCCMenuItem::checkTouch(bool hasLayerOnTop){
 
     if((m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)){
+
         CCPoint point = getMousePos();
 
         CCMenu* parentMenu = static_cast<CCMenu*>(getParent());

@@ -5,12 +5,12 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenu.hpp>
-#include "CCMenuItemSpriteExtra.h"
+#include "CCMenuItem.h"
 #include "../UIModding.h"
 
 using namespace geode::prelude;
 
-class EventCCMenuItemSpriteExtra;
+class EventCCMenuItem;
 
 class $modify(EventCCMenu, CCMenu){
 
@@ -30,33 +30,42 @@ class $modify(EventCCMenu, CCMenu){
         return true;
     }
 
-    CCNode* findNodeRecursive(CCNode* node, CCNode* child) {
-
+    bool hasNode(CCNode* child, CCNode* node) {
         if(node == child){
-            return child;
+            return true;
         }
 
-        for (auto childa : CCArrayExt<CCNode*>(child->getChildren())) {
-            if ((childa = findNodeRecursive(node, childa))) {
-                return childa;
+        CCNode* parent = child;
+        while(true){
+            if(parent){
+                if(parent == node){
+                    return true;
+                }
+                parent = parent->getParent();
+            }
+            else{
+                break;
             }
         }
-        return nullptr;
+
+        return false;
     }
 
     void recursiveCheck(CCNode* node, bool hasLayerOnTop){
 
-        for(CCNode* node : CCArrayExt<CCNode*>(node->getChildren())){
-            if(EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(node)){
-                button->checkTouch(hasLayerOnTop);
+        for(CCNode* nodeA : CCArrayExt<CCNode*>(node->getChildren())){
+            if(nodeIsVisible(nodeA)){
+                if(EventCCMenuItem* button = static_cast<EventCCMenuItem*>(nodeA)){
+                    button->checkTouch(hasLayerOnTop);
+                }
+                recursiveCheck(nodeA, hasLayerOnTop);
             }
-            recursiveCheck(node, hasLayerOnTop);
         }
     }
 
     void check(float dt){
 
-        if(LevelEditorLayer::get()) return;
+        if(!nodeIsVisible(this)) return;
 
         CCScene* currentScene = CCDirector::get()->getRunningScene();
         int layerCount = currentScene->getChildrenCount();
@@ -65,7 +74,7 @@ class $modify(EventCCMenu, CCMenu){
             CCNode* buttonLayer;
 
             for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
-                if(findNodeRecursive(this, node)){
+                if(hasNode(this, node)){
                     buttonLayer = node;
                 }
             }
