@@ -234,6 +234,8 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
                 node->stopAllActions();
             }
 
+            #ifndef GEODE_IS_MACOS
+
             actionForName(MoveBy, (duration, {x, y}));
             actionForName(MoveTo, (duration, {x, y}));
             actionForName(SkewBy, (duration, x, y));
@@ -245,6 +247,8 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
             actionForName2(ScaleBy, x, y, value);
             actionForName2(RotateBy, x, y, value);
             actionForName2(RotateTo, x, y, value);
+
+            #endif
 
         }
         if(actionToDo){
