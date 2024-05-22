@@ -22,7 +22,7 @@ class $modify(MyMenuLayer, MenuLayer){
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 
         if(UIModding::get()->doModify){
-            UIModding::get()->startFileListeners();
+            //UIModding::get()->startFileListeners();
             UIModding::get()->doUICheck(this);
         }
         return true;
