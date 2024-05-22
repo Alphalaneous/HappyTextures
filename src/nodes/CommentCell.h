@@ -14,6 +14,8 @@ class $modify(CommentCell) {
         (void) self.setHookPriority("CommentCell::updateBGColor", INT_MIN);
     }
 
+    #ifndef GEODE_IS_MACOS
+
 	void updateBGColor(int p0) {
 
 		CommentCell::updateBGColor(p0);
@@ -72,6 +74,8 @@ class $modify(CommentCell) {
             }
         }
 	}
+
+    #endif
 };
 
 #endif
