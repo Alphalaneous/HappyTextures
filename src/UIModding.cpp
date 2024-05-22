@@ -111,6 +111,8 @@ void UIModding::recursiveModify(CCNode* node, matjson::Object elements){
 
 void UIModding::runAction(CCNode* node, matjson::Object attributes){
 
+    #ifndef GEODE_IS_MACOS
+
     if(attributes.contains("actions")){
         matjson::Value actionsValue = attributes["actions"];
         if(actionsValue.is_array()){
@@ -132,10 +134,13 @@ void UIModding::runAction(CCNode* node, matjson::Object attributes){
             }
         }
     }
+    #endif
 }
 
 CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
     CCActionInterval* retAction = nullptr;
+
+    #ifndef GEODE_IS_MACOS
 
     if(action.contains("type")) {
 
@@ -234,7 +239,7 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
                 node->stopAllActions();
             }
 
-            #ifndef GEODE_IS_MACOS
+           
 
             actionForName(MoveBy, (duration, {x, y}));
             actionForName(MoveTo, (duration, {x, y}));
@@ -247,8 +252,6 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
             actionForName2(ScaleBy, x, y, value);
             actionForName2(RotateBy, x, y, value);
             actionForName2(RotateTo, x, y, value);
-
-            #endif
 
         }
         if(actionToDo){
@@ -264,6 +267,7 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
             }
         }
     }
+    #endif
     return retAction;
 }
 
@@ -1134,7 +1138,9 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
             nodesFor(setLayout);
             nodesFor(removeChild);
             nodesFor(updateLayout);
+            #ifndef GEODE_IS_MACOS
             nodesFor(runAction);
+            #endif
             nodesFor(playSound);
             nodesFor(openLink);
         }
@@ -1286,7 +1292,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
                                         newNode = CCMenu::create();
                                     }
                                     if(type == "CCLayerColor"){
-                                        newNode = CCLayerColor::create();
+                                        newNode = CCLayerColor::create(ccColor4B{0,0,0,0});
                                     }
                                     if(type == "CCMenuItemSpriteExtra"){
                                         newNode = CCMenuItemSpriteExtra::create(CCSprite::create(), nullptr, nullptr, nullptr);
