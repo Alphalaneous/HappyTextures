@@ -23,7 +23,7 @@ class $modify(MyCCScene, CCScene){
     static CCScene* create(){
         auto ret = CCScene::create();
         if(UIModding::get()->doModify){
-            //ret->schedule(schedule_selector(MyCCScene::checkForUpdates));
+            ret->schedule(schedule_selector(MyCCScene::checkForUpdates));
         }
         return ret;
     }
@@ -36,7 +36,7 @@ class $modify(MyCCScene, CCScene){
                 idx++;
                 if(node->getID() == "MenuLayer") continue;
                 if(idx > m_fields->m_currentCount){
-                    //UIModding::get()->doUICheck(node);
+                    UIModding::get()->doUICheck(node);
                 }
             }
         }
