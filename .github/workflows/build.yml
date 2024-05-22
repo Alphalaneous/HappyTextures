@@ -12,11 +12,11 @@ jobs:
       fail-fast: false
       matrix:
         config:
-       # - name: Windows
-       #   os: windows-latest
+        - name: Windows
+          os: windows-latest
 
-       # - name: macOS
-       #   os: macos-latest
+        - name: macOS
+          os: macos-latest
 
         - name: Android32
           os: ubuntu-latest
