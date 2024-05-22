@@ -19,7 +19,7 @@ class $modify(MyMenuLayer, MenuLayer){
         if(!MenuLayer::init()){
             return false;
         }
-        UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+        //UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 
         if(UIModding::get()->doModify){
             //UIModding::get()->startFileListeners();
