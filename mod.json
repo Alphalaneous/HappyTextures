@@ -38,7 +38,8 @@
             "name": "Pusab Fix",
 			"description": "Makes changing pusab in texture packs not affect the font within levels.",
             "type": "bool",
-            "default": true
+            "default": true,
+			"platforms": ["win", "android"]
         },
 		"ui-modifications": {
             "name": "Allow UI Modifications",
