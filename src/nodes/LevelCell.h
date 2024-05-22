@@ -17,24 +17,27 @@ class $modify(MyLevelCell, LevelCell) {
 	void updateBGColor(int p0) {
 
 		LevelCell::updateBGColor(p0);
-		CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0);
 
-		if(child->getColor() == ccColor3B{161,88,44}){
-            std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-odd");
-            if(dataOpt.has_value()){
-                ColorData data = dataOpt.value();
-			    child->setColor(data.color);
-                child->setOpacity(data.alpha);
+        if(UIModding::get()->doModify){
+            CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0);
+
+            if(child->getColor() == ccColor3B{161,88,44}){
+                std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-odd");
+                if(dataOpt.has_value()){
+                    ColorData data = dataOpt.value();
+                    child->setColor(data.color);
+                    child->setOpacity(data.alpha);
+                }
             }
-		}
-		else if(child->getColor() == ccColor3B{194,114,62}){
-			std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-even");
-            if(dataOpt.has_value()){
-                ColorData data = dataOpt.value();
-			    child->setColor(data.color);
-                child->setOpacity(data.alpha);
+            else if(child->getColor() == ccColor3B{194,114,62}){
+                std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-even");
+                if(dataOpt.has_value()){
+                    ColorData data = dataOpt.value();
+                    child->setColor(data.color);
+                    child->setOpacity(data.alpha);
+                }
             }
-		}
+        }
 	}
 };
 
