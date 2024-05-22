@@ -26,8 +26,6 @@ struct EventCCMenuItemSpriteExtra : Modify<EventCCMenuItemSpriteExtra, CCMenuIte
         bool overrideOnActivate = false;
         bool isHovering = false;
         bool validHover = false;
-        bool hasLayerOnTop = true;
-        int lastLayerCount = 0;
         bool hasHover = false;
         bool hasExit = false;
         CCNode* runner = CCNode::create();
@@ -45,7 +43,7 @@ struct EventCCMenuItemSpriteExtra : Modify<EventCCMenuItemSpriteExtra, CCMenuIte
     void selected();
     void unselected();
     void activate();
-    void checkTouch(float dt);
+    void checkTouch(bool hasLayerOnTop);
     static CCMenuItemSpriteExtra* create(cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3);
     static CCMenuItemSpriteExtra* create(cocos2d::CCNode* p0, cocos2d::CCObject* p1, cocos2d::SEL_MenuHandler p2);
 };

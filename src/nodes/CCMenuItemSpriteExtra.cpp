@@ -79,29 +79,11 @@ void EventCCMenuItemSpriteExtra::activate(){
 
 CCMenuItemSpriteExtra* EventCCMenuItemSpriteExtra::create(cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3){
     auto ret = CCMenuItemSpriteExtra::create(p0, p1, p2, p3);
-    if(UIModding::get()->doModify){
-#ifdef GEODE_IS_WINDOWS
-        ret->schedule(schedule_selector(EventCCMenuItemSpriteExtra::checkTouch), 1/30);
-#endif
-    }
+
     return ret;
 }
 
-CCNode* findNodeRecursive(CCNode* node, CCNode* child) {
-
-    if(node == child){
-        return child;
-    }
-
-    for (auto childa : CCArrayExt<CCNode*>(child->getChildren())) {
-        if ((childa = findNodeRecursive(node, childa))) {
-            return childa;
-        }
-    }
-    return nullptr;
-}
-
-void EventCCMenuItemSpriteExtra::checkTouch(float dt){
+void EventCCMenuItemSpriteExtra::checkTouch(bool hasLayerOnTop){
 
     if((m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)){
         CCPoint point = getMousePos();
@@ -117,39 +99,8 @@ void EventCCMenuItemSpriteExtra::checkTouch(float dt){
         CCRect screenRect = CCRect{0, 0, screenSize.width, screenSize.height};
 
         bool containsPoint = r.containsPoint(local);
-
-        CCScene* currentScene = CCDirector::get()->getRunningScene();
-        int layerCount = currentScene->getChildrenCount();
-
-        if(layerCount != m_fields->lastLayerCount){
-            CCNode* buttonLayer;
-
-            for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
-                if(findNodeRecursive(this, node)){
-                    buttonLayer = node;
-                }
-            }
-
-            bool hasLayerOnTop = true;
-            bool doCheck = false;
-            for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
-                if(node == buttonLayer) {
-                    doCheck = true;
-                    hasLayerOnTop = false;
-                    continue;
-                }
-                if(doCheck){
-                    if(node->getContentSize() != CCSize{0,0} && node->isVisible()){
-                        hasLayerOnTop = true;
-                        break;
-                    }
-                }
-            }
-            m_fields->hasLayerOnTop = hasLayerOnTop;
-            m_fields->lastLayerCount = layerCount;
-        }
-
-        if(!m_fields->hasLayerOnTop){
+       
+        if(!hasLayerOnTop){
             if (containsPoint && !m_fields->isHovering) {
                 m_fields->isHovering = true;
                 runOnHover();
