@@ -66,6 +66,8 @@ class $modify(EventCCMenu, CCMenu){
 
     void check(float dt){
 
+        if(LevelEditorLayer::get()) return;
+
         CCScene* currentScene = CCDirector::get()->getRunningScene();
         int layerCount = currentScene->getChildrenCount();
 
