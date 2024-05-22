@@ -21,7 +21,9 @@ modifyNodeForType(CCMenu, initWithArray, (CCArray* p0), (p0));
 
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3), (p0, p1, p2, p3));
-modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCObject* p1, cocos2d::SEL_MenuHandler p2), (p0, p1, p2));
+//modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCObject* p1, cocos2d::SEL_MenuHandler p2), (p0, p1, p2));
+
+#ifndef GEODE_IS_ANDROID
 
 #include <Geode/modify/CCLabelBMFont.hpp>
 modifyNodeForType(CCLabelBMFont, init, (), ());
@@ -30,7 +32,7 @@ modifyNodeForType(CCLabelBMFont, initWithString, (const char *p0, const char *p1
 #include <Geode/modify/CCLayer.hpp>
 modifyNodeForType(CCLayer, init, (), ());
 
-#ifndef GEODE_IS_ANDROID
+/////////////////
 
 #include <Geode/modify/CCScale9Sprite.hpp>
 modifyNodeForType(CCScale9Sprite, init, (), ());
