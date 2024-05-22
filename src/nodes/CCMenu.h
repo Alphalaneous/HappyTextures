@@ -20,24 +20,14 @@ class $modify(EventCCMenu, CCMenu){
         int lastLayerCount = 0;
     };
 
-    static CCMenu* create(){
-        auto ret = CCMenu::create();
+    bool initWithArray(CCArray* array){
+        if(!CCMenu::initWithArray(array)) return false;
         if(UIModding::get()->doModify){
     #ifdef GEODE_IS_WINDOWS
-            ret->schedule(schedule_selector(EventCCMenu::check), 1/15);
+            schedule(schedule_selector(EventCCMenu::check), 1/15);
     #endif
         }
-        return ret;
-    }
-
-    static CCMenu* createWithArray(CCArray* array){
-        auto ret = CCMenu::createWithArray(array);
-        if(UIModding::get()->doModify){
-    #ifdef GEODE_IS_WINDOWS
-            ret->schedule(schedule_selector(EventCCMenu::check), 1/15);
-    #endif
-        }
-        return ret;
+        return true;
     }
 
     CCNode* findNodeRecursive(CCNode* node, CCNode* child) {

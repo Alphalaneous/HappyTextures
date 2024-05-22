@@ -16,8 +16,7 @@ modifyNodeForType(CCSprite, initWithSpriteFrameName, (const char *p0), (p0));
 modifyNodeForType(CCSprite, initWithFile, (const char *p0, const CCRect& p1), (p0, p1));
 
 #include <Geode/modify/CCMenu.hpp>
-modifyNodeForTypeCreate(CCMenu, create, (), ());
-modifyNodeForTypeCreate(CCMenu, createWithArray, (CCArray* p0), (p0));
+modifyNodeForType(CCMenu, initWithArray, (CCArray* p0), (p0));
 
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3), (p0, p1, p2, p3));
