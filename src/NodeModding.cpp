@@ -30,6 +30,8 @@ modifyNodeForType(CCLabelBMFont, initWithString, (const char *p0, const char *p1
 #include <Geode/modify/CCLayer.hpp>
 modifyNodeForType(CCLayer, init, (), ());
 
+#ifndef GEODE_IS_ANDROID
+
 #include <Geode/modify/CCScale9Sprite.hpp>
 modifyNodeForType(CCScale9Sprite, init, (), ());
 modifyNodeForType(CCScale9Sprite, initWithBatchNode, (CCSpriteBatchNode* p0, CCRect p1, bool p2, CCRect p3), (p0, p1, p2, p3));
@@ -61,7 +63,7 @@ modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, f
 #include <Geode/modify/LoadingCircle.hpp>
 modifyNodeForType(LoadingCircle, init, (), ());
 
-#ifndef GEODE_IS_ANDROID
+/////////
 
 //#include <Geode/modify/BoomScrollLayer.hpp>
 //modifyNodeForTypeCreate(BoomScrollLayer, create, (cocos2d::CCArray* p0, int p1, bool p2, cocos2d::CCArray* p3, DynamicScrollDelegate* p4), (p0, p1, p2, p3, p4));
