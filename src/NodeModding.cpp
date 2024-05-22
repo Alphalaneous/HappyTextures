@@ -4,6 +4,8 @@
 
 using namespace geode::prelude;
 
+#ifndef GEODE_IS_ANDROID
+
 #include <Geode/modify/CCNode.hpp>
 modifyNodeForType(CCNode, init, (), ());
 
@@ -91,4 +93,4 @@ modifyNodeForType(GJDifficultySprite, init, (int p0, GJDifficultyName p1), (p0, 
 #include <Geode/modify/GJCommentListLayer.hpp>
 modifyNodeForTypeCreate(GJCommentListLayer, create, (BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, bool p5), (p0, p1, p2, p3, p4, p5));
 
-
+#endif
