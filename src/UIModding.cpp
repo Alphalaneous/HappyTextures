@@ -14,7 +14,8 @@ using namespace geode::prelude;
 UIModding* UIModding::instance = nullptr;
 
 $execute {
-    UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+    //UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+    UIModding::get()->doModify = false;
 }
 
 void UIModding::updateColors(CCNode* node, std::string name){
