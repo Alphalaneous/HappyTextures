@@ -271,6 +271,8 @@ CCActionInterval* UIModding::getEasingType(std::string name, CCActionInterval* a
         easingType = action;
     }
 
+#ifndef GEODE_IS_MACOS
+
     typeForEaseCC(EaseInOut);
     typeForEaseCC(EaseIn);
     typeForEaseCC(EaseOut);
@@ -289,6 +291,8 @@ CCActionInterval* UIModding::getEasingType(std::string name, CCActionInterval* a
     typeForEase(BackInOut);
     typeForEase(BackIn);
     typeForEase(BackOut);
+
+#endif
 
     return easingType;
 }

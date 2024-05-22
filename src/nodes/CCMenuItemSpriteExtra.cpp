@@ -80,7 +80,7 @@ void EventCCMenuItemSpriteExtra::activate(){
 CCMenuItemSpriteExtra* EventCCMenuItemSpriteExtra::create(cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3){
     auto ret = CCMenuItemSpriteExtra::create(p0, p1, p2, p3);
     if(UIModding::get()->doModify){
-#ifndef GEODE_IS_ANDROID
+#ifdef GEODE_IS_WINDOWS
         ret->schedule(schedule_selector(EventCCMenuItemSpriteExtra::checkTouch), 1/30);
 #endif
     }
