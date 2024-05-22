@@ -61,9 +61,6 @@ modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, f
 #include <Geode/modify/LoadingCircle.hpp>
 modifyNodeForType(LoadingCircle, init, (), ());
 
-
-/////////
-
 //#include <Geode/modify/BoomScrollLayer.hpp>
 //modifyNodeForTypeCreate(BoomScrollLayer, create, (cocos2d::CCArray* p0, int p1, bool p2, cocos2d::CCArray* p3, DynamicScrollDelegate* p4), (p0, p1, p2, p3, p4));
 
