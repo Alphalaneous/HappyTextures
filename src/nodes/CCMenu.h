@@ -3,9 +3,11 @@
 #ifndef MYCCMENU_H
 #define MYCCMENU_H
 
+#ifdef GEODE_IS_WINDOWS
+
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenu.hpp>
-#include "CCMenuItem.h"
+#include "CCMenuItemSpriteExtra.h"
 #include "../UIModding.h"
 
 using namespace geode::prelude;
@@ -23,9 +25,7 @@ class $modify(EventCCMenu, CCMenu){
     bool initWithArray(CCArray* array){
         if(!CCMenu::initWithArray(array)) return false;
         if(UIModding::get()->doModify){
-    #ifdef GEODE_IS_WINDOWS
             schedule(schedule_selector(EventCCMenu::check), 1/15);
-    #endif
         }
         return true;
     }
@@ -55,7 +55,7 @@ class $modify(EventCCMenu, CCMenu){
 
         for(CCNode* nodeA : CCArrayExt<CCNode*>(node->getChildren())){
             if(nodeIsVisible(nodeA)){
-                if(EventCCMenuItem* button = static_cast<EventCCMenuItem*>(nodeA)){
+                if(EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(nodeA)){
                     button->checkTouch(hasLayerOnTop);
                 }
                 recursiveCheck(nodeA, hasLayerOnTop);
@@ -108,5 +108,7 @@ class $modify(EventCCMenu, CCMenu){
         }
     }
 };
+
+#endif
 
 #endif

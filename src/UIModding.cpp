@@ -4,7 +4,7 @@
 #include "FileWatcher.h"
 #include "Utils.h"
 #include "nodes/CCLabelBMFont.h"
-#include "nodes/CCMenuItem.h"
+#include "nodes/CCMenuItemSpriteExtra.h"
 #include "UIModding.h"
 #include "DataNode.h"
 #include "alerts/CustomAlert.h"
@@ -1153,7 +1153,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
 
             eventObject["_pack-name"] = nodeObject["_pack-name"];
 
-            if(EventCCMenuItem* button = static_cast<EventCCMenuItem*>(node)){
+            if(EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(node)){
                 forEvent(on-click, OnClick);
                 forEvent(on-release, OnRelease);
                 forEvent(on-activate, OnActivate);
