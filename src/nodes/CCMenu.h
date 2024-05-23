@@ -16,13 +16,21 @@ class EventCCMenuItem;
 class KeybindsLayer {
 
 };
+class EventsPush {
+
+};
 
 class $modify(EventCCMenu, CCMenu){
+
+    static void onModify(auto& self) {
+        (void) self.setHookPriority("CCMenu::initWithArray", INT_MAX);
+    }
 
     struct Fields {
         bool hasLayerOnTop = true;
         bool canExit = false;
         int lastLayerCount = 0;
+        CCScene* currentScene = nullptr;
     };
 
     bool initWithArray(CCArray* array){
@@ -34,10 +42,6 @@ class $modify(EventCCMenu, CCMenu){
     }
 
     bool hasNode(CCNode* child, CCNode* node) {
-        if(node == child){
-            return true;
-        }
-
         CCNode* parent = child;
         while(true){
             if(parent){
@@ -48,7 +52,6 @@ class $modify(EventCCMenu, CCMenu){
             }
             else break;
         }
-
         return false;
     }
    
@@ -73,27 +76,31 @@ class $modify(EventCCMenu, CCMenu){
         CCScene* currentScene = CCDirector::get()->getRunningScene();
         int layerCount = currentScene->getChildrenCount();
 
-        if(layerCount != m_fields->lastLayerCount){
+        if(layerCount != m_fields->lastLayerCount || currentScene != m_fields->currentScene){
 
             bool hasLayerOnTop = true;
             bool gotNode = false;
 
             for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
-
                 if(!gotNode && hasNode(this, node)){
                     if(typeinfo_cast<KeybindsLayer*>(node)) return;
                     gotNode = true;
+                    
                     hasLayerOnTop = false;
                     continue;
                 }
                 if(gotNode && node->getContentSize() != CCSize{0,0} && node->isVisible()){
-                    hasLayerOnTop = true;
+                    log::info("{}", node->getID());
+                    if(!typeinfo_cast<geode::Notification*>(node) && !typeinfo_cast<EventsPush*>(node) && node->getID() != "itzkiba.better_progression/tier-popup"){
+                        hasLayerOnTop = true; 
+                    }
                     break;
                 }
             }
            
             m_fields->hasLayerOnTop = hasLayerOnTop;
             m_fields->lastLayerCount = layerCount;
+            m_fields->currentScene = currentScene;
         }
 
         if(!m_fields->hasLayerOnTop){
