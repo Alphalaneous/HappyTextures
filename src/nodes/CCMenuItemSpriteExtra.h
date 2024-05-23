@@ -11,6 +11,12 @@ using namespace geode::prelude;
 
 class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 
+    static void onModify(auto& self) {
+        (void) self.setHookPriority("CCMenuItemSpriteExtra::selected", INT_MAX);
+        (void) self.setHookPriority("CCMenuItemSpriteExtra::unselected", INT_MAX);
+        (void) self.setHookPriority("CCMenuItemSpriteExtra::activate", INT_MAX);
+    }
+
     struct Fields {
         matjson::Object onClick;
         matjson::Object onRelease;
@@ -24,7 +30,6 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         bool validHover = false;
         bool hasHover = false;
         bool hasExit = false;
-        CCNode* runner = CCNode::create();
     };
     void setOnClick(matjson::Object onClick){
         m_fields->onClick = onClick;
