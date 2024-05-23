@@ -3,8 +3,6 @@
 #ifndef MYCCMENUITEMSPRITEXTRA_H
 #define MYCCMENUITEMSPRITEXTRA_H
 
-#ifdef GEODE_IS_WINDOWS
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include "CCScene.h"
@@ -141,6 +139,4 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         }
     }
 };
-#endif
-
 #endif
