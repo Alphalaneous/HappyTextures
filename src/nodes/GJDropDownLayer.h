@@ -15,10 +15,10 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer){
     }
 
     void showLayer(bool p0){
-        GJDropDownLayer::showLayer(p0);
         #ifndef GEODE_IS_MACOS
         if(UIModding::get()->doModify){
-            removeFromParent();
+            setVisible(true);
+            removeFromParentAndCleanup(false);
             CCScene* currentScene = CCDirector::get()->getRunningScene();
             currentScene->addChild(this);
 
@@ -34,6 +34,9 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer){
             if(UIModding::get()->doModify){
                 UIModding::get()->doUICheck(this);
             }
+        }
+        else{
+            GJDropDownLayer::showLayer(p0);
         }
         #endif
     }

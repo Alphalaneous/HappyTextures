@@ -13,6 +13,9 @@
 using namespace geode::prelude;
 
 class EventCCMenuItem;
+class KeybindsLayer {
+
+};
 
 class $modify(EventCCMenu, CCMenu){
 
@@ -43,67 +46,62 @@ class $modify(EventCCMenu, CCMenu){
                 }
                 parent = parent->getParent();
             }
-            else{
-                break;
-            }
+            else break;
         }
 
         return false;
     }
-
-    void recursiveCheck(CCNode* node, bool hasLayerOnTop){
+   
+    void checkTouch(CCNode* node, bool hasLayerOnTop){
 
         for(CCNode* nodeA : CCArrayExt<CCNode*>(node->getChildren())){
             if(nodeIsVisible(nodeA)){
                 if(EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(nodeA)){
                     button->checkTouch(hasLayerOnTop);
                 }
-                recursiveCheck(nodeA, hasLayerOnTop);
+                if(CCMenuItemToggler* toggler = dynamic_cast<CCMenuItemToggler*>(nodeA)){
+                    checkTouch(nodeA, hasLayerOnTop);
+                }
             }
         }
     }
 
     void check(float dt){
-
+        
         if(!nodeIsVisible(this)) return;
 
         CCScene* currentScene = CCDirector::get()->getRunningScene();
         int layerCount = currentScene->getChildrenCount();
 
         if(layerCount != m_fields->lastLayerCount){
-            CCNode* buttonLayer;
-
-            for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
-                if(hasNode(this, node)){
-                    buttonLayer = node;
-                }
-            }
 
             bool hasLayerOnTop = true;
-            bool doCheck = false;
+            bool gotNode = false;
+
             for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
-                if(node == buttonLayer) {
-                    doCheck = true;
+
+                if(!gotNode && hasNode(this, node)){
+                    if(typeinfo_cast<KeybindsLayer*>(node)) return;
+                    gotNode = true;
                     hasLayerOnTop = false;
                     continue;
                 }
-                if(doCheck){
-                    if(node->getContentSize() != CCSize{0,0} && node->isVisible()){
-                        hasLayerOnTop = true;
-                        break;
-                    }
+                if(gotNode && node->getContentSize() != CCSize{0,0} && node->isVisible()){
+                    hasLayerOnTop = true;
+                    break;
                 }
             }
+           
             m_fields->hasLayerOnTop = hasLayerOnTop;
             m_fields->lastLayerCount = layerCount;
         }
 
         if(!m_fields->hasLayerOnTop){
-            recursiveCheck(this, m_fields->hasLayerOnTop);
+            checkTouch(this, m_fields->hasLayerOnTop);
             m_fields->canExit = true;
         }
         else if(m_fields->canExit){
-            recursiveCheck(this, m_fields->hasLayerOnTop);
+            checkTouch(this, m_fields->hasLayerOnTop);
             m_fields->canExit = false;
         }
     }

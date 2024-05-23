@@ -30,6 +30,8 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         bool validHover = false;
         bool hasHover = false;
         bool hasExit = false;
+        ccColor3B originalColor;
+        unsigned char originalOpacity;
     };
     void setOnClick(matjson::Object onClick){
         m_fields->onClick = onClick;
@@ -108,7 +110,6 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         runOnActivate();
     }
 
-
     void checkTouch(bool hasLayerOnTop){
 
         if((m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)){
@@ -130,6 +131,22 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
             if(!hasLayerOnTop){
                 if (containsPoint && !m_fields->isHovering) {
                     m_fields->isHovering = true;
+
+                    m_fields->originalColor = getColor();
+                    m_fields->originalOpacity = getOpacity();
+
+                    if(ButtonSprite* node = getChildOfType<ButtonSprite>(this, 0)) {
+
+                        m_fields->originalColor = node->getColor();
+                        m_fields->originalOpacity = node->getOpacity();
+
+                        if(node->getColor() == ccColor3B{255,255,255}){
+                            if(CCSprite* node1 = getChildOfType<CCSprite>(node, 0)) {
+                                m_fields->originalColor = node1->getColor();
+                                m_fields->originalOpacity = node1->getOpacity();
+                            }
+                        }
+                    }
                     runOnHover();
                 }
                 if (!containsPoint && m_fields->isHovering){
@@ -137,7 +154,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
                     runOnExit();
                 }
             }
-            else{
+            else if(m_fields->isHovering){
                 m_fields->isHovering = false;
                 runOnExit();
             }

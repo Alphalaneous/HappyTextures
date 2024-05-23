@@ -752,11 +752,29 @@ void UIModding::setColor(CCNode* node, matjson::Object attributes){
                     unsigned char g = colorG.as_int();
                     unsigned char b = colorB.as_int();
 
-                    if(CCNodeRGBA* nodeRGBA = dynamic_cast<CCNodeRGBA*>(node)) {
-                        nodeRGBA->setColor(ccColor3B{r, g, b});
+                    if(CCMenuItemSpriteExtra* node1 = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+                        node1->setColor(ccColor3B{r, g, b});
+                        if(ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                            node2->setColor(ccColor3B{r, g, b});
+                        }
                     }
-                    if(CCLayerRGBA* nodeRGBA = dynamic_cast<CCLayerRGBA*>(node)) {
-                        nodeRGBA->setColor(ccColor3B{r, g, b});
+
+                    if(CCNodeRGBA* node1 = dynamic_cast<CCNodeRGBA*>(node)) {
+                        node1->setColor(ccColor3B{r, g, b});
+                    }
+                    if(CCLayerRGBA* node1 = dynamic_cast<CCLayerRGBA*>(node)) {
+                        node1->setColor(ccColor3B{r, g, b});
+                    }
+                }
+            }
+        }
+        if(color.is_string()){
+            std::string colorStr = color.as_string();
+            if(colorStr == "reset"){
+                if(EventCCMenuItemSpriteExtra* node1 = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
+                    node1->setColor(node1->m_fields->originalColor);
+                    if(ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                        node2->setColor(node1->m_fields->originalColor); 
                     }
                 }
             }
@@ -929,13 +947,29 @@ void UIModding::setOpacity(CCNode* node, matjson::Object attributes){
     if(attributes.contains("opacity")){
         matjson::Value opacity = attributes["opacity"];
         if(opacity.is_number()){
+            unsigned char opacityNum = opacity.as_int();
+            if(CCMenuItemSpriteExtra* node1 = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+                node1->setOpacity(opacityNum);
+                if(ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                    node2->setOpacity(opacityNum);
+                }
+            }
             if(CCNodeRGBA* nodeRGBA = dynamic_cast<CCNodeRGBA*>(node)) {
-                unsigned char opacityNum = opacity.as_int();
                 nodeRGBA->setOpacity(opacityNum);
             }
             if(CCLayerRGBA* nodeRGBA = dynamic_cast<CCLayerRGBA*>(node)) {
-                unsigned char opacityNum = opacity.as_int();
                 nodeRGBA->setOpacity(opacityNum);
+            }
+        }
+        if(opacity.is_string()){
+            std::string opacityStr = opacity.as_string();
+            if(opacityStr == "reset"){
+                if(EventCCMenuItemSpriteExtra* node1 = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
+                    node1->setOpacity(node1->m_fields->originalOpacity);
+                    if(ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                        node2->setOpacity(node1->m_fields->originalOpacity);
+                    }
+                }
             }
         }
     }
@@ -1241,6 +1275,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
                             handleModifyForType(BoomScrollLayer);
                             handleModifyForType(ListButtonBar);
                             handleModifyForType(ExtendedLayer);
+                            handleModifyForType(OptionsLayer);
                             handleModifyForType(SimplePlayer);
                             handleModifyForType(DailyLevelNode);
                             handleModifyForType(GJListLayer);

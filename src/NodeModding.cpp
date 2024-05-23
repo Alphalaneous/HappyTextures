@@ -78,6 +78,9 @@ modifyNodeForType(DailyLevelNode, init, (GJGameLevel* p0, DailyLevelPage* p1, bo
 #include <Geode/modify/GJListLayer.hpp>
 modifyNodeForTypeCreate(GJListLayer, create, (BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, int p5), (p0, p1, p2, p3, p4, p5));
 
+#include <Geode/modify/GJDropDownLayer.hpp>
+modifyNodeForTypeCreate(GJDropDownLayer, create, (const char* p0, float p1, bool p2), (p0, p1, p2));
+
 #include <Geode/modify/CCLayerColor.hpp>
 modifyNodeForType(CCLayerColor, init, (), ());
 modifyNodeForType(CCLayerColor, initWithColor, (const ccColor4B& p0, GLfloat p1, GLfloat p2), (p0, p1, p2));
