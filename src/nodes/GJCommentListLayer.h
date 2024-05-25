@@ -39,7 +39,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 
 		bool doFix = Mod::get()->getSettingValue<bool>("comment-border-fix");
 
-        if(doFix && !Loader::get()->isModLoaded("bitz.customprofiles")){
+        if(doFix && !Loader::get()->isModLoaded("bitz.customprofiles") && !Loader::get()->isModLoaded("TheSillyDoggo.GradientPages")){
 			if(CCNode* node = ret->getChildByID("left-border")) {
 				node->setVisible(false);
 			}
