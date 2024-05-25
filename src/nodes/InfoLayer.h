@@ -25,7 +25,7 @@ class $modify(MyInfoLayer, InfoLayer){
                 }
             }
             
-            if(CCScale9Sprite* bg = dynamic_cast<CCScale9Sprite*>(theNode->getChildByID("desc-background"))){
+            if(CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(theNode->getChildByID("desc-background"))){
             std::optional<ColorData> dataOpt = UIModding::get()->getColors("info-description-bg");
                 if(dataOpt.has_value()){
                     ColorData data = dataOpt.value();

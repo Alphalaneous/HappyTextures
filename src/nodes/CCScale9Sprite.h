@@ -1,3 +1,8 @@
+#pragma once
+
+#ifndef MYCCSCALE9SPRITE_H
+#define MYCCSCALE9SPRITE_H
+
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCScale9Sprite.hpp>
 #include "../Macros.h"
@@ -5,6 +10,21 @@
 using namespace geode::prelude;
 
 class $modify(MyCCScale9Sprite, CCScale9Sprite){
+
+    struct Fields {
+        const char* textureName;
+        CCRect rect;
+        CCRect capInsets;
+    };
+
+    bool initWithFile(const char* file, CCRect rect, CCRect capInsets){
+        if(!CCScale9Sprite::initWithFile(file, rect, capInsets)) return false;
+        m_fields->textureName = file;
+        m_fields->rect = rect;
+        m_fields->capInsets = capInsets;
+
+        return true;
+    }
 
     void visit(){
         bool doFix = Mod::get()->getSettingValue<bool>("ccscale9sprite-fix");
@@ -183,3 +203,5 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         spr->setTextureRect(rect);
     }
 };
+
+#endif

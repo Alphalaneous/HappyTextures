@@ -2,6 +2,7 @@
 #include "nodes/CCLabelBMFont.h"
 #include "nodes/CCMenu.h"
 #include "nodes/CCMenuItemSpriteExtra.h"
+#include "nodes/CCScale9Sprite.h"
 #include "nodes/CCScene.h"
 #include "nodes/CommentCell.h"
 #include "nodes/EditLevelLayer.h"

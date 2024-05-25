@@ -17,7 +17,7 @@ class $modify(CCDirector){
 
     void willSwitchToScene(CCScene* scene){
         if(UIModding::get()->doModify){
-            if(CCSprite* bg = dynamic_cast<CCSprite*>(scene->getChildByIDRecursive("background"))){
+            if(CCSprite* bg = typeinfo_cast<CCSprite*>(scene->getChildByIDRecursive("background"))){
                 if(bg->getColor() == ccColor3B{0, 102, 255}){
                     std::optional<ColorData> dataOpt = UIModding::get()->getColors("background");
                     if(dataOpt.has_value()){

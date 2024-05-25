@@ -62,7 +62,7 @@ class $modify(EventCCMenu, CCMenu){
                 if(EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(nodeA)){
                     button->checkTouch(hasLayerOnTop);
                 }
-                if(CCMenuItemToggler* toggler = dynamic_cast<CCMenuItemToggler*>(nodeA)){
+                if(CCMenuItemToggler* toggler = typeinfo_cast<CCMenuItemToggler*>(nodeA)){
                     checkTouch(nodeA, hasLayerOnTop);
                 }
             }

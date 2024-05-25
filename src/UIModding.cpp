@@ -18,7 +18,7 @@ $execute {
 }
 
 void UIModding::updateColors(CCNode* node, std::string name){
-    if(CCScale9Sprite* bg = dynamic_cast<CCScale9Sprite*>(node->getChildByIDRecursive(name))){
+    if(CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(node->getChildByIDRecursive(name))){
         std::optional<ColorData> dataOpt = getColors(name);
         if(dataOpt.has_value()){
             ColorData data = dataOpt.value();
@@ -314,7 +314,7 @@ void UIModding::setLayout(CCNode* node, matjson::Object attributes){
             AxisLayout* layout;
 
             if(node->getLayout()){
-                layout = dynamic_cast<AxisLayout*>(node->getLayout());
+                layout = typeinfo_cast<AxisLayout*>(node->getLayout());
             }
             else{
                 layout = AxisLayout::create();
@@ -490,7 +490,7 @@ void UIModding::setShow(CCNode* node, matjson::Object attributes){
         matjson::Value showVal = attributes["show"];
         if(showVal.is_bool()){
             bool show = showVal.as_bool();
-            if(FLAlertLayer* alert = dynamic_cast<FLAlertLayer*>(node)){
+            if(FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)){
                 if(show){
                     alert->show();
                 }
@@ -532,7 +532,7 @@ void UIModding::setBlending(CCNode* node, matjson::Object attributes){
                     unsigned int dst = stringToBlendingMode(destination);
 
                     if(src != -1 && dst != -1){
-                        if(CCBlendProtocol* blendable = dynamic_cast<CCBlendProtocol*>(node)) {
+                        if(CCBlendProtocol* blendable = typeinfo_cast<CCBlendProtocol*>(node)) {
                             blendable->setBlendFunc({src, dst});
                         }
                     }
@@ -591,7 +591,7 @@ void UIModding::setFlip(CCNode* node, matjson::Object attributes){
                 }
             }
 
-            if(CCSprite* sprite = dynamic_cast<CCSprite*>(node)){
+            if(CCSprite* sprite = typeinfo_cast<CCSprite*>(node)){
                 sprite->setFlipX(flipX);
                 sprite->setFlipY(flipY);
             }
@@ -608,10 +608,10 @@ void UIModding::setFont(CCNode* node, matjson::Object attributes){
             CCLabelBMFont* textObject;
 
             std::string font = fontVal.as_string();
-            if(CCLabelBMFont* textNode = dynamic_cast<CCLabelBMFont*>(node)) {
+            if(CCLabelBMFont* textNode = typeinfo_cast<CCLabelBMFont*>(node)) {
                 textObject = textNode;
             }
-            else if(CCMenuItemSpriteExtra* buttonNode = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+            else if(CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 if(SearchButton* searchButton = getChildOfType<SearchButton>(node, 0)){
                     textObject = getChildOfType<CCLabelBMFont>(searchButton, 0);
                 }
@@ -752,17 +752,17 @@ void UIModding::setColor(CCNode* node, matjson::Object attributes){
                     unsigned char g = colorG.as_int();
                     unsigned char b = colorB.as_int();
 
-                    if(CCMenuItemSpriteExtra* node1 = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+                    if(CCMenuItemSpriteExtra* node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                         node1->setColor(ccColor3B{r, g, b});
                         if(ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
                             node2->setColor(ccColor3B{r, g, b});
                         }
                     }
 
-                    if(CCNodeRGBA* node1 = dynamic_cast<CCNodeRGBA*>(node)) {
+                    if(CCNodeRGBA* node1 = typeinfo_cast<CCNodeRGBA*>(node)) {
                         node1->setColor(ccColor3B{r, g, b});
                     }
-                    if(CCLayerRGBA* node1 = dynamic_cast<CCLayerRGBA*>(node)) {
+                    if(CCLayerRGBA* node1 = typeinfo_cast<CCLayerRGBA*>(node)) {
                         node1->setColor(ccColor3B{r, g, b});
                     }
                 }
@@ -799,7 +799,7 @@ void UIModding::setScaleMult(CCNode* node, matjson::Object attributes){
         matjson::Value mulVal = attributes["scale-multiplier"];
         if(mulVal.is_number()){
             float multiplier = mulVal.as_double();
-            if(CCMenuItemSpriteExtra* button = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+            if(CCMenuItemSpriteExtra* button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 button->m_scaleMultiplier = multiplier;
             }
         }
@@ -814,10 +814,10 @@ void UIModding::setText(CCNode* node, matjson::Object attributes){
             CCLabelBMFont* textObject;
 
             std::string text = textVal.as_string();
-            if(CCLabelBMFont* textNode = dynamic_cast<CCLabelBMFont*>(node)) {
+            if(CCLabelBMFont* textNode = typeinfo_cast<CCLabelBMFont*>(node)) {
                 textObject = textNode;
             }
-            else if(CCMenuItemSpriteExtra* buttonNode = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+            else if(CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 if(SearchButton* searchButton = getChildOfType<SearchButton>(node, 0)){
                     textObject = getChildOfType<CCLabelBMFont>(searchButton, 0);
                 }
@@ -846,14 +846,14 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
         matjson::Value sprite = attributes["sprite"];
         if(sprite.is_string()){
             std::string spriteName = sprite.as_string();
-            if(CCSprite* spriteNode = dynamic_cast<CCSprite*>(node)) {
+            if(CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
                 CCSprite* spr = CCSprite::create(spriteName.c_str());
                 if(spr){
                     spriteNode->setTexture(spr->getTexture());
                     spriteNode->setTextureRect(spr->getTextureRect());
                 }
             }
-            if(CCMenuItemSpriteExtra* buttonNode = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+            if(CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
 
                 if(attributes.contains("button-info")){
                     matjson::Value infoVal = attributes["button-info"];
@@ -924,7 +924,7 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
         matjson::Value sprite = attributes["sprite-frame"];
         if(sprite.is_string()){
             std::string spriteName = sprite.as_string();
-            if(CCSprite* spriteNode = dynamic_cast<CCSprite*>(node)) {
+            if(CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
                 CCSprite* spr = CCSprite::createWithSpriteFrameName(spriteName.c_str());
                 if(spr){
                     spriteNode->setTextureAtlas(spr->getTextureAtlas());
@@ -932,7 +932,7 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
                     spriteNode->setTextureRect(spr->getTextureRect());
                 }
             }
-            if(CCMenuItemSpriteExtra* buttonNode = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+            if(CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 CCSprite* spr = CCSprite::createWithSpriteFrameName(spriteName.c_str());
                 if(spr){
                     buttonNode->setNormalImage(spr);
@@ -948,16 +948,16 @@ void UIModding::setOpacity(CCNode* node, matjson::Object attributes){
         matjson::Value opacity = attributes["opacity"];
         if(opacity.is_number()){
             unsigned char opacityNum = opacity.as_int();
-            if(CCMenuItemSpriteExtra* node1 = dynamic_cast<CCMenuItemSpriteExtra*>(node)) {
+            if(CCMenuItemSpriteExtra* node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 node1->setOpacity(opacityNum);
                 if(ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
                     node2->setOpacity(opacityNum);
                 }
             }
-            if(CCNodeRGBA* nodeRGBA = dynamic_cast<CCNodeRGBA*>(node)) {
+            if(CCNodeRGBA* nodeRGBA = typeinfo_cast<CCNodeRGBA*>(node)) {
                 nodeRGBA->setOpacity(opacityNum);
             }
-            if(CCLayerRGBA* nodeRGBA = dynamic_cast<CCLayerRGBA*>(node)) {
+            if(CCLayerRGBA* nodeRGBA = typeinfo_cast<CCLayerRGBA*>(node)) {
                 nodeRGBA->setOpacity(opacityNum);
             }
         }
@@ -1140,7 +1140,7 @@ void UIModding::setContentSize(CCNode* node, matjson::Object attributes){
 
 void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
 
-    if(DataNode* data = dynamic_cast<DataNode*>(node)){
+    if(DataNode* data = typeinfo_cast<DataNode*>(node)){
         node = data->m_data;
     }
 
@@ -1424,14 +1424,14 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
                                             newNode->setID(fullID.c_str());
                                         }
 
-                                        if(DataNode* data = dynamic_cast<DataNode*>(newNode)){
-                                            if(FLAlertLayer* alert = dynamic_cast<FLAlertLayer*>(data->m_data)){
+                                        if(DataNode* data = typeinfo_cast<DataNode*>(newNode)){
+                                            if(FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(data->m_data)){
                                                 alert->setID(fullID.c_str());
                                             }
                                             data->setID(fullID.c_str());
                                         }
 
-                                        if(FLAlertLayer* alert = dynamic_cast<FLAlertLayer*>(node)){
+                                        if(FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)){
                                             alert->m_mainLayer->removeChildByID(fullID);
                                             alert->m_mainLayer->addChild(newNode);
                                         }

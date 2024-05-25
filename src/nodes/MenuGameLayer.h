@@ -36,7 +36,7 @@ class $modify(MyMenuGameLayer, MenuGameLayer){
                     CCSprite* groundSprite = getChildOfType<CCSprite>(groundBatch, 0);
                     if(groundSprite){
                         for(CCNode* node : CCArrayExt<CCNode*>(groundSprite->getChildren())){
-                            if(CCSprite* child = dynamic_cast<CCSprite*>(node)){
+                            if(CCSprite* child = typeinfo_cast<CCSprite*>(node)){
                                 std::optional<ColorData> dataOpt = UIModding::get()->getColors("main-menu-ground");
                                 if(dataOpt.has_value()){
                                     ColorData data = dataOpt.value();

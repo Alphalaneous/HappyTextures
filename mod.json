@@ -20,12 +20,7 @@
     ],
 	"resources": {
         "files": [
-			"resources/bigFont.png",
-			"resources/bigFont-hd.png",
-			"resources/bigFont-uhd.png",
-			"resources/bigFont.fnt",
-			"resources/bigFont-hd.fnt",
-			"resources/bigFont-uhd.fnt"
+			"resources/*"
         ]
     },
 	"settings": {
@@ -41,6 +36,12 @@
             "type": "bool",
             "default": true,
 			"platforms": ["win", "android"]
+        },
+		"comment-border-fix": {
+            "name": "Comment Border Fix",
+			"description": "Makes comment borders look cleaner, especially with texture packs.",
+            "type": "bool",
+            "default": true
         },
 		"ui-modifications": {
             "name": "Allow UI Modifications",

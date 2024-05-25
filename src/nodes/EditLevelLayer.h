@@ -17,7 +17,7 @@ class $modify(MyEditLevelLayer, EditLevelLayer){
     bool init(GJGameLevel* p0){
         if(!EditLevelLayer::init(p0)) return false;
         if(UIModding::get()->doModify){
-            if(CCScale9Sprite* bg = dynamic_cast<CCScale9Sprite*>(this->getChildByID("description-background"))){
+            if(CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(this->getChildByID("description-background"))){
             std::optional<ColorData> dataOpt = UIModding::get()->getColors("edit-description-bg");
                 if(dataOpt.has_value()){
                     ColorData data = dataOpt.value();
@@ -25,7 +25,7 @@ class $modify(MyEditLevelLayer, EditLevelLayer){
                     bg->setOpacity(data.alpha);
                 }
             }
-            if(CCScale9Sprite* bg = dynamic_cast<CCScale9Sprite*>(this->getChildByID("level-name-background"))){
+            if(CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(this->getChildByID("level-name-background"))){
             std::optional<ColorData> dataOpt = UIModding::get()->getColors("edit-name-bg");
                 if(dataOpt.has_value()){
                     ColorData data = dataOpt.value();

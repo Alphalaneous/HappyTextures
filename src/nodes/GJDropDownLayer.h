@@ -22,18 +22,21 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer){
             CCScene* currentScene = CCDirector::get()->getRunningScene();
             currentScene->addChild(this);
 
-            CCMoveTo* moveTo = CCMoveTo::create(0.5, m_endPosition);
-            CCEaseInOut* easeInOut = CCEaseInOut::create(moveTo, 2.0);
-            CCSequence* sequence = CCSequence::create(easeInOut, 0);
-
-            m_mainLayer->runAction(sequence);
-
-            CCFadeTo* fadeTo = CCFadeTo::create(0.5, 125);
-            runAction(fadeTo);
-
-            if(UIModding::get()->doModify){
-                UIModding::get()->doUICheck(this);
+            if(p0){
+                m_mainLayer->setPosition(m_endPosition);
+                setOpacity(125);
             }
+            else{
+                CCMoveTo* moveTo = CCMoveTo::create(0.5, m_endPosition);
+                CCEaseInOut* easeInOut = CCEaseInOut::create(moveTo, 2.0);
+                CCSequence* sequence = CCSequence::create(easeInOut, 0);
+
+                m_mainLayer->runAction(sequence);
+
+                CCFadeTo* fadeTo = CCFadeTo::create(0.5, 125);
+                runAction(fadeTo);
+            }
+            UIModding::get()->doUICheck(this);
         }
         else{
             GJDropDownLayer::showLayer(p0);
