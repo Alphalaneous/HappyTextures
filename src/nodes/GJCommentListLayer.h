@@ -34,6 +34,9 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 				}
 			}
 		}
+
+		#ifndef GEODE_IS_MACOS
+
 		bool doFix = Mod::get()->getSettingValue<bool>("comment-border-fix");
 
         if(doFix && !Loader::get()->isModLoaded("bitz.customprofiles")){
@@ -83,8 +86,11 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 			
 			myRet->addChild(outlineSprite);
 		}
+		#endif
 		return ret;
 	}
+
+	#ifndef GEODE_IS_MACOS
 
 	void listenForPosition(float dt){
 		if(m_fields->border && m_fields->lastPos != getPosition()){
@@ -213,6 +219,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 
 		addChild(parentNode);
 	}
+	#endif
 };
 
 #endif

@@ -41,7 +41,8 @@
             "name": "Comment Border Fix",
 			"description": "Makes comment borders look cleaner, especially with texture packs.",
             "type": "bool",
-            "default": true
+            "default": true,
+			"platforms": ["win", "android"]
         },
 		"ui-modifications": {
             "name": "Allow UI Modifications",
