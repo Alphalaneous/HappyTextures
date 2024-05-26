@@ -8,6 +8,8 @@
 
 using namespace geode::prelude;
 
+#ifndef GEODE_IS_MACOS
+
 class $modify(MyGJDropDownLayer, GJDropDownLayer){
 
     static void onModify(auto& self) {
@@ -15,7 +17,7 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer){
     }
 
     void showLayer(bool p0){
-        #ifndef GEODE_IS_MACOS
+        
         if(UIModding::get()->doModify){
             setVisible(true);
             removeFromParentAndCleanup(false);
@@ -41,8 +43,9 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer){
         else{
             GJDropDownLayer::showLayer(p0);
         }
-        #endif
     }
 };
+
+#endif
 
 #endif
