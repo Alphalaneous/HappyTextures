@@ -15,6 +15,8 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         const char* textureName;
         CCRect rect;
         CCRect capInsets;
+        std::vector<CCRect> originalRects;
+        bool setOriginalRects = true;
     };
 
     bool initWithFile(const char* file, CCRect rect, CCRect capInsets){
@@ -65,6 +67,29 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         if(!(topLeft && topRight && bottomRight && bottomLeft && center)) {
             return;
         }
+
+        if(m_fields->setOriginalRects){
+            m_fields->originalRects.push_back(topLeft->getTextureRect());
+            m_fields->originalRects.push_back(top->getTextureRect());
+            m_fields->originalRects.push_back(topRight->getTextureRect());
+            m_fields->originalRects.push_back(left->getTextureRect());
+            m_fields->originalRects.push_back(center->getTextureRect());
+            m_fields->originalRects.push_back(right->getTextureRect());
+            m_fields->originalRects.push_back(bottomLeft->getTextureRect());
+            m_fields->originalRects.push_back(bottom->getTextureRect());
+            m_fields->originalRects.push_back(bottomRight->getTextureRect());
+            m_fields->setOriginalRects = false;
+        }
+
+        topLeft->setTextureRect(m_fields->originalRects.at(0));
+        top->setTextureRect(m_fields->originalRects.at(1));
+        topRight->setTextureRect(m_fields->originalRects.at(2));
+        left->setTextureRect(m_fields->originalRects.at(3));
+        center->setTextureRect(m_fields->originalRects.at(4));
+        right->setTextureRect(m_fields->originalRects.at(5));
+        bottomLeft->setTextureRect(m_fields->originalRects.at(6));
+        bottom->setTextureRect(m_fields->originalRects.at(7));
+        bottomRight->setTextureRect(m_fields->originalRects.at(8));
 
         CCSize size = this->m_obContentSize;
 

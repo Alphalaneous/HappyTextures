@@ -1,11 +1,11 @@
 {
-	"geode": "2.0.0-beta.26",
+	"geode": "2.0.0-beta.27",
 	"gd": {
 		"win": "2.204",
 		"android": "2.205",
 		"mac": "2.200"
 	},
-	"version": "v1.2.2",
+	"version": "v1.2.3",
 	"id": "alphalaneous.happy_textures",
 	"name": "Happy Textures :3",
 	"developer": "Alphalaneous",
@@ -38,10 +38,10 @@
 			"platforms": ["win", "android"]
         },
 		"comment-border-fix": {
-            "name": "Comment Border Fix",
-			"description": "Makes comment borders look cleaner, especially with texture packs.",
+            "name": "Comment Border Fix (Experimental)",
+			"description": "Makes comment borders look cleaner, especially with texture packs. May cause a quick lag spike when opening comments.",
             "type": "bool",
-            "default": true,
+            "default": false,
 			"platforms": ["win", "android"]
         },
 		"ui-modifications": {
