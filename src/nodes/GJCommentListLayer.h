@@ -13,8 +13,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 
     struct Fields {
         SEL_SCHEDULE schedule;
-        CCSize size;
-        CCNode* border;
+        bool hasBorder = false;
         CCPoint lastPos;
     };
 
@@ -55,7 +54,6 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
         
             MyGJCommentListLayer* myRet = static_cast<MyGJCommentListLayer*>(ret);
             myRet->m_fields->schedule = schedule_selector(MyGJCommentListLayer::checkForParent);
-            myRet->m_fields->size = CCSize{p3, p4};
             myRet->schedule(myRet->m_fields->schedule);
             myRet->schedule(schedule_selector(MyGJCommentListLayer::listenForPosition));
     
@@ -93,7 +91,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
     #ifndef GEODE_IS_MACOS
 
     void listenForPosition(float dt){
-        if(m_fields->border && m_fields->lastPos != getPosition()){
+        if(m_fields->hasBorder && m_fields->lastPos != getPosition()){
             if(CCNode* parent = getParent()){
                 updateBordersWithParent(parent);
             }
@@ -121,97 +119,36 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
     void createMask(CCScale9Sprite* bg){
 
         removeChildByID("special-border");
-
-        CCNode* parent = CCNode::create();
-
-        CCNode* mask = CCNode::create();
-
-        CCPoint pos = {m_fields->size.width/2, m_fields->size.height/2};
-        
-        CCScale9Sprite* innerCurve = CCScale9Sprite::create("square02b_001.png");
-        innerCurve->setContentSize(m_fields->size);
-        innerCurve->setPosition(pos);
-
-        mask->addChild(innerCurve);
-        mask->setContentSize(m_fields->size);
-
-        CCSprite* clipTop = CCSprite::create("square.png");
-        clipTop->setPosition({m_fields->size.width/2, m_fields->size.height + 5});
-        clipTop->setScaleX(50);
-        clipTop->setScaleY(50);
-        clipTop->setAnchorPoint({0.5, 0});
-        mask->addChild(clipTop);
-
-        CCSprite* clipBottom = CCSprite::create("square.png");
-        clipBottom->setPosition({m_fields->size.width/2, -5});
-        clipBottom->setScaleX(50);
-        clipBottom->setScaleY(50);
-        clipBottom->setAnchorPoint({0.5, 1});
-        mask->addChild(clipBottom);
-
-        CCSprite* clipLeft = CCSprite::create("square.png");
-        clipLeft->setPosition({-5, m_fields->size.height/2});
-        clipLeft->setScaleX(50);
-        clipLeft->setScaleY(50);
-        clipLeft->setAnchorPoint({1, 0.5});
-        mask->addChild(clipLeft);
-
-        CCSprite* clipRight = CCSprite::create("square.png");
-        clipRight->setPosition({m_fields->size.width + 5, m_fields->size.height/2});
-        clipRight->setScaleX(50);
-        clipRight->setScaleY(50);
-        clipRight->setAnchorPoint({0, 0.5});
-        mask->addChild(clipRight);
-
-        m_fields->border = mask;
-        mask->setZOrder(20);
+        m_fields->hasBorder = true;
 
         CCSize winSize = CCDirector::get()->getWinSize();
+        CCSize nodeSize = getContentSize();
+        CCPoint nodePos = getPosition();
+        CCPoint innerPos = {nodePos.x + nodeSize.width/2, nodePos.y + nodeSize.height/2};
 
-        CCRenderTexture* renderStencil = CCRenderTexture::create(winSize.width, winSize.height);
-
-        CCPoint maskPos = getPosition();
-        mask->setPosition(maskPos);
-        parent->addChild(mask);
-
-        renderStencil->setPosition(-maskPos.x, -maskPos.y);
-        renderStencil->setContentSize(winSize);
-        renderStencil->setAnchorPoint({0,0});
-        renderStencil->begin();
-        parent->visit();
-        renderStencil->end();
-        CCSprite* spr = typeinfo_cast<CCSprite*>(renderStencil->getChildren()->objectAtIndex(0));
-        spr->ignoreAnchorPointForPosition(true);
-        spr->removeFromParent();
+        CCScale9Sprite* innerCurve = CCScale9Sprite::create("borderStencil.png"_spr);
+        innerCurve->setContentSize({nodeSize.width + 5, nodeSize.height + 5});
+        innerCurve->setPosition(innerPos);
+        innerCurve->setZOrder(20);
 
         MyCCScale9Sprite* myBG = static_cast<MyCCScale9Sprite*>(bg);
 
         CCScale9Sprite* newBG = CCScale9Sprite::create(myBG->m_fields->textureName, myBG->m_fields->rect, myBG->m_fields->capInsets);
         newBG->setContentSize(myBG->getContentSize());
-        newBG->ignoreAnchorPointForPosition(true);
-        CCRenderTexture* renderBG = CCRenderTexture::create(newBG->getContentSize().width, newBG->getContentSize().height);
-        renderBG->begin();
-        newBG->visit();
-        renderBG->end();
-        
-        CCSprite* bgSpr = typeinfo_cast<CCSprite*>(renderBG->getChildren()->objectAtIndex(0));
-        bgSpr->setPosition(bg->getPosition());
-        bgSpr->setContentSize(newBG->getContentSize());
-        bgSpr->removeFromParent();
+        newBG->setPosition(bg->getPosition());
 
         CCNode* parentNode = CCNode::create();
 
         CCClippingNode* clippingNode = CCClippingNode::create();
-        clippingNode->setInverted(true);
-        clippingNode->addChild(bgSpr);
-        clippingNode->setStencil(spr);
+        clippingNode->addChild(newBG);
+        clippingNode->setStencil(innerCurve);
         clippingNode->setContentSize(winSize);
-        clippingNode->setPosition(-maskPos.x + 5, -maskPos.y + 5);
+        clippingNode->setPosition(-nodePos.x + 5, -nodePos.y + 5);
         clippingNode->setAnchorPoint({0, 0});
         clippingNode->setAlphaThreshold(0.7f);
 
         parentNode->setAnchorPoint({0, 0});
-        parentNode->setContentSize({getContentSize().width+10, getContentSize().height+10});
+        parentNode->setContentSize({nodeSize.width+10, nodeSize.height+10});
         parentNode->setPosition({-5, -5});
         parentNode->setID("special-border");
         parentNode->setZOrder(19);
