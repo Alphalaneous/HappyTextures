@@ -3,6 +3,7 @@
 #include <Geode/modify/CCLabelBMFont.hpp>
 #include <Geode/modify/GJBaseGameLayer.hpp>
 #include <Geode/modify/CCSpriteBatchNode.hpp>
+#include <Geode/modify/CCTextureCache.hpp>
 
 using namespace geode::prelude;
 
@@ -51,7 +52,27 @@ class $modify(CCLabelBMFont) {
     }
 };
 
-class $modify(GameManager) {
+class $modify(CCTextureCache){
+    CCTexture2D* addImage(const char* fileimage, bool p1){
+
+        CCTexture2D* ret = nullptr;
+        bool didChange = false;
+        if(strcmp(fileimage, "bigFont.png") == 0){
+            bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
+            
+            if(doFix && (PlayLayer::get() || LevelEditorLayer::get())){
+                didChange = true;
+                ret = CCTextureCache::addImage("bigFont.png"_spr, p1);
+            }
+        }
+        if(!didChange){
+            ret = CCTextureCache::addImage(fileimage, p1);
+        }
+        return ret;
+    }
+};
+
+/*class $modify(GameManager) {
 
     const char* getFontTexture(int val){
 
@@ -62,7 +83,7 @@ class $modify(GameManager) {
             if(val > 58){
                 val = 59;
             }
-            loadFont(val);
+            loadMyFont(val);
             if(val != 0){
                 CCString* str = CCString::createWithFormat("gjFont%02d.png", val);
                 return str->getCString();
@@ -75,7 +96,7 @@ class $modify(GameManager) {
         }
     }
 
-    void loadFont(int val){
+    void loadMyFont(int val){
 
         bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
 
@@ -98,11 +119,7 @@ class $modify(GameManager) {
             }
             m_loadedFont = val;
         }
-        else{
-            GameManager::loadFont(val);
-        }
     }
-
-};
+};*/
 
 #endif

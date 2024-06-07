@@ -106,3 +106,41 @@ if(eventObject.contains(#type)){\
         button->set##method(event);\
     }\
 }
+
+#define setCellColors(class, method, paramType) \
+struct My##class : geode::Modify<My##class, class> { \
+    static void onModify(auto& self) {\
+        (void) self.setHookPriority(#class "::" #method, INT_MIN);\
+    }\
+	struct Fields {\
+		ccColor3B m_lastBG;\
+	};\
+	void method(paramType* p0){\
+		class::method(p0);\
+		this->schedule(schedule_selector(My##class::checkBG));\
+	}\
+	void checkBG(float dt) {\
+		CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0);\
+		if(child){\
+			if(m_fields->m_lastBG != child->getColor()){\
+				m_fields->m_lastBG = child->getColor();\
+                if(child->getColor() == ccColor3B{161,88,44}){\
+                    std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-odd");\
+                    if(dataOpt.has_value()){\
+                        ColorData data = dataOpt.value();\
+                        child->setColor(data.color);\
+                        child->setOpacity(data.alpha);\
+                    }\
+                }\
+                else if(child->getColor() == ccColor3B{194,114,62}){\
+                    std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-even");\
+                    if(dataOpt.has_value()){\
+                        ColorData data = dataOpt.value();\
+                        child->setColor(data.color);\
+                        child->setOpacity(data.alpha);\
+                    }\
+                }\
+			}\
+		}\
+	}\
+};

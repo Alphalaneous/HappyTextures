@@ -10,7 +10,7 @@
 #include "nodes/GJDropDownLayer.h"
 #include "nodes/GJListLayer.h"
 #include "nodes/InfoLayer.h"
-#include "nodes/LevelCell.h"
+#include "nodes/CellColors.h"
 #include "nodes/LevelSearchLayer.h"
 #include "nodes/LoadingLayer.h"
 #include "nodes/MenuGameLayer.h"

@@ -23,9 +23,9 @@ public:
 
     FileWatcher(std::string pathToWatch, std::chrono::duration<int, std::milli> delay) : m_pathToWatch(pathToWatch), m_delay{delay} {
 
-        if(ghc::filesystem::is_directory(pathToWatch)){
-            for(auto& file : ghc::filesystem::recursive_directory_iterator(pathToWatch)) {
-                m_paths[file.path().string()] = ghc::filesystem::last_write_time(file);
+        if(std::filesystem::is_directory(pathToWatch)){
+            for(auto& file : std::filesystem::recursive_directory_iterator(pathToWatch)) {
+                m_paths[file.path().string()] = std::filesystem::last_write_time(file);
             }
         }
     }
@@ -39,11 +39,11 @@ public:
         while(m_running) {
 
             std::this_thread::sleep_for(m_delay);
-            if(ghc::filesystem::is_directory(m_pathToWatch)){
+            if(std::filesystem::is_directory(m_pathToWatch)){
 
                 auto it = m_paths.begin();
                 while (it != m_paths.end()) {
-                    if (!ghc::filesystem::exists(it->first)) {
+                    if (!std::filesystem::exists(it->first)) {
                         action(it->first, FileStatus::erased);
                         it = m_paths.erase(it);
                     }
@@ -52,8 +52,8 @@ public:
                     }                    
                 }
 
-                for(auto& file : ghc::filesystem::recursive_directory_iterator(m_pathToWatch)) {
-                    auto currentFileLastWriteTime = ghc::filesystem::last_write_time(file);
+                for(auto& file : std::filesystem::recursive_directory_iterator(m_pathToWatch)) {
+                    auto currentFileLastWriteTime = std::filesystem::last_write_time(file);
 
                     if(!contains(file.path().string())) {
                         m_paths[file.path().string()] = currentFileLastWriteTime;
@@ -70,7 +70,7 @@ public:
         delete this;
     }
 private:
-    std::unordered_map<std::string, ghc::filesystem::file_time_type> m_paths;
+    std::unordered_map<std::string, std::filesystem::file_time_type> m_paths;
     std::chrono::duration<int, std::milli> m_delay;
     std::string m_pathToWatch = "";
     bool m_running = true;

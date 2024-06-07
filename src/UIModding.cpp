@@ -418,8 +418,8 @@ std::string UIModding::getSound(std::string sound){
 
     for(std::string path : paths){
         std::string soundPathStr = fmt::format("{}{}", path, sound);
-        ghc::filesystem::path soundPath = ghc::filesystem::path(soundPathStr);
-        if(ghc::filesystem::exists(soundPath)){
+        std::filesystem::path soundPath = std::filesystem::path(soundPathStr);
+        if(std::filesystem::exists(soundPath)){
             soundRet = soundPath.string();
             break;
         }
@@ -1473,7 +1473,7 @@ void UIModding::doUICheck(CCNode* node){
 
                 std::string fullPathStr = CCFileUtils::sharedFileUtils()->fullPathForFilename(path.c_str(), false);
 
-                ghc::filesystem::path fullPath(fullPathStr);
+                std::filesystem::path fullPath(fullPathStr);
 
                 std::string name = fullPath.parent_path().parent_path().filename().string();
                 name = Utils::toLower(name);
@@ -1526,14 +1526,14 @@ std::vector<std::string> UIModding::getActivePacks(){
     std::vector<std::string> packPaths;
     Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
     if(textureLoader){
-        ghc::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
+        std::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
         std::string packDirStr = fmt::format("{}{}", textureLoaderPacks, "\\packs");
-        ghc::filesystem::path packDir = ghc::filesystem::path(packDirStr);
+        std::filesystem::path packDir = std::filesystem::path(packDirStr);
 
         for(std::string path : paths){
 
-            ghc::filesystem::path fpath = ghc::filesystem::path(path);
-            ghc::filesystem::path pathParent = ghc::filesystem::path(path);
+            std::filesystem::path fpath = std::filesystem::path(path);
+            std::filesystem::path pathParent = std::filesystem::path(path);
 
             while(pathParent.has_parent_path()){
 
@@ -1543,7 +1543,7 @@ std::vector<std::string> UIModding::getActivePacks(){
                         break;
                     }
                 }
-                if(pathParent == ghc::filesystem::current_path().root_path()){
+                if(pathParent == std::filesystem::current_path().root_path()){
                     break;
                 }
                 pathParent = pathParent.parent_path();

@@ -31,7 +31,7 @@ modifyNodeForType(CCScale9Sprite, initWithSpriteFrameName, (const char* p0, CCRe
 modifyNodeForTypeCreate(CCTextInputNode, create, (float p0, float p1, char const* p2, char const* p3, int p4, char const* p5), (p0, p1, p2, p3, p4, p5));
 
 #include <Geode/modify/TextArea.hpp>
-modifyNodeForType(TextArea, init, (gd::string p0, char const* p1, float p2, float p3, cocos2d::CCPoint p4, float p5, bool p6), (p0, p1, p2, p3, p4, p5, p6));
+modifyNodeForTypeCreate(TextArea, create, (gd::string p0, char const* p1, float p2, float p3, cocos2d::CCPoint p4, float p5, bool p6), (p0, p1, p2, p3, p4, p5, p6));
 
 #include <Geode/modify/SearchButton.hpp>
 modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, float p2, char const* p3), (p0, p1, p2, p3));
@@ -45,6 +45,3 @@ modifyNodeForType(CCLayer, init, (), ());
 #include <Geode/modify/CCLayerColor.hpp>
 modifyNodeForType(CCLayerColor, init, (), ());
 modifyNodeForType(CCLayerColor, initWithColor, (const ccColor4B& p0, GLfloat p1, GLfloat p2), (p0, p1, p2));
-
-#include <Geode/modify/LevelCell.hpp>
-modifyNodeForTypeCreate(LevelCell, create, (float p0, float p1), (p0, p1));
