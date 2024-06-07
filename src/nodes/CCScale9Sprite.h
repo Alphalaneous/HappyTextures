@@ -31,7 +31,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
     void visit(){
         bool doFix = Mod::get()->getSettingValue<bool>("ccscale9sprite-fix");
 
-        if(doFix){
+        if(doFix && this->getID() != "star-bg"){
             if(this->*(&MyCCScale9Sprite::m_positionsAreDirty)){
                 updateSprites();
                 this->*(&MyCCScale9Sprite::m_positionsAreDirty) = false;
@@ -44,6 +44,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
     }
 
     void updateSprites(){
+
 
         CCSprite* topLeft = public_cast(this, _topLeft);
         topLeft->setID("top-left");

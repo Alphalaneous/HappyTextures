@@ -54,12 +54,11 @@ class $modify(CCLabelBMFont) {
 
 class $modify(CCTextureCache){
     CCTexture2D* addImage(const char* fileimage, bool p1){
-
         CCTexture2D* ret = nullptr;
         bool didChange = false;
         if(strcmp(fileimage, "bigFont.png") == 0){
             bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
-            
+
             if(doFix && (PlayLayer::get() || LevelEditorLayer::get())){
                 didChange = true;
                 ret = CCTextureCache::addImage("bigFont.png"_spr, p1);
@@ -71,55 +70,5 @@ class $modify(CCTextureCache){
         return ret;
     }
 };
-
-/*class $modify(GameManager) {
-
-    const char* getFontTexture(int val){
-
-        bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
-
-        if(doFix){
-
-            if(val > 58){
-                val = 59;
-            }
-            loadMyFont(val);
-            if(val != 0){
-                CCString* str = CCString::createWithFormat("gjFont%02d.png", val);
-                return str->getCString();
-            }
-        
-            return "bigFont.png"_spr;
-        }
-        else{
-            return GameManager::getFontTexture(val);
-        }
-    }
-
-    void loadMyFont(int val){
-
-        bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
-
-        if(doFix){
-
-            if(val > 58){
-                val = 59;
-            }
-
-            if(val != m_loadedFont){
-                if(m_loadedFont != 0){
-                    CCTextureCache::sharedTextureCache()->removeTextureForKey(CCString::createWithFormat("gjFont%02d.png", m_loadedFont)->getCString());
-                }
-                if(val == 0){
-                    CCTextureCache::sharedTextureCache()->addImage("bigFont.png"_spr, false);
-                }
-                else {
-                    CCTextureCache::sharedTextureCache()->addImage(CCString::createWithFormat("gjFont%02d.png", val)->getCString(), false);
-                }
-            }
-            m_loadedFont = val;
-        }
-    }
-};*/
 
 #endif
