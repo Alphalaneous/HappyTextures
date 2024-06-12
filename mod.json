@@ -4,7 +4,7 @@
 		"win": "2.206",
 		"android": "2.206"
 	},
-	"version": "v1.3.3",
+	"version": "v1.3.4",
 	"id": "alphalaneous.happy_textures",
 	"name": "Happy Textures :3",
 	"developer": "Alphalaneous",
@@ -22,6 +22,7 @@
 			"resources/*"
         ]
     },
+	"tags": ["universal", "interface", "enhancement", "bugfix", "offline", "utility", "customization"],
 	"settings": {
 		"ccscale9sprite-fix": {
             "name": "CCScale9Sprite Fix",
