@@ -1497,6 +1497,7 @@ void UIModding::startFileListeners(){
     for(std::string path : packs){
 
         std::string uiPath = fmt::format("{}{}", path, "ui\\");
+        std::replace(uiPath.begin(), uiPath.end(), '$', '/');
 
         FileWatcher* fw = new FileWatcher(uiPath, std::chrono::milliseconds(500));
         listeners.push_back(fw);

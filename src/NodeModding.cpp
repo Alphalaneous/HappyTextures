@@ -45,3 +45,6 @@ modifyNodeForType(CCLayer, init, (), ());
 #include <Geode/modify/CCLayerColor.hpp>
 modifyNodeForType(CCLayerColor, init, (), ());
 modifyNodeForType(CCLayerColor, initWithColor, (const ccColor4B& p0, GLfloat p1, GLfloat p2), (p0, p1, p2));
+
+#include <Geode/modify/LoadingCircle.hpp>
+modifyNodeForType(LoadingCircle, init, (), ());
