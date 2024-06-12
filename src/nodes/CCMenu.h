@@ -9,6 +9,7 @@
 #include <Geode/modify/CCMenu.hpp>
 #include "CCMenuItemSpriteExtra.h"
 #include "../UIModding.h"
+#include "../Utils.h"
 
 using namespace geode::prelude;
 
@@ -41,20 +42,6 @@ class $modify(EventCCMenu, CCMenu){
         return true;
     }
 
-    bool hasNode(CCNode* child, CCNode* node) {
-        CCNode* parent = child;
-        while(true){
-            if(parent){
-                if(parent == node){
-                    return true;
-                }
-                parent = parent->getParent();
-            }
-            else break;
-        }
-        return false;
-    }
-   
     void checkTouch(CCNode* node, bool hasLayerOnTop){
 
         for(CCNode* nodeA : CCArrayExt<CCNode*>(node->getChildren())){
@@ -82,7 +69,7 @@ class $modify(EventCCMenu, CCMenu){
             bool gotNode = false;
 
             for(CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())){
-                if(!gotNode && hasNode(this, node)){
+                if(!gotNode && Utils::hasNode(this, node)){
                     if(typeinfo_cast<KeybindsLayer*>(node)) return;
                     gotNode = true;
                     

@@ -3,6 +3,9 @@
 #ifndef HAPPYUTILS_H
 #define HAPPYUTILS_H
 
+#include <Geode/Geode.hpp>
+using namespace geode::prelude;
+
 namespace Utils {
 
     inline std::string toLower(std::string s) {        
@@ -33,5 +36,19 @@ namespace Utils {
 		sprite->setAnchorPoint({ .5f, .5f });
 		button->setContentSize(size);
 	}
+
+    inline bool hasNode(CCNode* child, CCNode* node) {
+        CCNode* parent = child;
+        while(true){
+            if(parent){
+                if(parent == node){
+                    return true;
+                }
+                parent = parent->getParent();
+            }
+            else break;
+        }
+        return false;
+    }
 }
 #endif
