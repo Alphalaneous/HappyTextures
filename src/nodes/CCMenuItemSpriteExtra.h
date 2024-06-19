@@ -6,6 +6,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include "CCScene.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 
@@ -69,18 +70,6 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         m_fields->onExit = onExit;
     }
 
-    void runOnClick(){
-        UIModding::get()->handleModifications(this, m_fields->onClick);
-    }
-
-    void runOnRelease(){
-        UIModding::get()->handleModifications(this, m_fields->onRelease);
-    }
-
-    void runOnActivate(){
-        UIModding::get()->handleModifications(this, m_fields->onActivate);
-    }
-
     void runOnHover(){
         UIModding::get()->handleModifications(this, m_fields->onHover);
     }
@@ -90,24 +79,33 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
 
     void selected(){
-        if(!m_fields->overrideOnClick){
-            CCMenuItemSpriteExtra::selected();
-        }
-        runOnClick();
+        
+        SAFE_RUN(
+            if(!m_fields->overrideOnClick){
+                CCMenuItemSpriteExtra::selected();
+            }
+            UIModding::get()->handleModifications(this, m_fields->onClick);
+        )
     }
 
     void unselected(){
-        if(!m_fields->overrideOnRelease){
-            CCMenuItemSpriteExtra::unselected();
-        }
-        runOnRelease();
+
+        SAFE_RUN(
+            if(!m_fields->overrideOnRelease){
+                CCMenuItemSpriteExtra::unselected();
+            }
+            UIModding::get()->handleModifications(this, m_fields->onRelease);
+        )
     }
 
     void activate(){
-        if(!m_fields->overrideOnActivate){
-            CCMenuItemSpriteExtra::activate();
-        }
-        runOnActivate();
+
+        SAFE_RUN(
+            if(!m_fields->overrideOnActivate){
+                CCMenuItemSpriteExtra::activate();
+            }
+            UIModding::get()->handleModifications(this, m_fields->onActivate);
+        )
     }
 
     void checkTouch(bool hasLayerOnTop){

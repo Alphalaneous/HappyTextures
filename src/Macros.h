@@ -144,3 +144,5 @@ struct My##class : geode::Modify<My##class, class> { \
 		}\
 	}\
 };
+
+#define SAFE_RUN(method) retain(); method release();
