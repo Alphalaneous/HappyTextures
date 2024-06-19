@@ -1456,6 +1456,8 @@ void UIModding::doUICheck(CCNode* node){
 
     std::string path = "/ui/" + node->getID() + ".json";
 
+    log::info("{}", path);
+
     unsigned long fileSize = 0;
     unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
 

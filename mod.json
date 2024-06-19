@@ -20,7 +20,10 @@
 	"resources": {
         "files": [
 			"resources/*"
-        ]
+        ],
+		"sprites": [
+			"sprites/*"
+		]
     },
 	"tags": ["universal", "interface", "enhancement", "bugfix", "offline", "utility", "customization"],
 	"settings": {
