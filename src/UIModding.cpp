@@ -1463,6 +1463,9 @@ void UIModding::doUICheck(CCNode* node){
 
     if (buffer && fileSize != 0) {
         
+        log::info("{}", buffer);
+
+
         std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
         std::string error;
         std::optional<matjson::Value> value = matjson::parse(data, error);
