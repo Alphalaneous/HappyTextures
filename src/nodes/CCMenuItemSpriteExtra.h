@@ -12,9 +12,9 @@ using namespace geode::prelude;
 class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("CCMenuItemSpriteExtra::selected", INT_MAX);
-        (void) self.setHookPriority("CCMenuItemSpriteExtra::unselected", INT_MAX);
-        (void) self.setHookPriority("CCMenuItemSpriteExtra::activate", INT_MAX);
+        (void) self.setHookPriority("CCMenuItemSpriteExtra::selected", INT_MAX-1);
+        (void) self.setHookPriority("CCMenuItemSpriteExtra::unselected", INT_MAX-1);
+        (void) self.setHookPriority("CCMenuItemSpriteExtra::activate", INT_MAX-1);
     }
 
     struct Fields {
