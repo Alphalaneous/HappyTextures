@@ -1463,7 +1463,7 @@ void UIModding::doUICheck(CCNode* node){
 
     if (buffer && fileSize != 0) {
         
-        log::info("{}", buffer);
+        log::info("{}", (char*)buffer);
 
 
         std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
