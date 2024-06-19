@@ -39,7 +39,7 @@ std::optional<ColorData> UIModding::getColors(std::string name){
         }
     }
 
-    std::string path = "/ui/colors.json";
+    std::string path = "ui/colors.json";
 
     unsigned long fileSize = 0;
     unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
@@ -1454,7 +1454,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
 
 void UIModding::doUICheck(CCNode* node){
 
-    std::string path = "/ui/" + node->getID() + ".json";
+    std::string path = "ui/" + node->getID() + ".json";
 
     log::info("{}", path);
 
@@ -1588,7 +1588,7 @@ void UIModding::doUICheckForType(std::string type, CCNode* node){
         value = uiCache[type];
     }
     else{
-        std::string path = "/ui/nodes/" + type + ".json";
+        std::string path = "ui/nodes/" + type + ".json";
 
         unsigned long fileSize = 0;
         unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
