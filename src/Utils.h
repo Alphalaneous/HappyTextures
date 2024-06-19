@@ -50,5 +50,25 @@ namespace Utils {
         }
         return false;
     }
+
+    //fix texture loader fallback
+
+    inline CCSprite* getValidSprite(const char* sprName){
+        CCSprite* spr = CCSprite::create(sprName);
+        if(!spr || spr->getUserObject("geode.texture-loader/fallback")){
+            return nullptr;
+        }
+        return spr;
+    }
+
+    //fix texture loader fallback
+
+    inline CCSprite* getValidSpriteFrame(const char* sprName){
+        CCSprite* spr = CCSprite::createWithSpriteFrameName(sprName);
+        if(!spr || spr->getUserObject("geode.texture-loader/fallback")){
+            return nullptr;
+        }
+        return spr;
+    }
 }
 #endif

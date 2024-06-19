@@ -846,12 +846,13 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
         matjson::Value sprite = attributes["sprite"];
         if(sprite.is_string()){
             std::string spriteName = sprite.as_string();
+
+            CCSprite* spr = Utils::getValidSprite(spriteName.c_str());
+            if(!spr) return;
+
             if(CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
-                CCSprite* spr = CCSprite::create(spriteName.c_str());
-                if(spr){
-                    spriteNode->setTexture(spr->getTexture());
-                    spriteNode->setTextureRect(spr->getTextureRect());
-                }
+                spriteNode->setTexture(spr->getTexture());
+                spriteNode->setTextureRect(spr->getTextureRect());
             }
             if(CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
 
@@ -880,7 +881,9 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
                                     setSpriteVarNum(scale, scale, double);
                                     setSpriteVar(absolute, absolute, bool);
                                     
-                                    CCSprite* spr = CCSprite::create(texture.c_str());
+                                    CCSprite* spr = Utils::getValidSprite(texture.c_str());
+                                    if(!spr) return;
+
                                     CCLabelBMFont* fnt = CCLabelBMFont::create("", font.c_str());
 
                                     if(spr && fnt){
@@ -891,33 +894,28 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes){
 
                                 }
                                 else if(type == "sprite"){
-                                    CCSprite* spr = CCSprite::create(spriteName.c_str());
-                                    if(spr){
-                                        buttonNode->setNormalImage(spr);
-                                        Utils::updateSprite(buttonNode);
-                                    }
+                                    buttonNode->setNormalImage(spr);
+                                    Utils::updateSprite(buttonNode);
                                 }
                             }
                         }
                     }
                 }
                 if(ButtonSprite* buttonSprite = getChildOfType<ButtonSprite>(node, 0)){
-                    CCSprite* spr = CCSprite::create(spriteName.c_str());
-                    if(spr){
-                        buttonSprite->updateBGImage(spriteName.c_str());
-                    }
+                    buttonSprite->updateBGImage(spriteName.c_str());
                 }
                 else if(CCSprite* sprite = getChildOfType<CCSprite>(node, 0)){
-                    CCSprite* spr = CCSprite::create(spriteName.c_str());
-                    if(spr){
-                        buttonNode->setNormalImage(spr);
-		                Utils::updateSprite(buttonNode);
-                    }
+                    
+                    buttonNode->setNormalImage(spr);
+                    Utils::updateSprite(buttonNode);
+                    
                 }
             }
         }
     }
 }
+
+
 
 void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
     if(attributes.contains("sprite-frame")){
@@ -925,7 +923,7 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
         if(sprite.is_string()){
             std::string spriteName = sprite.as_string();
             if(CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
-                CCSprite* spr = CCSprite::createWithSpriteFrameName(spriteName.c_str());
+                CCSprite* spr = Utils::getValidSpriteFrame(spriteName.c_str());
                 if(spr){
                     spriteNode->setTextureAtlas(spr->getTextureAtlas());
                     spriteNode->setTexture(spr->getTexture());
@@ -933,7 +931,7 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes){
                 }
             }
             if(CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-                CCSprite* spr = CCSprite::createWithSpriteFrameName(spriteName.c_str());
+                CCSprite* spr = Utils::getValidSpriteFrame(spriteName.c_str());
                 if(spr){
                     buttonNode->setNormalImage(spr);
                     Utils::updateSprite(buttonNode);
