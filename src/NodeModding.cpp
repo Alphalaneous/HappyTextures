@@ -13,8 +13,7 @@ modifyNodeForTypeCreate(CCSprite, createWithSpriteFrame, (CCSpriteFrame *p0), (p
 modifyNodeForType(CCMenu, initWithArray, (CCArray* p0), (p0));
 
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
-modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3), (p0, p1, p2, p3));
-modifyNodeForTypeCreate(CCMenuItemSpriteExtra, create, (cocos2d::CCNode* p0, cocos2d::CCObject* p1, cocos2d::SEL_MenuHandler p2), (p0, p1, p2));
+modifyNodeForType(CCMenuItemSpriteExtra, init, (cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3), (p0, p1, p2, p3));
 
 #include <Geode/modify/CCLabelBMFont.hpp>
 modifyNodeForType(CCLabelBMFont, init, (), ());
