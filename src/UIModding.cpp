@@ -1456,15 +1456,10 @@ void UIModding::doUICheck(CCNode* node){
 
     std::string path = "ui/" + node->getID() + ".json";
 
-    log::info("{}", path);
-
     unsigned long fileSize = 0;
     unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
 
     if (buffer && fileSize != 0) {
-        
-        log::info("{}", (char*)buffer);
-
 
         std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
         std::string error;
