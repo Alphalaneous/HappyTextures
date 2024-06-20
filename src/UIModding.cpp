@@ -1569,6 +1569,9 @@ AxisAlignment UIModding::getAxisAlignment(std::string name){
     if(name == "even"){
         axisAlignment = AxisAlignment::Even;
     }
+    if(name == "between"){
+        axisAlignment = AxisAlignment::Between;
+    }
     return axisAlignment;
 }
 
