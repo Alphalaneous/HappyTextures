@@ -22,7 +22,9 @@ class $modify(MyMenuLayer, MenuLayer){
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 
         if(UIModding::get()->doModify){
-            UIModding::get()->startFileListeners();
+            if(Mod::get()->getSettingValue<bool>("hot-reload")){
+                UIModding::get()->startFileListeners();
+            }
             UIModding::get()->doUICheck(this);
         }
         return true;

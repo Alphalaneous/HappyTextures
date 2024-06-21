@@ -1,10 +1,10 @@
 {
-	"geode": "3.0.0-beta.3",
+	"geode": "3.0.0-beta.4",
 	"gd": {
 		"win": "2.206",
 		"android": "2.206"
 	},
-	"version": "v1.3.15",
+	"version": "v1.3.16",
 	"id": "alphalaneous.happy_textures",
 	"name": "Happy Textures :3",
 	"developer": "Alphalaneous",
@@ -52,6 +52,12 @@
 			"description": "Allow Tetxure Packs to edit the game's interface.",
             "type": "bool",
             "default": true
+        },
+		"hot-reload": {
+            "name": "Hot Reload",
+			"description": "Allow hot reloading of UI elements, use if you are a texture pack creator.",
+            "type": "bool",
+            "default": false
         }
 	}
 }
