@@ -15,6 +15,11 @@ using namespace geode::prelude;
 setCellColors(LevelCell, loadFromLevel, GJGameLevel);
 setCellColors(LevelListCell, loadFromList, GJLevelList);
 setCellColors(GJScoreCell, loadFromScore, GJUserScore);
+
+#ifndef GEODE_IS_MACOS
+
 setCellColors(MapPackCell, loadFromMapPack, GJMapPack);
+
+#endif
 
 #endif
