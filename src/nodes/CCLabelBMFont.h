@@ -33,10 +33,18 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
         auto ret = CCLabelBMFont::create(str, fntFile, width, alignment, imageOffset);
 
         auto myRet = static_cast<MyCCLabelBMFont*>(ret);
+
+        #ifndef GEODE_IS_MACOS
+
         myRet->m_fields->m_schedule = schedule_selector(MyCCLabelBMFont::checkParent);
         ret->schedule(myRet->m_fields->m_schedule);
+
+        #endif
+
         return ret;
     }
+
+    #ifndef GEODE_IS_MACOS
 
     void checkParent(float dt){
         
@@ -49,6 +57,8 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
             this->unschedule(m_fields->m_schedule);
         }
     }
+
+    #endif
 };
 
 #endif
