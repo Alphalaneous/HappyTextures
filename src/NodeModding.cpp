@@ -32,11 +32,15 @@ modifyNodeForTypeCreate(CCTextInputNode, create, (float p0, float p1, char const
 #include <Geode/modify/TextArea.hpp>
 modifyNodeForTypeCreate(TextArea, create, (gd::string p0, char const* p1, float p2, float p3, cocos2d::CCPoint p4, float p5, bool p6), (p0, p1, p2, p3, p4, p5, p6));
 
+#ifndef GEODE_IS_MACOS
+
 #include <Geode/modify/SearchButton.hpp>
 modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, float p2, char const* p3), (p0, p1, p2, p3));
 
 #include <Geode/modify/SimplePlayer.hpp>
 modifyNodeForType(SimplePlayer, init, (int p0), (p0));
+
+#endif
 
 #include <Geode/modify/CCLayer.hpp>
 modifyNodeForType(CCLayer, init, (), ());
