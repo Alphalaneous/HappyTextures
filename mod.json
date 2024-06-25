@@ -1,10 +1,11 @@
 {
-	"geode": "3.0.0-beta.5",
+	"geode": "3.1.0",
 	"gd": {
 		"win": "2.206",
-		"android": "2.206"
+		"android": "2.206",
+		"mac": "2.206"
 	},
-	"version": "v1.3.16",
+	"version": "v1.3.17",
 	"id": "alphalaneous.happy_textures",
 	"name": "Happy Textures :3",
 	"developer": "Alphalaneous",
@@ -37,15 +38,13 @@
             "name": "Pusab Fix",
 			"description": "Makes changing pusab in texture packs not affect the font within levels.",
             "type": "bool",
-            "default": true,
-			"platforms": ["win", "android"]
+            "default": true
         },
 		"comment-border-fix": {
             "name": "Comment Border Fix",
 			"description": "Makes comment borders look cleaner, especially with texture packs.",
             "type": "bool",
-            "default": true,
-			"platforms": ["win", "android"]
+            "default": true
         },
 		"ui-modifications": {
             "name": "Allow UI Modifications",

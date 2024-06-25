@@ -18,7 +18,9 @@ jobs:
         - name: Android32
           os: ubuntu-latest
           target: Android32
-
+        - name: macOS
+          os: macos-latest
+          
         - name: Android64
           os: ubuntu-latest
           target: Android64
