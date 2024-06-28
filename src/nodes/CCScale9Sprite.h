@@ -12,7 +12,7 @@ using namespace geode::prelude;
 class $modify(MyCCScale9Sprite, CCScale9Sprite){
 
     struct Fields {
-        const char* textureName;
+        std::string textureName;
         CCRect rect;
         CCRect capInsets;
         std::vector<CCRect> originalRects;
@@ -21,7 +21,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
 
     bool initWithFile(const char* file, CCRect rect, CCRect capInsets){
         if(!CCScale9Sprite::initWithFile(file, rect, capInsets)) return false;
-        m_fields->textureName = file;
+        m_fields->textureName = std::string(file);
         m_fields->rect = rect;
         m_fields->capInsets = capInsets;
 

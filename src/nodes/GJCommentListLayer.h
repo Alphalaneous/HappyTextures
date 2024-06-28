@@ -133,7 +133,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 
         MyCCScale9Sprite* myBG = static_cast<MyCCScale9Sprite*>(bg);
 
-        CCScale9Sprite* newBG = CCScale9Sprite::create(myBG->m_fields->textureName, myBG->m_fields->rect, myBG->m_fields->capInsets);
+        CCScale9Sprite* newBG = CCScale9Sprite::create(myBG->m_fields->textureName.c_str(), myBG->m_fields->rect, myBG->m_fields->capInsets);
         newBG->setContentSize(myBG->getContentSize());
         newBG->setPosition(bg->getPosition());
 
