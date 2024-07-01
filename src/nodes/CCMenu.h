@@ -58,7 +58,7 @@ class $modify(EventCCMenu, CCMenu){
 
     void check(float dt){
         
-        if(this && !nodeIsVisible(this)) return;
+        if(!nodeIsVisible(this)) return;
 
         CCScene* currentScene = CCDirector::get()->getRunningScene();
         int layerCount = currentScene->getChildrenCount();
