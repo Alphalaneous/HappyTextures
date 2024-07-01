@@ -110,7 +110,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 
     void checkTouch(bool hasLayerOnTop){
 
-        if((m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)){
+        if(this && (m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)){
 
             CCPoint point = getMousePos();
 

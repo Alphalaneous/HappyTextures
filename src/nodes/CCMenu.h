@@ -45,7 +45,7 @@ class $modify(EventCCMenu, CCMenu){
     void checkTouch(CCNode* node, bool hasLayerOnTop){
 
         for(CCNode* nodeA : CCArrayExt<CCNode*>(node->getChildren())){
-            if(nodeIsVisible(nodeA)){
+            if(nodeA && nodeIsVisible(nodeA)){
                 if(EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(nodeA)){
                     button->checkTouch(hasLayerOnTop);
                 }
@@ -58,7 +58,7 @@ class $modify(EventCCMenu, CCMenu){
 
     void check(float dt){
         
-        if(!nodeIsVisible(this)) return;
+        if(this && !nodeIsVisible(this)) return;
 
         CCScene* currentScene = CCDirector::get()->getRunningScene();
         int layerCount = currentScene->getChildrenCount();
