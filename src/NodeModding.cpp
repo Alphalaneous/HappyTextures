@@ -7,7 +7,7 @@ using namespace geode::prelude;
 #include <Geode/modify/CCSprite.hpp>
 modifyNodeForTypeCreate(CCSprite, create, (), ());
 
-
+#ifndef GEODE_IS_MACOS
 modifyNodeForTypeCreate(CCSprite, createWithTexture, (CCTexture2D *p0, const CCRect& p1), (p0, p1));
 #endif
 
