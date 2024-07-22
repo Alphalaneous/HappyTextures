@@ -7,7 +7,7 @@ using namespace geode::prelude;
 #include <Geode/modify/CCSprite.hpp>
 modifyNodeForTypeCreate(CCSprite, create, (), ());
 
-#ifndef GEODE_IS_MACOS
+
 modifyNodeForTypeCreate(CCSprite, createWithTexture, (CCTexture2D *p0, const CCRect& p1), (p0, p1));
 #endif
 
@@ -27,10 +27,15 @@ modifyNodeForType(CCLabelBMFont, initWithString, (const char *p0, const char *p1
 
 #include <Geode/modify/CCScale9Sprite.hpp>
 modifyNodeForType(CCScale9Sprite, init, (), ());
+
+#ifndef GEODE_IS_MACOS
+
 modifyNodeForType(CCScale9Sprite, initWithBatchNode, (CCSpriteBatchNode* p0, CCRect p1, bool p2, CCRect p3), (p0, p1, p2, p3));
 modifyNodeForType(CCScale9Sprite, initWithFile, (const char* p0, CCRect p1,  CCRect p2), (p0, p1, p2));
 modifyNodeForType(CCScale9Sprite, initWithSpriteFrame, (CCSpriteFrame* p0, CCRect p1), (p0, p1));
 modifyNodeForType(CCScale9Sprite, initWithSpriteFrameName, (const char* p0, CCRect p1), (p0, p1));
+
+#endif
 
 #include <Geode/modify/CCTextInputNode.hpp>
 modifyNodeForTypeCreate(CCTextInputNode, create, (float p0, float p1, char const* p2, char const* p3, int p4, char const* p5), (p0, p1, p2, p3, p4, p5));

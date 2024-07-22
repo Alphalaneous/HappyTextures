@@ -9,6 +9,8 @@
 
 using namespace geode::prelude;
 
+#ifndef GEODE_IS_MACOS
+
 class $modify(MyCCScale9Sprite, CCScale9Sprite){
 
     struct Fields {
@@ -229,5 +231,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         spr->setTextureRect(rect);
     }
 };
+
+#endif
 
 #endif
