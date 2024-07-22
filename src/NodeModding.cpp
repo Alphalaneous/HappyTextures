@@ -6,11 +6,17 @@ using namespace geode::prelude;
 
 #include <Geode/modify/CCSprite.hpp>
 modifyNodeForTypeCreate(CCSprite, create, (), ());
+
+#ifndef GEODE_IS_MACOS
 modifyNodeForTypeCreate(CCSprite, createWithTexture, (CCTexture2D *p0, const CCRect& p1), (p0, p1));
+#endif
+
 modifyNodeForTypeCreate(CCSprite, createWithSpriteFrame, (CCSpriteFrame *p0), (p0));
 
+#ifndef GEODE_IS_MACOS
 #include <Geode/modify/CCMenu.hpp>
 modifyNodeForType(CCMenu, initWithArray, (CCArray* p0), (p0));
+#endif
 
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 modifyNodeForType(CCMenuItemSpriteExtra, init, (cocos2d::CCNode* p0, cocos2d::CCNode* p1, cocos2d::CCObject* p2, cocos2d::SEL_MenuHandler p3), (p0, p1, p2, p3));
