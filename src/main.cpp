@@ -15,6 +15,7 @@
 #include "nodes/LoadingLayer.h"
 #include "nodes/MenuGameLayer.h"
 #include "nodes/MenuLayer.h"
+#include "icons/IconHandler.h"
 #include "CCDirector.h"
 
 using namespace geode::prelude;

@@ -36,8 +36,12 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
 
         #ifndef GEODE_IS_MACOS
 
-        myRet->m_fields->m_schedule = schedule_selector(MyCCLabelBMFont::checkParent);
-        ret->schedule(myRet->m_fields->m_schedule);
+        bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
+
+        if(doFix){
+            myRet->m_fields->m_schedule = schedule_selector(MyCCLabelBMFont::checkParent);
+            ret->schedule(myRet->m_fields->m_schedule);
+        }
 
         #endif
 
@@ -51,7 +55,9 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
         if(auto parent = this->getParent()){
             if(typeinfo_cast<LabelGameObject*>(parent)){
                 if(strcmp(this->getFntFile(), "bigFont.fnt") == 0){
+                    ccBlendFunc blendFunc = this->getBlendFunc();
                     this->setFntFile("bigFont.fnt"_spr);
+                    this->setBlendFunc(blendFunc);
                 }
             }
             this->unschedule(m_fields->m_schedule);

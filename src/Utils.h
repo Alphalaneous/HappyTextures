@@ -70,5 +70,41 @@ namespace Utils {
         }
         return spr;
     }
+
+    static std::vector<std::string> getActivePacks(){
+
+        gd::vector<gd::string> paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
+        std::vector<std::string> packPaths;
+        Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
+        if(textureLoader){
+            std::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
+            std::string packDirStr = fmt::format("{}{}", textureLoaderPacks, "\\packs");
+            std::filesystem::path packDir = std::filesystem::path(packDirStr);
+
+            for(std::string path : paths){
+
+                std::filesystem::path fpath = std::filesystem::path(path);
+                std::filesystem::path pathParent = std::filesystem::path(path);
+
+                while(pathParent.has_parent_path()){
+
+                    if(pathParent == packDir){
+                        if(std::find(packPaths.begin(), packPaths.end(), fpath.string()) == packPaths.end()) {
+                            packPaths.push_back(fpath.string());
+                            break;
+                        }
+                    }
+                    if(pathParent == std::filesystem::current_path().root_path()){
+                        break;
+                    }
+                    pathParent = pathParent.parent_path();
+                }
+            }
+        }
+        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "Resources\\");
+        packPaths.push_back(resourcesDir);
+
+    return packPaths;
+}
 }
 #endif
