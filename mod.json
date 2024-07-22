@@ -32,7 +32,8 @@
             "name": "CCScale9Sprite Fix",
 			"description": "Fix sprite overlapping when you have transparent CCScale9Sprites (Such as on the level search page).",
             "type": "bool",
-            "default": true
+            "default": true,
+			"platforms": ["win", "android"]
         },
 		"pusab-fix": {
             "name": "Pusab Fix",
