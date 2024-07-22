@@ -9,11 +9,14 @@
 
 using namespace geode::prelude;
 
+#ifndef GEODE_IS_MACOS
+
 class $modify(CCDirector){
 
     static void onModify(auto& self) {
         (void) self.setHookPriority("CCDirector::willSwitchToScene", INT_MIN);
     }
+
 
     void willSwitchToScene(CCScene* scene){
         if(UIModding::get()->doModify){
@@ -31,5 +34,7 @@ class $modify(CCDirector){
         CCDirector::willSwitchToScene(scene);
     }
 };
+
+#endif
 
 #endif
