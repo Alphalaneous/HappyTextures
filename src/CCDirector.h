@@ -17,7 +17,6 @@ class $modify(CCDirector){
         (void) self.setHookPriority("CCDirector::willSwitchToScene", INT_MIN);
     }
 
-
     void willSwitchToScene(CCScene* scene){
         if(UIModding::get()->doModify){
             if(CCSprite* bg = typeinfo_cast<CCSprite*>(scene->getChildByIDRecursive("background"))){

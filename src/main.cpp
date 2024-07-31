@@ -15,6 +15,7 @@
 #include "nodes/LoadingLayer.h"
 #include "nodes/MenuGameLayer.h"
 #include "nodes/MenuLayer.h"
+#include "nodes/GJChestSprite.h"
 #include "icons/IconHandler.h"
 #include "CCDirector.h"
 
