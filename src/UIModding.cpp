@@ -204,6 +204,15 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action){
                         y = yValue.as_double();
                     }
                 }
+                if(valueValue.contains("width") && valueValue.contains("height")){
+                    matjson::Value wValue = valueValue["width"];
+                    matjson::Value hValue = valueValue["height"];
+
+                    if(wValue.is_number() && hValue.is_number()){
+                        x = wValue.as_double();
+                        y = hValue.as_double();
+                    }
+                }
             }
         }
 
@@ -335,11 +344,17 @@ void UIModding::setLayout(CCNode* node, matjson::Object attributes){
                     }
                 }
                 if(layoutValue.contains("flip-axis")){
-
                     matjson::Value flipAxisValue = layoutValue["flip-axis"];
                     if(flipAxisValue.is_bool()){
                         bool flipAxis = flipAxisValue.as_bool();
                         layout->setAxisReverse(flipAxis);
+                    }
+                }
+                if(layoutValue.contains("ignore-invisible")){
+                    matjson::Value ignoreInvisibleValue = layoutValue["ignore-invisible"];
+                    if(ignoreInvisibleValue.is_bool()){
+                        bool ignoreInvisible = ignoreInvisibleValue.as_bool();
+                        layout->ignoreInvisibleChildren(ignoreInvisible);
                     }
                 }
                 if(layoutValue.contains("flip-cross-axis")){
@@ -386,7 +401,7 @@ void UIModding::setLayout(CCNode* node, matjson::Object attributes){
 
                     }
                 }
-                if(layoutValue.contains("cross=axis-alignment")){
+                if(layoutValue.contains("cross-axis-alignment")){
                     matjson::Value crossAxisAlignmentValue = layoutValue["cross-axis-alignment"];
                     if(crossAxisAlignmentValue.is_string()){
                         std::string crossAxisAlignmentStr = crossAxisAlignmentValue.as_string();
@@ -395,7 +410,7 @@ void UIModding::setLayout(CCNode* node, matjson::Object attributes){
 
                     }
                 }
-                if(layoutValue.contains("cross=axis-line-alignment")){
+                if(layoutValue.contains("cross-axis-line-alignment")){
                     matjson::Value crossAxisLineAlignmentValue = layoutValue["cross-axis-line-alignment"];
                     if(crossAxisLineAlignmentValue.is_string()){
                         std::string crossAxisLineAlignmentStr = crossAxisLineAlignmentValue.as_string();
@@ -980,9 +995,6 @@ void UIModding::setVisible(CCNode* node, matjson::Object attributes){
         if(visible.is_bool()){
             bool isVisible = visible.as_bool();
             node->setVisible(isVisible);
-            if(!isVisible){
-                node->setContentSize({0,0});
-            }
         }
     }
 }

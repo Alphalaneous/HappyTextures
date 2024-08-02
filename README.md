@@ -1,7 +1,5 @@
 # Happy Textures :3
 
-# WIP README
-
 A Geometry Dash mod that brings texture packs to the next level!
 
 ## Features
@@ -19,7 +17,7 @@ Within a texture pack, add a `ui` folder, this is where any UI modifications wil
 
 To help with the UI process, it is recommended to install the **DevTools** mod on Geode.
 
-(Almost) every page on GD has an ID, you will want to create a JSON file with the format `ID.json` inside the ui folder to begin. Within DevTools, you can find this ID by going to the **Tree** tab, clicking on the CCScene dropdown to view the rest of the elements, and looking at IDs of the elements, in quotes, on that scene. For example, `MenuLayer.json` will be found on the main menu, which will be used as an example throughout the rest of this.
+(Almost) every page on GD has an ID, you will want to create a JSON file with the format `ID.json` inside the ui folder to begin (if an ID contains a forward slash (`/`), replace it with a dollar sign (`$`) in the filename). Within DevTools, you can find this ID by going to the **Tree** tab, clicking on the CCScene dropdown to view the rest of the elements, and looking at IDs of the elements, in quotes, on that scene. For example, `MenuLayer.json` will be found on the main menu, which will be used as an example throughout the rest of this.
 
 You can expand these elements in DevTools to find what you may want to modify. Example below
 
@@ -584,7 +582,8 @@ When it comes to using the position attribute, you can change the x and y coordi
     "gap": 10,
     "axis-alignment": "center",
     "cross=axis-alignment": "start",
-    "cross=axis-line-alignment": "end"
+    "cross=axis-line-alignment": "end",
+    "ignore-invisible": true
 }
 ```
 
@@ -837,6 +836,7 @@ Original Location
 - center
 - end
 - even
+- between
 
 </td>
 </tr>
@@ -845,6 +845,307 @@ Original Location
 
 ## Action Attributes
 
+All Actions have attributes that go along with them, some more than others. The available attributes are `easing`, `easing-rate`, `repeat`, `duration`, `value`.
+
+<table>
+
+<tr>
+<td>Attribute</td> <td>Type</td> <td>Example</td> 
+</tr>
+
+<tr> 
+<td>easing</td> <td> string (See "Action Easing" for types)</td> <td>
+
+```json
+"easing": "EaseInOut"
+```
+
+</td> 
+</tr>
+
+<tr>
+<td>easing-rate</td> <td>float</td> <td>
+
+```json
+"easing-rate": 2
+```
+
+</td> 
+</tr>
+
+<tr>
+<td>repeat</td> <td>bool or int (true for forever, int for amount of repeats)</td> <td>
+
+```json
+"repeat": true
+```
+or
+```json
+"repeat": 5
+```
+
+</td> 
+</tr>
+
+<tr>
+<td>duration</td> <td>float</td> <td>
+
+```json
+"duration": 5.2
+```
+
+</td> 
+</tr>
+
+<tr>
+<td>value</td> <td>float, or object of "x" and "y", see types below for which is used</td> <td>
+
+```json
+"value": {
+    "x": 10,
+    "y": 20
+}
+```
+or
+```json
+"value": 5.5
+```
+
+</td> 
+</tr>
+
+</table>
+
 ## Action Types
 
+<table>
+
+<tr>
+<td> Attribute </td> <td> Description </td> <td> Has Position Object </td> <td> Has Float Value </td>
+</tr>
+
+<tr>
+<td>MoveBy</td>
+<td>Move the node by a set amount of units</td>
+<td><input type="checkbox" disabled checked /></td>
+<td><input type="checkbox" disabled /></td>
+</tr>
+
+<tr>
+<td>MoveTo</td>
+<td>Move the node to a specific position</td>
+<td><input type="checkbox" disabled checked /></td>
+<td><input type="checkbox" disabled /></td>
+</tr>
+
+<tr>
+<td>SkewBy</td>
+<td>Skew the node by a set amount of units</td>
+<td><input type="checkbox" disabled checked /></td>
+<td><input type="checkbox" disabled /></td>
+</tr>
+
+<tr>
+<td>SkewTo</td>
+<td>Skew the node to a specific point</td>
+<td><input type="checkbox" disabled checked /></td>
+<td><input type="checkbox" disabled /></td>
+</tr>
+
+<tr>
+<td>FadeIn</td>
+<td>Fade the node to full opacity</td>
+<td><input type="checkbox" disabled /></td>
+<td><input type="checkbox" disabled /></td>
+</tr>
+
+<tr>
+<td>FadeOut</td>
+<td>Fade the node to zero opacity</td>
+<td><input type="checkbox" disabled /></td>
+<td><input type="checkbox" disabled /></td>
+</tr>
+
+<tr>
+<td>FadeTo</td>
+<td>Fade the node to a specific opacity</td>
+<td><input type="checkbox" disabled /></td>
+<td><input type="checkbox" disabled checked /></td>
+</tr>
+
+<tr>
+<td>ScaleBy</td>
+<td>Scale the node by a specific scale</td>
+<td><input type="checkbox" disabled checked/></td>
+<td><input type="checkbox" disabled checked /></td>
+</tr>
+
+<tr>
+<td>ScaleTo</td>
+<td>Scale the node to a specific scale</td>
+<td><input type="checkbox" disabled checked/></td>
+<td><input type="checkbox" disabled checked /></td>
+</tr>
+
+<tr>
+<td>RotateBy</td>
+<td>Rotate the node by a specific rotation</td>
+<td><input type="checkbox" disabled checked/></td>
+<td><input type="checkbox" disabled checked /></td>
+</tr>
+
+<tr>
+<td>RotateTo</td>
+<td>Rotate the node to a specific rotation</td>
+<td><input type="checkbox" disabled checked/></td>
+<td><input type="checkbox" disabled checked /></td>
+</tr>
+
+
+</table>
+
+Another type of action can contain actions in itself, which are activated in order, this is an example of a sequence action that rotates a node by 180, then back on repeat:
+
+```json
+"actions": [
+    {
+        "type": "Sequence",
+        "actions": [
+            {
+                "type": "RotateBy",
+                "easing": "ElasicIn",
+                "value": 180,
+                "duration": 1
+            },
+            {
+                "type": "RotateBy",
+                "easing": "ElasicIn",
+                "value": -180,
+                "duration": 1
+            }
+        ],
+        "repeat": true
+    }
+]
+```
+
+If you ever want to stop an exisitng action, just create a "Stop" action:
+
+```json
+
+"actions": [
+    {
+        "type": "Stop",
+    }
+]
+```
+
+
 ## Action Easing
+
+A list of easings provided are as follows:
+
+- EaseInOut
+- EaseIn
+- EaseOut
+- ElasticInOut
+- ElasticIn
+- ElasticOut
+- BounceInOut
+- BounceIn
+- BounceOut
+- ExponentialInOut
+- ExponentialIn
+- ExponentialOut
+- SineInOut
+- SineIn
+- SineOut
+- BackInOut
+- BackIn
+- BackInOut
+
+EaseInOut, EaseIn, and EaseOut allow you to set the "easing-rate" parameter. 
+
+For more info on easings, check https://easings.net/
+
+An example of this is:
+
+```json
+
+{
+    "type": "MoveBy",
+    "value": {
+        "x": 20,
+        "y": 30
+    },
+    "easing": "EaseInOut",
+    "easing-rate": 2
+}
+```
+
+## Hardcoded Colors
+
+It is possible to change GDs hardcoded colors via a `colors.json` file in the `ui` folder. The json is formatted as an object that contains the colors you want to change. These colors require an `r`, `g`, and `b` value, and the `a` (alpha) value is optional. Example (replace "color-id" with an actual ID provided below):
+
+```json
+
+{
+    "color-id": {
+        "r": 128,
+        "g": 128,
+        "b": 128,
+        "a": 128
+    }
+}
+```
+
+A list of modifyable colors provided are as follows:
+
+### Universal
+
+- background
+
+### LevelSearchLayer
+
+- level-search-bg
+- level-search-bar-bg
+- quick-search-bg
+- difficulty-filters-bg
+- length-filters-bg
+
+### GJListLayer
+
+- list-layer-bg
+- list-cell-odd
+- list-cell-even
+- comment-list-outline-brown
+- comment-list-outline-blue
+
+### GJCommentListLayer
+
+- comment-cell-odd
+- comment-cell-even
+- comment-cell-small-odd
+- comment-cell-small-even
+- comment-cell-bg-odd
+- comment-cell-bg-even
+- comment-list-layer-bg
+
+### InfoLayer
+
+- info-description-bg
+
+### EditLevelLayer
+
+- edit-description-bg
+- edit-name-bg
+
+### MenuLayer
+
+- main-menu-bg
+- main-menu-ground
+
+### GJChestSprite
+
+- chest-opened-overlay
+
