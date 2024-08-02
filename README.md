@@ -927,78 +927,78 @@ or
 <tr>
 <td>MoveBy</td>
 <td>Move the node by a set amount of units</td>
-<td>[x]</td>
-<td>[ ]</td>
+<td>- [x]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>MoveTo</td>
 <td>Move the node to a specific position</td>
-<td>[x]</td>
-<td>[ ]</td>
+<td>- [x]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>SkewBy</td>
 <td>Skew the node by a set amount of units</td>
-<td>[x]</td>
-<td>[ ]</td>
+<td>- [x]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>SkewTo</td>
 <td>Skew the node to a specific point</td>
-<td>[x]</td>
-<td>[ ]</td>
+<td>- [x]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>FadeIn</td>
 <td>Fade the node to full opacity</td>
-<td>[ ]</td>
-<td>[ ]</td>
+<td>- [ ]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>FadeOut</td>
 <td>Fade the node to zero opacity</td>
-<td>[ ]</td>
-<td>[ ]</td>
+<td>- [ ]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>FadeTo</td>
 <td>Fade the node to a specific opacity</td>
-<td>[ ]</td>
-<td>[ ]</td>
+<td>- [ ]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>ScaleBy</td>
 <td>Scale the node by a specific scale</td>
-<td>[ ]</td>
-<td>[ ]</td>
+<td>- [ ]</td>
+<td>- [ ]</td>
 </tr>
 
 <tr>
 <td>ScaleTo</td>
 <td>Scale the node to a specific scale</td>
-<td>[x]</td>
-<td>[x]</td>
+<td>- [x]</td>
+<td>- [x]</td>
 </tr>
 
 <tr>
 <td>RotateBy</td>
 <td>Rotate the node by a specific rotation</td>
-<td>[x]</td>
-<td>[x]</td>
+<td>- [x]</td>
+<td>- [x]</td>
 </tr>
 
 <tr>
 <td>RotateTo</td>
 <td>Rotate the node to a specific rotation</td>
-<td>[x]</td>
-<td>[x]</td>
+<td>- [x]</td>
+<td>- [x]</td>
 </tr>
 
 
