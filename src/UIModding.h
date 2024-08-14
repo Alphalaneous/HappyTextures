@@ -35,6 +35,7 @@ public:
     void setColor(CCNode* node, matjson::Object attributes);
     void setText(CCNode* node, matjson::Object attributes);
     void setScaleMult(CCNode* node, matjson::Object attributes);
+    void setScaleBase(CCNode* node, matjson::Object attributes);
     void setZOrder(CCNode* node, matjson::Object attributes);
     void setFont(CCNode* node, matjson::Object attributes);
     void setFlip(CCNode* node, matjson::Object attributes);

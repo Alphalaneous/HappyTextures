@@ -453,9 +453,9 @@ void UIModding::playSound(CCNode* node, matjson::Object attributes){
             std::string sound = soundVal.as_string();
 
 #ifndef GEODE_IS_ANDROID
-            FMODAudioEngine::sharedEngine()->m_currentSoundChannel->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_backgroundMusicChannel->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_globalChannel->setPaused(false);
+            FMODAudioEngine::sharedEngine()->m_channelGroup2->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_system->update();
 #endif
             std::string soundPath = getSound(sound);
@@ -821,6 +821,18 @@ void UIModding::setScaleMult(CCNode* node, matjson::Object attributes){
     }
 }
 
+void UIModding::setScaleBase(CCNode* node, matjson::Object attributes){
+    if(attributes.contains("base-scale")){
+        matjson::Value baseVal = attributes["base-scale"];
+        if(baseVal.is_number()){
+            float base = baseVal.as_double();
+            if(CCMenuItemSpriteExtra* button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+                button->m_baseScale = base;
+            }
+        }
+    }
+}
+
 void UIModding::setText(CCNode* node, matjson::Object attributes){
     if(attributes.contains("text")){
         matjson::Value textVal = attributes["text"];
@@ -1174,6 +1186,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
             nodesFor(setPosition);
             nodesFor(setText);
             nodesFor(setScaleMult);
+            nodesFor(setScaleBase);
             nodesFor(setZOrder);
             nodesFor(setFont);
             nodesFor(setFlip);

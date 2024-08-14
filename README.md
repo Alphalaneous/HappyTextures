@@ -442,6 +442,23 @@ When it comes to using the position attribute, you can change the x and y coordi
 </tr>
 
 <tr>
+<td> base-scale </td>
+<td> Set the base scale of a button (scaling a button returns to this rather than 1 when clicked). </td>
+<td>
+    
+```json
+"base-scale": 2
+```
+
+</td>
+
+<td>
+
+
+</td>
+</tr>
+
+<tr>
 <td> z-order </td>
 <td> Set the z order of a node. </td>
 <td>
