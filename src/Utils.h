@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef HAPPYUTILS_H
-#define HAPPYUTILS_H
-
 #include <Geode/Geode.hpp>
 using namespace geode::prelude;
 
@@ -104,7 +101,6 @@ namespace Utils {
         std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "Resources\\");
         packPaths.push_back(resourcesDir);
 
-    return packPaths;
+        return packPaths;
+    }
 }
-}
-#endif

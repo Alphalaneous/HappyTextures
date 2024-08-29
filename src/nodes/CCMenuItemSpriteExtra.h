@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYCCMENUITEMSPRITEXTRA_H
-#define MYCCMENUITEMSPRITEXTRA_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include "CCScene.h"
@@ -159,4 +156,3 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         }
     }
 };
-#endif

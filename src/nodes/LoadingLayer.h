@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYLOADINGLAYER_H
-#define MYLOADINGLAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LoadingLayer.hpp>
 
@@ -16,5 +13,3 @@ class $modify(MyLoadingLayer, LoadingLayer){
         return LoadingLayer::init(p0);
     }
 };
-
-#endif

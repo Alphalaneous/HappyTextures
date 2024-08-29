@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef DATANODE_H
-#define DATANODE_H
-
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
@@ -28,5 +25,3 @@ public:
         return true;
     }
 };
-
-#endif

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYCCDIRECTOR_H
-#define MYCCDIRECTOR_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCDirector.hpp>
 #include "UIModding.h"
@@ -33,7 +30,5 @@ class $modify(CCDirector){
         CCDirector::willSwitchToScene(scene);
     }
 };
-
-#endif
 
 #endif

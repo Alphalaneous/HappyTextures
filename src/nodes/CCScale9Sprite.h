@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYCCSCALE9SPRITE_H
-#define MYCCSCALE9SPRITE_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCScale9Sprite.hpp>
 #include "../Macros.h"
@@ -231,7 +228,5 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         spr->setTextureRect(rect);
     }
 };
-
-#endif
 
 #endif

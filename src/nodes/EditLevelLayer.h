@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYEDITLEVELLAYER_H
-#define MYEDITLEVELLAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditLevelLayer.hpp>
 
@@ -37,5 +34,3 @@ class $modify(MyEditLevelLayer, EditLevelLayer){
         return true;
     }
 };
-
-#endif

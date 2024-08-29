@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYCOMMENTCELL_H
-#define MYCOMMENTCELL_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CommentCell.hpp>
 
@@ -85,5 +82,3 @@ class $modify(MyCommentCell, CommentCell) {
         }
     }
 };
-
-#endif

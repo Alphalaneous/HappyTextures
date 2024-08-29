@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYCCMENU_H
-#define MYCCMENU_H
-
 #ifdef GEODE_IS_WINDOWS
 
 #include <Geode/Geode.hpp>
@@ -99,7 +96,5 @@ class $modify(EventCCMenu, CCMenu){
         }
     }
 };
-
-#endif
 
 #endif

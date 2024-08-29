@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef __BROWNALERT_HPP
-#define __BROWNALERT_HPP
-
 #include <Geode/Geode.hpp>
 
 using namespace geode::prelude;
@@ -21,5 +18,3 @@ class AlertDelegate : public FLAlertLayer {
             CCTouchDispatcher::get()->unregisterForcePrio(this);
         }
 };
-
-#endif

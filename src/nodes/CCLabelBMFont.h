@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYCCLABELBMFONT_H
-#define MYCCLABELBMFONT_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCLabelBMFont.hpp>
 #include "../Utils.h"
@@ -44,7 +41,7 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
         }
 
         #endif
-
+        
         return ret;
     }
 
@@ -66,5 +63,3 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
 
     #endif
 };
-
-#endif

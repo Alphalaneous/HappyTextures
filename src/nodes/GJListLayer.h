@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYGJLISTLAYER_H
-#define MYGJLISTLAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJListLayer.hpp>
 
@@ -29,5 +26,3 @@ class $modify(MyGJListLayer, GJListLayer) {
 		return ret;
 	}
 };
-
-#endif

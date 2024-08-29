@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYLEVELSEARCHLAYER_H
-#define MYLEVELSEARCHLAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelSearchLayer.hpp>
 
@@ -26,5 +23,3 @@ class $modify(MyLevelSearchLayer, LevelSearchLayer){
         return true;
     }
 };
-
-#endif

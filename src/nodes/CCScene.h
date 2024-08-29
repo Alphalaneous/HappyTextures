@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYCCSCENE_H
-#define MYCCSCENE_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCScene.hpp>
 #include "../UIModding.h"
@@ -43,5 +40,3 @@ class $modify(MyCCScene, CCScene){
         m_fields->m_currentCount = this->getChildrenCount();
     }
 };
-
-#endif

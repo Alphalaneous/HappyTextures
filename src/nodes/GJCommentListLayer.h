@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYGJCOMMENTLISTLAYER_H
-#define MYGJCOMMENTLISTLAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJCommentListLayer.hpp>
 #include "CCScale9Sprite.h"
@@ -158,5 +155,3 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
     }
     #endif
 };
-
-#endif

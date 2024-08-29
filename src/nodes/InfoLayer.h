@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYINFOLAYER_H
-#define MYINFOLAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/InfoLayer.hpp>
 
@@ -37,5 +34,3 @@ class $modify(MyInfoLayer, InfoLayer){
         return true;
     }
 };
-
-#endif

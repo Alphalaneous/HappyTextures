@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYGJCHESTSPRITE_H
-#define MYGJCHESTSPRITE_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJChestSprite.hpp>
 
@@ -55,5 +52,3 @@ class $modify(MyGJChestSprite, GJChestSprite){
         }
     }
 };
-
-#endif

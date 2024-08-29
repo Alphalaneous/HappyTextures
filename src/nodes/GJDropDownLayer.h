@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYGJDROPDOWNLAYER_H
-#define MYGJDROPDOWNLAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJDropDownLayer.hpp>
 
@@ -45,7 +42,5 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer){
         }
     }
 };
-
-#endif
 
 #endif

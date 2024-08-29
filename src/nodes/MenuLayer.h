@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef MYMENULAYER_H
-#define MYMENULAYER_H
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
 
@@ -30,5 +27,3 @@ class $modify(MyMenuLayer, MenuLayer){
         return true;
     }
 };
-
-#endif

@@ -1,8 +1,5 @@
 #pragma once
 
-#ifndef UIMODDING_H
-#define UIMODDING_H
-
 #include <Geode/Geode.hpp>
 #include "FileWatcher.h"
 using namespace geode::prelude;
@@ -71,5 +68,3 @@ public:
         return instance;
     }
 };
-
-#endif
