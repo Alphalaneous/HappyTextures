@@ -44,29 +44,28 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
 
     void updateSprites(){
 
-
+        
         CCSprite* topLeft = public_cast(this, _topLeft);
-        topLeft->setID("top-left");
         CCSprite* top = public_cast(this, _top);
-        top->setID("top");
         CCSprite* topRight = public_cast(this, _topRight);
-        topRight->setID("top-right");
         CCSprite* left = public_cast(this, _left);
-        left->setID("left");
         CCSprite* center = public_cast(this, _centre);
-        center->setID("center");
         CCSprite* right = public_cast(this, _right);
-        right->setID("right");
         CCSprite* bottomLeft = public_cast(this, _bottomLeft);
-        bottomLeft->setID("bottom-left");
         CCSprite* bottom = public_cast(this, _bottom);
-        bottom->setID("bottom");
         CCSprite* bottomRight = public_cast(this, _bottomRight);
-        bottomRight->setID("bottom-right");
 
-        if(!(topLeft && topRight && bottomRight && bottomLeft && center)) {
-            return;
-        }
+        if (!topLeft || !top || !topRight || !left || !center || !right || !bottomLeft || !bottom || !bottomRight) return;
+
+        topLeft->setID("top-left");
+        top->setID("top");
+        topRight->setID("top-right");
+        left->setID("left");
+        center->setID("center");
+        right->setID("right");
+        bottomLeft->setID("bottom-left");
+        bottom->setID("bottom");
+        bottomRight->setID("bottom-right");
 
         if(m_fields->setOriginalRects){
             m_fields->originalRects.push_back(topLeft->getTextureRect());
