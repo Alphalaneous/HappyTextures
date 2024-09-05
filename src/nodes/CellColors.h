@@ -9,6 +9,7 @@
 #include <Geode/modify/StatsCell.hpp>
 #include <Geode/modify/GJMessageCell.hpp>
 #include <Geode/modify/GJUserCell.hpp>
+#include <Geode/modify/GJLevelScoreCell.hpp>
 
 #include "../Macros.h"
 
@@ -25,5 +26,6 @@ setCellColors(AchievementCell, loadFromDict, CCDictionary);
 setCellColors(StatsCell, loadFromObject, StatsObject);
 setCellColors(GJMessageCell, loadFromMessage, GJUserMessage);
 setCellColors(MapPackCell, loadFromMapPack, GJMapPack);
+setCellColors(GJLevelScoreCell, loadFromScore, GJUserScore);
 
 #endif
