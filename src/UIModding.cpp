@@ -1393,13 +1393,15 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
                                         }
                                     }
                                     if(type == "Popup"){
+                                        std::string sprite = "GJ_square01.png";
+                                        std::string title = "";
+                                        float width = 60;
+                                        float height = 60;
+
                                         if(childObject.contains("attributes")){
                                             matjson::Value attributesVal = childObject["attributes"];
                                             
-                                            std::string sprite = "GJ_square01.png";
-                                            std::string title = "";
-                                            float width = 60;
-                                            float height = 60;
+                                            
                                             if(attributesVal.contains("sprite")){
                                                 matjson::Value spriteVal = attributesVal["sprite"];
                                                 if(spriteVal.is_string()){
@@ -1427,10 +1429,10 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
                                                     title = titleVal.as_string();
                                                 }
                                             }
-                                            CustomAlert* alert = CustomAlert::create(width, height, sprite, title);
-                                            DataNode* data = DataNode::create(alert);
-                                            newNode = data;
                                         }
+                                        CustomAlert* alert = CustomAlert::create(width, height, sprite, title);
+                                        DataNode* data = DataNode::create(alert);
+                                        newNode = data;
                                     }
                                     if(newNode){
                                         

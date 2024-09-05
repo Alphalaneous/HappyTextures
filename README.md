@@ -77,6 +77,73 @@ You can also get the parent from a child:
 }
 ```
 
+If you wish to add new nodes, you can add "new" to the children object, this contains an array of new nodes you want to add. You must specify a "type" and "id" value to each object. The type is the type of element you want to add, and the ID is the internal name you want to give the node (in case any other packs need to grab your node or you need to reference it in the future). 
+
+```json
+{
+    "children": {
+        "new": [
+            {
+                "type": "CCSprite",
+                "id": "my-new-sprite",
+                "attributes": {
+                    "sprite": "happy-sprite.png",
+                    "scale": 2
+                }
+            }
+        ]
+    }
+}
+```
+
+The available types you can add are "CCSprite", "CCLabelBMFont", "CCMenu", "CCLayerColor", "CCMenuItemSpriteExtra", and "CCScale9Sprite".
+
+Note that "CCMenuItemSpriteExtra" must be a child of a "CCMenu" to be clickable.
+
+You can also create alerts and popups using this. Alerts require a "title" and "description" attribute. Popups are a blank slate and open like an alert, and you are required to add elements to it yourself. You can set a popup sprite, size, and title optionally. The sprite should be a scale 9 sprite such as "GJ_square01.png". When an alert or popup is created, they will show on screen instantly. It is best to throw these under a button's event to prevent annoying popups from opening whenever you switch scenes or when another popup appears.
+
+Alerts optionally have the ability for you to change the "button-text" attribute, which changes it from the word "Okay" to whatever you specify. 
+
+```json
+{
+    "children": {
+        "new": [
+            {
+                "type": "Alert",
+                "id": "my-new-alert",
+                "attributes": {
+                    "title": "Very Cool Alert",
+                    "description": "This is a very cool alert!",
+                    "button-text": "YAY!"
+                }
+            }
+        ]
+    }
+}
+```
+
+
+```json
+{
+    "children": {
+        "new": [
+            {
+                "type": "Popup",
+                "id": "my-new-popup",
+                "attributes": {
+                    "sprite": "GJ_square02.png",
+                    "popup-size": {
+                        "width": 200,
+                        "height": 200
+                    },
+                    "title": "Very Cool Popup"
+                }
+            }
+        ]
+    }
+}
+```
+
 Within MenuLayer, we can see there is a menu, the main menu, which has three buttons. Any or all of these buttons can be modified within that MenuLayer.json file. We would first want to get the main menu by grabbing the children of the MenuLayer, and finding the `"main-menu"` ID:
 
 ```json
@@ -179,6 +246,24 @@ When it comes to using the position attribute, you can change the x and y coordi
                         "anchor": "center-left",
                         "x": 25,
                         "y": -15
+                    }
+                }
+            }
+        }
+    }
+}
+```
+
+You can also reference the parent of a node. In the following example, the child accesses the parent node and sets it's scale. It is useful for when you need to modify a parent on a button event.
+
+```json
+{
+    "children": {
+        "node": {
+            "main-menu": {
+                "parent": {
+                    "attributes": {
+                        "scale": 1.2
                     }
                 }
             }
@@ -335,7 +420,7 @@ When it comes to using the position attribute, you can change the x and y coordi
 
 <tr>
 <td> color </td>
-<td> Set the color of a node (Only works for some nodes), uses r, g, b values between 0 and 255. </td>
+<td> Set the color of a node (Only works for some nodes), uses r, g, b values between 0 and 255. Use the text "reset" to reset it back to its initial color (CCMenuItemSpriteExtra).</td>
 <td>
     
 ```json
@@ -349,6 +434,10 @@ When it comes to using the position attribute, you can change the x and y coordi
 </td>
 
 <td>
+
+```json
+"color": "reset"
+```
 
 
 </td>
@@ -624,6 +713,19 @@ When it comes to using the position attribute, you can change the x and y coordi
 
 <td>
 
+<tr>
+<td> remove </td>
+<td> Marks the element for removal. (Try not to use on vanilla nodes, only custom ones you have made) </td>
+<td>
+    
+```json
+"remove": true
+```
+
+</td>
+
+<td>
+
 </td>
 </tr>
 
@@ -667,6 +769,125 @@ When it comes to using the position attribute, you can change the x and y coordi
 ```
 
 </td>
+</tr>
+
+</table>
+
+## Button Events
+
+Buttons (CCMenuItemSpriteExtra) can have events that occur when they are clicked, released, activated, hovered, and exited.
+
+These events work just as everything else, within them, you can grab children, add children, and edit attributes. 
+
+```json
+{
+    "children": {
+        "new": [
+            {
+                "type": "CCMenuItemSpriteExtra",
+                "id": "my-very-cool-button",
+                "attributes": {
+                    "base-scale": 2,
+                    "scale": 2
+                },
+                "event": {
+                    "on-activate": {
+                        "children": {
+                            "new": [
+                                {
+                                    "type": "Alert",
+                                    "id": "alert-on-activate",
+                                    "attributes": {
+                                        "title": "WOW ALERT",
+                                        "description": "This happened when I activated a button!",
+                                        "button-text": "WOAH!"
+                                    }
+                                }
+                            ]
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
+
+```
+
+```json
+{
+    "children": {
+        "new": [
+            {
+                "type": "CCMenuItemSpriteExtra",
+                "id": "my-very-cool-button",
+                "attributes": {
+                    "base-scale": 2,
+                    "scale": 2
+                },
+                "event": {
+                    "on-hover": {
+                        "attributes" : {
+                            "actions": [
+                                {
+                                    "type": "RotateBy",
+                                    "easing": "ElasicIn",
+                                    "value": 180,
+                                    "duration": 1
+                                }
+                            ],
+                        }
+                    },
+                    "on-exit": {
+                        "attributes" : {
+                            "actions": [
+                                {
+                                    "type": "RotateBy",
+                                    "easing": "ElasicIn",
+                                    "value": -180,
+                                    "duration": 1
+                                }
+                            ],
+                        }
+                    }
+                }
+            }
+        ]
+    }
+}
+```
+
+# Event Types
+
+<table>
+
+<tr>
+<td> Event </td> <td> What affects it </td>
+</tr>
+
+<tr>
+<td>on-click</td>
+<td>Clicking on the button</td>
+</tr>
+
+<tr>
+<td>on-release</td>
+<td>Releasing the button</td>
+</tr>
+
+<tr>
+<td>on-activate</td>
+<td>Clicking then releasing the button (how buttons in GD work)</td>
+</tr>
+
+<tr>
+<td>on-hover</td>
+<td>Hovering over a button</td>
+</tr>
+
+<tr>
+<td>on-exit</td>
+<td>No longer hovering over a button</td>
 </tr>
 
 </table>
