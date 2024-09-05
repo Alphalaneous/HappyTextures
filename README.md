@@ -1300,7 +1300,7 @@ A list of easings provided are as follows:
 - SineOut
 - BackInOut
 - BackIn
-- BackInOut
+- BackOut
 
 EaseInOut, EaseIn, and EaseOut require you to set the "easing-rate" parameter. 
 
