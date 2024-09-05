@@ -753,7 +753,7 @@ You can also reference the parent of a node. In the following example, the child
 "actions": [
     {
         "type": "Sequence",
-        "actions" [
+        "actions": [
             {
                 "type": "RotateBy",
                 "value": 360,
@@ -1302,7 +1302,7 @@ A list of easings provided are as follows:
 - BackIn
 - BackInOut
 
-EaseInOut, EaseIn, and EaseOut allow you to set the "easing-rate" parameter. 
+EaseInOut, EaseIn, and EaseOut require you to set the "easing-rate" parameter. 
 
 For more info on easings, check https://easings.net/
 
