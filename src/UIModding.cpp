@@ -98,8 +98,10 @@ std::optional<ColorData> UIModding::getColors(std::string name){
 void UIModding::recursiveModify(CCNode* node, matjson::Object elements){
 
     for(CCNode* node : CCArrayExt<CCNode*>(node->getChildren())){
-        if(elements.contains(node->getID())){
-            matjson::Value nodeValue = elements[node->getID()];
+        std::string identifier = fmt::format("{}/", elements["_pack-name"].as_string());
+        std::string id = Utils::strReplace(node->getID(), identifier, "");
+        if(elements.contains(id)){
+            matjson::Value nodeValue = elements[id];
 
             if(nodeValue.is_object()){
                 matjson::Object nodeObject = nodeValue.as_object();
@@ -1502,8 +1504,12 @@ void UIModding::doUICheck(CCNode* node){
 
                 std::string name = fullPath.parent_path().parent_path().filename().string();
                 name = Utils::toLower(name);
+                if (name == "resources") {
+                    name = fullPath.parent_path().parent_path().parent_path().filename().string();
+                    name = Utils::toLower(name);
+                }
                 std::replace( name.begin(), name.end(), ' ', '-');
-
+                
                 object["_pack-name"] = name.substr(0, name.find_last_of("."));;
 
                 handleModifications(node, object);

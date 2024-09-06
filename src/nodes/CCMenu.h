@@ -74,7 +74,7 @@ class $modify(EventCCMenu, CCMenu){
                     continue;
                 }
                 if(gotNode && node->getContentSize() != CCSize{0,0} && node->isVisible()){
-                    if(!typeinfo_cast<geode::Notification*>(node) && !typeinfo_cast<EventsPush*>(node) && node->getID() != "itzkiba.better_progression/tier-popup"){
+                    if(!typeinfo_cast<geode::Notification*>(node) && !typeinfo_cast<EventsPush*>(node) && node->getID() != "itzkiba.better_progression/tier-popup" && node->getID() != "dankmeme.globed2/notification-panel"){
                         hasLayerOnTop = true; 
                     }
                     break;

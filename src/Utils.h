@@ -47,6 +47,15 @@ namespace Utils {
         }
         return false;
     }
+    
+    inline std::string strReplace(std::string subject, std::string search, std::string replace) {
+        size_t pos = 0;
+        while ((pos = subject.find(search, pos)) != std::string::npos) {
+            subject.replace(pos, search.length(), replace);
+            pos += replace.length();
+        }
+        return subject;
+    }
 
     //fix texture loader fallback
 
