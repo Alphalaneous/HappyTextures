@@ -97,9 +97,15 @@ std::optional<ColorData> UIModding::getColors(std::string name){
 
 void UIModding::recursiveModify(CCNode* node, matjson::Object elements){
 
-    for(CCNode* node : CCArrayExt<CCNode*>(node->getChildren())){
-        std::string identifier = fmt::format("{}/", elements["_pack-name"].as_string());
-        std::string id = Utils::strReplace(node->getID(), identifier, "");
+    for (CCNode* node : CCArrayExt<CCNode*>(node->getChildren())) {
+
+        std::string id = node->getID();
+
+        if (elements.contains("_pack-name") && elements["_pack-name"].is_string()) {
+            std::string identifier = fmt::format("{}/", elements["_pack-name"].as_string());
+            id = Utils::strReplace(node->getID(), identifier, "");
+        }
+        
         if(elements.contains(id)){
             matjson::Value nodeValue = elements[id];
 
