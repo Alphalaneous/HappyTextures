@@ -97,7 +97,15 @@ std::optional<ColorData> UIModding::getColors(std::string name){
 
 void UIModding::recursiveModify(CCNode* node, matjson::Object elements){
 
-    for (CCNode* node : CCArrayExt<CCNode*>(node->getChildren())) {
+    CCArray* children = node->getChildren();
+    log::info("ch count: {} {}", node->getID(), children->count());
+    if (CCArray* pageChildren = typeinfo_cast<CCArray*>(node->getUserObject("alphalaneous.pages_api/page-children"))){
+        log::info("here");
+        children = pageChildren;
+        log::info("ch count 2: {} {}", node->getID(), children->count());
+    }
+
+    for (CCNode* node : CCArrayExt<CCNode*>(children)) {
 
         std::string id = node->getID();
 
