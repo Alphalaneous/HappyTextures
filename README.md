@@ -713,6 +713,26 @@ You can also reference the parent of a node. In the following example, the child
 
 <td>
 
+</td>
+</tr>
+
+<tr>
+<td> disable-pages </td>
+<td> Disable pages on menus if the Pages API mod is enabled. </td>
+<td>
+    
+```json
+"disable-pages": true
+```
+
+</td>
+
+<td>
+
+</td>
+
+</tr>
+
 <tr>
 <td> remove </td>
 <td> Marks the element for removal. (Try not to use on vanilla nodes, only custom ones you have made) </td>

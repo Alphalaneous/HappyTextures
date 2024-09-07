@@ -811,7 +811,7 @@ void UIModding::removeChild(CCNode* node, matjson::Object attributes){
         if(removeVal.is_bool()){
             bool remove = removeVal.as_bool();
             if(remove){
-                node->removeFromParentAndCleanup(true);
+                removalQueue->addObject(node);
             }
         }
     }
@@ -836,6 +836,18 @@ void UIModding::setScaleBase(CCNode* node, matjson::Object attributes){
             float base = baseVal.as_double();
             if(CCMenuItemSpriteExtra* button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 button->m_baseScale = base;
+            }
+        }
+    }
+}
+
+void UIModding::setDisablePages(CCNode* node, matjson::Object attributes) {
+    if(attributes.contains("disable-pages")){
+        matjson::Value pagesVal = attributes["disable-pages"];
+        if(pagesVal.is_bool()){
+            bool disablePages = pagesVal.as_bool();
+            if(disablePages){
+                node->setUserObject("disable-pages", CCBool::create(true));
             }
         }
     }
@@ -1179,7 +1191,8 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
         if(nodeAttributes.is_object()){
             matjson::Object nodeAttributesObject = nodeAttributes.as_object();
             nodeAttributesObject["_pack-name"] = nodeObject["_pack-name"];
-
+            
+            nodesFor(setDisablePages);
             nodesFor(setScale);
             nodesFor(setRotation);
             nodesFor(setSkew);
@@ -1520,8 +1533,13 @@ void UIModding::doUICheck(CCNode* node){
 
                 handleModifications(node, object);
             }
+            for(CCNode* node : CCArrayExt<CCNode*>(removalQueue)) {
+                node->removeFromParentAndCleanup(true);
+            }
+            removalQueue->removeAllObjects();
         }
     }
+
     delete[] buffer;
 }
 

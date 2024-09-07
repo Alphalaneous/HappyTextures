@@ -18,6 +18,7 @@ public:
     std::map<std::string, matjson::Value> uiCache;
     std::map<std::string, ColorData> colorCache;
     std::vector<FileWatcher*> listeners;
+    Ref<CCArray> removalQueue = CCArray::create();
     bool doModify;
 
     void recursiveModify(CCNode* node, matjson::Object elements);
@@ -41,6 +42,7 @@ public:
     void setSprite(CCNode* node, matjson::Object attributes);
     void setOpacity(CCNode* node, matjson::Object attributes);
     void setShow(CCNode* node, matjson::Object attributes);
+    void setDisablePages(CCNode* node, matjson::Object attributes);
     std::string getSound(std::string sound);
     void playSound(CCNode* node, matjson::Object attributes);
     void openLink(CCNode* node, matjson::Object attributes);
