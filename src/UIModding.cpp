@@ -337,6 +337,12 @@ void UIModding::setLayout(CCNode* node, matjson::Object attributes){
 
             if(node->getLayout()){
                 layout = typeinfo_cast<AxisLayout*>(node->getLayout());
+                if(layoutValue.contains("remove")){
+                    matjson::Value removeValue = layoutValue["remove"];
+                    if(removeValue.is_bool()){
+                        node->setLayout(nullptr);
+                    }
+                }
             }
             else{
                 layout = AxisLayout::create();
@@ -853,6 +859,7 @@ void UIModding::setDisablePages(CCNode* node, matjson::Object attributes) {
             bool disablePages = pagesVal.as_bool();
             if(disablePages){
                 node->setUserObject("disable-pages", CCBool::create(true));
+                node->setVisible(node->isVisible());
             }
         }
     }
@@ -1198,6 +1205,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
             nodeAttributesObject["_pack-name"] = nodeObject["_pack-name"];
             
             nodesFor(setDisablePages);
+            nodesFor(setLayout);
             nodesFor(setScale);
             nodesFor(setRotation);
             nodesFor(setSkew);
@@ -1218,7 +1226,6 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
             nodesFor(setFlip);
             nodesFor(setBlending);
             nodesFor(setShow);
-            nodesFor(setLayout);
             nodesFor(removeChild);
             nodesFor(updateLayout);
             #ifndef GEODE_IS_MACOS
@@ -1226,6 +1233,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
             #endif
             nodesFor(playSound);
             nodesFor(openLink);
+            
         }
     }
 
