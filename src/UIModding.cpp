@@ -859,7 +859,7 @@ void UIModding::setDisablePages(CCNode* node, matjson::Object attributes) {
             bool disablePages = pagesVal.as_bool();
             if(disablePages){
                 node->setUserObject("disable-pages", CCBool::create(true));
-                node->setVisible(node->isVisible());
+                node->boundingBox();
             }
         }
     }
