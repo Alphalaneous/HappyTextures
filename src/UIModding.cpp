@@ -853,13 +853,14 @@ void UIModding::setScaleBase(CCNode* node, matjson::Object attributes){
 }
 
 void UIModding::setDisablePages(CCNode* node, matjson::Object attributes) {
-    if(attributes.contains("disable-pages")){
+    if (attributes.contains("disable-pages")) {
         matjson::Value pagesVal = attributes["disable-pages"];
-        if(pagesVal.is_bool()){
+        if (pagesVal.is_bool()) {
             bool disablePages = pagesVal.as_bool();
-            if(disablePages){
-                node->setUserObject("disable-pages", CCBool::create(true));
-                node->boundingBox();
+            if (disablePages) {
+                if (CCMenuItem* disableItem = typeinfo_cast<CCMenuItem*>(node->getUserObject("alphalaneous.pages_api/disable"))) {
+                    (disableItem->m_pListener->*disableItem->m_pfnSelector)(disableItem);
+                }
             }
         }
     }
