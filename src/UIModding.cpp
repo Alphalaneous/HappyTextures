@@ -858,7 +858,7 @@ void UIModding::setDisablePages(CCNode* node, matjson::Object attributes) {
         if (pagesVal.is_bool()) {
             bool disablePages = pagesVal.as_bool();
             if (disablePages) {
-                if (CCMenuItem* disableItem = typeinfo_cast<CCMenuItem*>(node->getUserObject("alphalaneous.pages_api/disable"))) {
+                if (CCMenuItemSpriteExtra* disableItem = typeinfo_cast<CCMenuItemSpriteExtra*>(node->getUserObject("alphalaneous.pages_api/disable"))) {
                     (disableItem->m_pListener->*disableItem->m_pfnSelector)(disableItem);
                 }
             }
