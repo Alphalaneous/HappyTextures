@@ -6,6 +6,8 @@
 
 using namespace geode::prelude;
 
+#define setRect(node, idx) node->setTextureRect(m_fields->originalRects.at(idx), node->isTextureRectRotated(), m_fields->originalRects.at(idx).size);
+
 #ifndef GEODE_IS_MACOS
 
 class $modify(MyCCScale9Sprite, CCScale9Sprite){
@@ -80,15 +82,15 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
             m_fields->setOriginalRects = false;
         }
 
-        topLeft->setTextureRect(m_fields->originalRects.at(0));
-        top->setTextureRect(m_fields->originalRects.at(1));
-        topRight->setTextureRect(m_fields->originalRects.at(2));
-        left->setTextureRect(m_fields->originalRects.at(3));
-        center->setTextureRect(m_fields->originalRects.at(4));
-        right->setTextureRect(m_fields->originalRects.at(5));
-        bottomLeft->setTextureRect(m_fields->originalRects.at(6));
-        bottom->setTextureRect(m_fields->originalRects.at(7));
-        bottomRight->setTextureRect(m_fields->originalRects.at(8));
+        setRect(topLeft, 0);
+        setRect(top, 1);
+        setRect(topRight, 2);
+        setRect(left, 3);
+        setRect(center, 4);
+        setRect(right, 5);
+        setRect(bottomLeft, 6);
+        setRect(bottom, 7);
+        setRect(bottomRight, 8);
 
         CCSize size = this->m_obContentSize;
 
@@ -195,7 +197,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         auto rect = spr->getTextureRect();
         rect.size = CCSize{rect.size.width, rect.size.height - overlappingHeight/2};
         spr->setPositionY(spr->getPositionY() + overlappingHeight/2);
-        spr->setTextureRect(rect);
+        spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 
     void fixBottomSprite(CCSprite* spr){
@@ -205,7 +207,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         rect.size = CCSize{rect.size.width, rect.size.height - overlappingHeight/2};
         rect.origin = CCPoint{rect.origin.x, rect.origin.y + overlappingHeight/2};
 
-        spr->setTextureRect(rect);
+        spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 
     void fixRightSprite(CCSprite* spr){
@@ -214,7 +216,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         auto rect = spr->getTextureRect();
         rect.size = CCSize{rect.size.width - overlappingWidth/2, rect.size.height};
         spr->setPositionX(spr->getPositionX() + overlappingWidth/2);
-        spr->setTextureRect(rect);
+        spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 
     void fixLeftSprite(CCSprite* spr){
@@ -224,7 +226,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         rect.size = CCSize{rect.size.width - overlappingWidth/2, rect.size.height};
         rect.origin = CCPoint{rect.origin.x + overlappingWidth/2, rect.origin.y};
 
-        spr->setTextureRect(rect);
+        spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 };
 
