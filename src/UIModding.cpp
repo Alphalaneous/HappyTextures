@@ -1356,7 +1356,12 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject){
                     matjson::Object allChildrenObject = allChildrenVal.as_object();
                     allChildrenObject["_pack-name"] = nodeObject["_pack-name"];
 
-                    for(CCNode* node : CCArrayExt<CCNode*>(node->getChildren())){
+                    CCArray* children = node->getChildren();
+                    if (CCArray* pageChildren = typeinfo_cast<CCArray*>(node->getUserObject("alphalaneous.pages_api/page-children"))){
+                        children = pageChildren;
+                    }
+
+                    for(CCNode* node : CCArrayExt<CCNode*>(children)){
                         handleModifications(node, allChildrenObject);
                     }
                 }

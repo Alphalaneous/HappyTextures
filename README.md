@@ -11,6 +11,8 @@ A Geometry Dash mod that brings texture packs to the next level!
 
 ## Data Driven UI
 
+(For extra help, download the example pack)
+
 Geometry Dash UIs are unable to be modified without separate mods by default. This mod aims to resolve that issue, such that any texture pack can change UI elements easily. 
 
 Within a texture pack, add a `ui` folder, this is where any UI modifications will go.
@@ -100,7 +102,7 @@ The available types you can add are "CCSprite", "CCLabelBMFont", "CCMenu", "CCLa
 
 Note that "CCMenuItemSpriteExtra" must be a child of a "CCMenu" to be clickable.
 
-You can also create alerts and popups using this. Alerts require a "title" and "description" attribute. Popups are a blank slate and open like an alert, and you are required to add elements to it yourself. You can set a popup sprite, size, and title optionally. The sprite should be a scale 9 sprite such as "GJ_square01.png". When an alert or popup is created, they will show on screen instantly. It is best to throw these under a button's event to prevent annoying popups from opening whenever you switch scenes or when another popup appears.
+You can also create alerts and popups using this. Alerts require a "title" and "description" attribute. Popups are a blank slate and open like an alert, and you are required to add elements to it yourself. You can set a popup sprite, size, and title optionally. The sprite should be a scale 9 sprite such as "GJ_square01.png". When an alert or popup is created, they will only show on screen if you set "show" to true. It is best to throw these under a button's event to prevent annoying popups from opening whenever you switch scenes or when another popup appears.
 
 Alerts optionally have the ability for you to change the "button-text" attribute, which changes it from the word "Okay" to whatever you specify. 
 
@@ -114,7 +116,8 @@ Alerts optionally have the ability for you to change the "button-text" attribute
                 "attributes": {
                     "title": "Very Cool Alert",
                     "description": "This is a very cool alert!",
-                    "button-text": "YAY!"
+                    "button-text": "YAY!",
+                    "show": true
                 }
             }
         ]
@@ -804,28 +807,44 @@ These events work just as everything else, within them, you can grab children, a
     "children": {
         "new": [
             {
-                "type": "CCMenuItemSpriteExtra",
-                "id": "my-very-cool-button",
+                "type": "CCMenu",
+                "id": "my-very-cool-menu",
                 "attributes": {
-                    "base-scale": 2,
-                    "scale": 2
+                    "ignore-anchor-pos": false
                 },
-                "event": {
-                    "on-activate": {
-                        "children": {
-                            "new": [
-                                {
-                                    "type": "Alert",
-                                    "id": "alert-on-activate",
-                                    "attributes": {
-                                        "title": "WOW ALERT",
-                                        "description": "This happened when I activated a button!",
-                                        "button-text": "WOAH!"
+                "children": {
+                    "new": [
+                        {
+                            "type": "CCMenuItemSpriteExtra",
+                            "id": "my-very-cool-button",
+                            "attributes": {
+                                "sprite": "happy_textures.png",
+                                "position": {
+                                    "anchor": "center",
+                                    "x": 45,
+                                    "y": 0
+                                }
+                            },
+                            "event": {
+                                "on-activate": {
+                                    "children": {
+                                        "new": [
+                                            {
+                                                "type": "Alert",
+                                                "id": "alert-on-activate",
+                                                "attributes": {
+                                                    "title": "Example Alert",
+                                                    "description": "This happened when I activated a button!",
+                                                    "button-text": "Yay!",
+                                                    "show": true
+                                                }
+                                            }
+                                        ]
                                     }
                                 }
-                            ]
+                            }
                         }
-                    }
+                    ]
                 }
             }
         ]
@@ -839,42 +858,58 @@ These events work just as everything else, within them, you can grab children, a
     "children": {
         "new": [
             {
-                "type": "CCMenuItemSpriteExtra",
-                "id": "my-very-cool-button",
+                "type": "CCMenu",
+                "id": "my-very-cool-menu",
                 "attributes": {
-                    "base-scale": 2,
-                    "scale": 2
+                    "ignore-anchor-pos": false
                 },
-                "event": {
-                    "on-hover": {
-                        "attributes" : {
-                            "actions": [
-                                {
-                                    "type": "RotateBy",
-                                    "easing": "ElasicIn",
-                                    "value": 180,
-                                    "duration": 1
+                "children": {
+                    "new": [
+                        {
+                            "type": "CCMenuItemSpriteExtra",
+                            "id": "my-very-cool-button",
+                            "attributes": {
+                                "sprite": "happy_textures.png",
+                                "position": {
+                                    "anchor": "center",
+                                    "x": 45,
+                                    "y": 0
                                 }
-                            ],
-                        }
-                    },
-                    "on-exit": {
-                        "attributes" : {
-                            "actions": [
-                                {
-                                    "type": "RotateBy",
-                                    "easing": "ElasicIn",
-                                    "value": -180,
-                                    "duration": 1
+                            },
+                            "event": {
+                                "on-hover": {
+                                    "attributes" : {
+                                        "actions": [
+                                            {
+                                                "type": "RotateBy",
+                                                "easing": "ElasicIn",
+                                                "value": 180,
+                                                "duration": 1
+                                            }
+                                        ],
+                                    }
+                                },
+                                "on-exit": {
+                                    "attributes" : {
+                                        "actions": [
+                                            {
+                                                "type": "RotateBy",
+                                                "easing": "ElasicIn",
+                                                "value": -180,
+                                                "duration": 1
+                                            }
+                                        ],
+                                    }
                                 }
-                            ],
+                            }
                         }
-                    }
+                    ]
                 }
             }
         ]
     }
 }
+
 ```
 
 # Event Types
