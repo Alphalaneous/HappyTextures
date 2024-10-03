@@ -8,8 +8,6 @@ using namespace geode::prelude;
 
 #define setRect(node, idx) node->setTextureRect(m_fields->originalRects.at(idx), node->isTextureRectRotated(), m_fields->originalRects.at(idx).size);
 
-#ifndef GEODE_IS_MACOS
-
 class $modify(MyCCScale9Sprite, CCScale9Sprite) {
 
     struct Fields {
@@ -228,5 +226,3 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite) {
         spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 };
-
-#endif
