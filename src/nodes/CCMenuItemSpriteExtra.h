@@ -31,83 +31,83 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         ccColor3B originalColor;
         unsigned char originalOpacity;
     };
-    void setOnClick(matjson::Object onClick){
+    void setOnClick(matjson::Object onClick) {
         m_fields->onClick = onClick;
-        if(onClick.contains("override")){
+        if (onClick.contains("override")) {
             matjson::Value overrideVal = onClick["override"];
-            if(overrideVal.is_bool()){
+            if (overrideVal.is_bool()) {
                 m_fields->overrideOnClick = overrideVal.as_bool();
             }
         }
     }
-    void setOnRelease(matjson::Object onRelease){
+    void setOnRelease(matjson::Object onRelease) {
         m_fields->onRelease = onRelease;
-        if(onRelease.contains("override")){
+        if (onRelease.contains("override")) {
             matjson::Value overrideVal = onRelease["override"];
-            if(overrideVal.is_bool()){
+            if (overrideVal.is_bool()) {
                 m_fields->overrideOnRelease = overrideVal.as_bool();
             }
         }
     }
-    void setOnActivate(matjson::Object onActivate){
+    void setOnActivate(matjson::Object onActivate) {
         m_fields->onActivate = onActivate;
-        if(onActivate.contains("override")){
+        if (onActivate.contains("override")) {
             matjson::Value overrideVal = onActivate["override"];
-            if(overrideVal.is_bool()){
+            if (overrideVal.is_bool()) {
                 m_fields->overrideOnActivate = overrideVal.as_bool();
             }
         }
     }
-    void setOnHover(matjson::Object onHover){
+    void setOnHover(matjson::Object onHover) {
         m_fields->hasHover = true;
         m_fields->onHover = onHover;
     }
-    void setOnExit(matjson::Object onExit){
+    void setOnExit(matjson::Object onExit) {
         m_fields->hasExit = true;
         m_fields->onExit = onExit;
     }
 
-    void runOnHover(){
+    void runOnHover() {
         UIModding::get()->handleModifications(this, m_fields->onHover);
     }
 
-    void runOnExit(){
+    void runOnExit() {
         UIModding::get()->handleModifications(this, m_fields->onExit);
     }
 
-    void selected(){
+    void selected() {
         
         SAFE_RUN(
-            if(!m_fields->overrideOnClick){
+            if (!m_fields->overrideOnClick) {
                 CCMenuItemSpriteExtra::selected();
             }
             UIModding::get()->handleModifications(this, m_fields->onClick);
         )
     }
 
-    void unselected(){
+    void unselected() {
 
         SAFE_RUN(
-            if(!m_fields->overrideOnRelease){
+            if (!m_fields->overrideOnRelease) {
                 CCMenuItemSpriteExtra::unselected();
             }
             UIModding::get()->handleModifications(this, m_fields->onRelease);
         )
     }
 
-    void activate(){
+    void activate() {
 
         SAFE_RUN(
-            if(!m_fields->overrideOnActivate){
+            if (!m_fields->overrideOnActivate) {
                 CCMenuItemSpriteExtra::activate();
             }
             UIModding::get()->handleModifications(this, m_fields->onActivate);
         )
     }
 
-    void checkTouch(bool hasLayerOnTop){
+    void checkTouch(bool hasLayerOnTop) {
 
-        if((m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)){
+        if ((m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)) {
 
             CCPoint point = getMousePos();
 
@@ -123,20 +123,20 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 
             bool containsPoint = r.containsPoint(local);
         
-            if(!hasLayerOnTop){
+            if (!hasLayerOnTop) {
                 if (containsPoint && !m_fields->isHovering) {
                     m_fields->isHovering = true;
 
                     m_fields->originalColor = getColor();
                     m_fields->originalOpacity = getOpacity();
 
-                    if(ButtonSprite* node = getChildOfType<ButtonSprite>(this, 0)) {
+                    if (ButtonSprite* node = getChildOfType<ButtonSprite>(this, 0)) {
 
                         m_fields->originalColor = node->getColor();
                         m_fields->originalOpacity = node->getOpacity();
 
-                        if(node->getColor() == ccColor3B{255,255,255}){
-                            if(CCSprite* node1 = getChildOfType<CCSprite>(node, 0)) {
+                        if (node->getColor() == ccColor3B{255,255,255}) {
+                            if (CCSprite* node1 = getChildOfType<CCSprite>(node, 0)) {
                                 m_fields->originalColor = node1->getColor();
                                 m_fields->originalOpacity = node1->getOpacity();
                             }
@@ -144,12 +144,12 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
                     }
                     runOnHover();
                 }
-                if (!containsPoint && m_fields->isHovering){
+                if (!containsPoint && m_fields->isHovering) {
                     m_fields->isHovering = false;
                     runOnExit();
                 }
             }
-            else if(m_fields->isHovering){
+            else if (m_fields->isHovering) {
                 m_fields->isHovering = false;
                 runOnExit();
             }

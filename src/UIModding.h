@@ -62,7 +62,7 @@ public:
     std::optional<ColorData> getColors(std::string name);
     void updateColors(CCNode* node, std::string name);
 
-    static UIModding* get(){
+    static UIModding* get() {
 
         if (!instance) {
             instance = new UIModding();

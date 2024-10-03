@@ -5,7 +5,7 @@
 
 using namespace geode::prelude;
 
-class $modify(MyGJChestSprite, GJChestSprite){
+class $modify(MyGJChestSprite, GJChestSprite) {
 
     static void onModify(auto& self) {
         (void) self.setHookPriority("GJChestSprite::switchToState", INT_MIN);
@@ -15,29 +15,29 @@ class $modify(MyGJChestSprite, GJChestSprite){
         int idx = 0;
         for (auto child : CCArrayExt<CCNode*>(parent->getChildren())) {
             if (::isSpriteFrameName(static_cast<CCNode*>(child), name)) {
-                if(idx == index) return child;
+                if (idx == index) return child;
                 idx++;
             }
         }
         return nullptr;
     }
 
-    void switchToState(ChestSpriteState p0, bool p1){
+    void switchToState(ChestSpriteState p0, bool p1) {
 
         GJChestSprite::switchToState(p0, p1);
 
-        if(UIModding::get()->doModify){
+        if (UIModding::get()->doModify) {
 
-            if(p0 == ChestSpriteState::Opened){
+            if (p0 == ChestSpriteState::Opened) {
 
                 auto glow0 = static_cast<CCSprite*>(getChildBySpriteFrameName(this, "chest_glow_bg_001.png"));
                 auto glow1 = static_cast<CCSprite*>(getChildBySpriteFrameName(this, "chest_glow_bg_001.png", 1));
                 auto square = static_cast<CCSprite*>(getChildBySpriteFrameName(this, "block005b_05_001.png"));
 
-                if(!glow0 || !glow1 || !square) return;
+                if (!glow0 || !glow1 || !square) return;
 
                 std::optional<ColorData> dataOpt = UIModding::get()->getColors("chest-opened-overlay");
-                if(dataOpt.has_value()){
+                if (dataOpt.has_value()) {
                     ColorData data = dataOpt.value();
 
                     glow0->setColor(data.color);

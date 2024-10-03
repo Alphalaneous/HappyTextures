@@ -10,7 +10,7 @@ using namespace geode::prelude;
 
 #ifndef GEODE_IS_MACOS
 
-class $modify(MyCCScale9Sprite, CCScale9Sprite){
+class $modify(MyCCScale9Sprite, CCScale9Sprite) {
 
     struct Fields {
         std::string textureName;
@@ -20,7 +20,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         bool setOriginalRects = true;
     };
 
-    bool initWithFile(const char* file, CCRect rect, CCRect capInsets){
+    bool initWithFile(const char* file, CCRect rect, CCRect capInsets) {
         if(!CCScale9Sprite::initWithFile(file, rect, capInsets)) return false;
         m_fields->textureName = std::string(file);
         m_fields->rect = rect;
@@ -29,24 +29,23 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         return true;
     }
 
-    void visit(){
+    void visit() {
         bool doFix = Mod::get()->getSettingValue<bool>("ccscale9sprite-fix");
 
-        if(doFix && this->getID() != "star-bg"){
-            if(this->*(&MyCCScale9Sprite::m_positionsAreDirty)){
+        if (doFix) {
+            if (this->*(&MyCCScale9Sprite::m_positionsAreDirty)) {
                 updateSprites();
                 this->*(&MyCCScale9Sprite::m_positionsAreDirty) = false;
             }
             CCNode::visit();
         }
-        else{
+        else {
             CCScale9Sprite::visit();
         }
     }
 
-    void updateSprites(){
+    void updateSprites() {
 
-        
         CCSprite* topLeft = public_cast(this, _topLeft);
         CCSprite* top = public_cast(this, _top);
         CCSprite* topRight = public_cast(this, _topRight);
@@ -69,7 +68,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         bottom->setID("bottom");
         bottomRight->setID("bottom-right");
 
-        if(m_fields->setOriginalRects){
+        if (m_fields->setOriginalRects) {
             m_fields->originalRects.push_back(topLeft->getTextureRect());
             m_fields->originalRects.push_back(top->getTextureRect());
             m_fields->originalRects.push_back(topRight->getTextureRect());
@@ -101,11 +100,11 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         bool isSquishedVertically = false;
         bool isSquishedHorizontally = false;
 
-        if(edgeHeight >= size.height){
+        if (edgeHeight >= size.height) {
             isSquishedVertically = true;
         }
 
-        if(edgeWidth >= size.width){
+        if (edgeWidth >= size.width) {
             isSquishedHorizontally = true;
         }
 
@@ -160,11 +159,11 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         bottom->setVisible(true);
         center->setVisible(true);
 
-        if(isSquishedVertically || isSquishedHorizontally){
+        if (isSquishedVertically || isSquishedHorizontally) {
             center->setVisible(false);
         }
 
-        if(isSquishedVertically){
+        if (isSquishedVertically) {
             left->setVisible(false);
             right->setVisible(false);
 
@@ -177,7 +176,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
             fixBottomSprite(bottomLeft);
         }
 
-        if(isSquishedHorizontally){
+        if (isSquishedHorizontally) {
             top->setVisible(false);
             bottom->setVisible(false);
 
@@ -191,7 +190,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         }
     }
 
-    void fixTopSprite(CCSprite* spr){
+    void fixTopSprite(CCSprite* spr) {
         float overlappingHeight = spr->getContentSize().height*2 - this->getContentSize().height;
 
         auto rect = spr->getTextureRect();
@@ -200,7 +199,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 
-    void fixBottomSprite(CCSprite* spr){
+    void fixBottomSprite(CCSprite* spr) {
         float overlappingHeight = spr->getContentSize().height*2 - this->getContentSize().height;
 
         auto rect = spr->getTextureRect();
@@ -210,7 +209,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 
-    void fixRightSprite(CCSprite* spr){
+    void fixRightSprite(CCSprite* spr) {
         float overlappingWidth = spr->getContentSize().width*2 - this->getContentSize().width;
 
         auto rect = spr->getTextureRect();
@@ -219,7 +218,7 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite){
         spr->setTextureRect(rect, spr->isTextureRectRotated(), rect.size);
     }
 
-    void fixLeftSprite(CCSprite* spr){
+    void fixLeftSprite(CCSprite* spr) {
         float overlappingWidth = spr->getContentSize().width*2 - this->getContentSize().width;
 
         auto rect = spr->getTextureRect();

@@ -13,29 +13,29 @@
 }(value)
 
 #define typeForEaseCC(easingTypeName) \
-if(name == #easingTypeName){\
+if (name == #easingTypeName) {\
     easingType = CC##easingTypeName::create(action, rate);\
 }
 
 #define typeForEaseRate(easingTypeName) \
-if(name == #easingTypeName){\
+if (name == #easingTypeName) {\
     easingType = CCEase##easingTypeName::create(action, rate);\
 }
 
 #define typeForEase(easingTypeName) \
-if(name == #easingTypeName){\
+if (name == #easingTypeName) {\
     easingType = CCEase##easingTypeName::create(action);\
 }
 
 #define handleModifyForType(typeName) \
-if(type == #typeName){\
+if (type == #typeName) {\
     UIModding::get()->handleModifications(getChildOfType<typeName>(node, index), childObject);\
 }
 
 #define nodesFor(methodName) if(node) UIModding::get()->methodName(node, nodeAttributesObject)
 
 #define actionForName2(name, x, y, param2) if(type == #name){ \
-            if(!isNumber){ \
+            if (!isNumber) { \
                 actionToDo = CC##name::create(duration, x, y); \
             } \
             else { \
@@ -44,7 +44,7 @@ if(type == #typeName){\
         }
 
 #define actionForName(name, params) if(type == #name){ \
-            if(!isNumber){ \
+            if (!isNumber) { \
                 actionToDo = CC##name::create params; \
             } \
         }
@@ -57,8 +57,8 @@ class $modify(name){    \
     }\
 \
     bool method params { \
-        if(!name::method values)  return false;\
-        if(UIModding::get()->doModify){\
+        if (!name::method values) return false;\
+        if (UIModding::get()->doModify) {\
             UIModding::get()->doUICheckForType(#name, this);\
         }\
         return true;\
@@ -74,7 +74,7 @@ class $modify(name){    \
 \
     static name* method params { \
         auto ret = name::method values; \
-        if(UIModding::get()->doModify){\
+        if (UIModding::get()->doModify) {\
             UIModding::get()->doUICheckForType(#name, ret);\
         }\
         return ret;\
@@ -82,25 +82,25 @@ class $modify(name){    \
 };
 
 #define setSpriteVar(varName, jsonName, type)\
-if(infoVal.contains(#jsonName)){\
+if (infoVal.contains(#jsonName)) {\
     matjson::Value val = infoVal[#jsonName];\
-    if(val.is_##type()){\
+    if (val.is_##type()) {\
         varName = val.as_##type();\
     }\
 }
 
 #define setSpriteVarNum(varName, jsonName, type)\
-if(infoVal.contains(#jsonName)){\
+if (infoVal.contains(#jsonName)) {\
     matjson::Value val = infoVal[#jsonName];\
-    if(val.is_number()){\
+    if (val.is_number()) {\
         varName = val.as_##type();\
     }\
 }
 
 #define forEvent(type, method)\
-if(eventObject.contains(#type)){\
+if (eventObject.contains(#type)) {\
     matjson::Value eventVal = eventObject[#type];\
-    if(eventVal.is_object()){\
+    if (eventVal.is_object()) {\
         matjson::Object event = eventVal.as_object();\
         event["_pack-name"] = nodeObject["_pack-name"];\
         button->set##method(event);\
@@ -117,24 +117,25 @@ struct My##class : geode::Modify<My##class, class> { \
 	};\
 	void method(paramType* p0){\
 		class::method(p0);\
+        checkBG(0);\
 		this->schedule(schedule_selector(My##class::checkBG));\
 	}\
 	void checkBG(float dt) {\
 		CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0);\
-		if(child){\
-			if(m_fields->m_lastBG != child->getColor()){\
+		if (child) {\
+			if (m_fields->m_lastBG != child->getColor()) {\
 				m_fields->m_lastBG = child->getColor();\
-                if(child->getColor() == ccColor3B{161,88,44}){\
+                if (child->getColor() == ccColor3B{161,88,44}) {\
                     std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-odd");\
-                    if(dataOpt.has_value()){\
+                    if (dataOpt.has_value()) {\
                         ColorData data = dataOpt.value();\
                         child->setColor(data.color);\
                         child->setOpacity(data.alpha);\
                     }\
                 }\
-                else if(child->getColor() == ccColor3B{194,114,62}){\
+                else if (child->getColor() == ccColor3B{194,114,62}) {\
                     std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-even");\
-                    if(dataOpt.has_value()){\
+                    if (dataOpt.has_value()) {\
                         ColorData data = dataOpt.value();\
                         child->setColor(data.color);\
                         child->setOpacity(data.alpha);\

@@ -5,7 +5,7 @@
 
 using namespace geode::prelude;
 
-class $modify(MyMenuLayer, MenuLayer){
+class $modify(MyMenuLayer, MenuLayer) {
 
     static void onModify(auto& self) {
         (void) self.setHookPriority("MenuLayer::init", INT_MIN/2-1);
@@ -13,13 +13,13 @@ class $modify(MyMenuLayer, MenuLayer){
 
     bool init(){
 
-        if(!MenuLayer::init()){
+        if (!MenuLayer::init()) {
             return false;
         }
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 
-        if(UIModding::get()->doModify){
-            if(Mod::get()->getSettingValue<bool>("hot-reload")){
+        if (UIModding::get()->doModify) {
+            if (Mod::get()->getSettingValue<bool>("hot-reload")) {
                 UIModding::get()->startFileListeners();
             }
             UIModding::get()->doUICheck(this);

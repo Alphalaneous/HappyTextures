@@ -6,7 +6,7 @@
 
 using namespace geode::prelude;
 
-class $modify(MyCCLabelBMFont, CCLabelBMFont){
+class $modify(MyCCLabelBMFont, CCLabelBMFont) {
 
     struct Fields {
         float m_limitWidth = 1;
@@ -16,7 +16,7 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
         SEL_SCHEDULE m_schedule;
     };
     
-    void limitLabelWidth(float width, float defaultScale, float minScale){
+    void limitLabelWidth(float width, float defaultScale, float minScale) {
 
         m_fields->m_limitWidth = width;
         m_fields->m_limitDefaultScale = defaultScale;
@@ -26,7 +26,7 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
         CCLabelBMFont::limitLabelWidth(width, defaultScale, minScale);
     }
 
-    static CCLabelBMFont* create(const char *str, const char *fntFile, float width, CCTextAlignment alignment, CCPoint imageOffset){
+    static CCLabelBMFont* create(const char *str, const char *fntFile, float width, CCTextAlignment alignment, CCPoint imageOffset) {
         auto ret = CCLabelBMFont::create(str, fntFile, width, alignment, imageOffset);
 
         auto myRet = static_cast<MyCCLabelBMFont*>(ret);
@@ -35,7 +35,7 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
 
         bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
 
-        if(doFix){
+        if (doFix) {
             myRet->m_fields->m_schedule = schedule_selector(MyCCLabelBMFont::checkParent);
             ret->schedule(myRet->m_fields->m_schedule);
         }
@@ -47,11 +47,11 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont){
 
     #ifndef GEODE_IS_MACOS
 
-    void checkParent(float dt){
+    void checkParent(float dt) {
         
-        if(auto parent = this->getParent()){
-            if(typeinfo_cast<LabelGameObject*>(parent)){
-                if(strcmp(this->getFntFile(), "bigFont.fnt") == 0){
+        if (auto parent = this->getParent()) {
+            if (typeinfo_cast<LabelGameObject*>(parent)) {
+                if (strcmp(this->getFntFile(), "bigFont.fnt") == 0) {
                     ccBlendFunc blendFunc = this->getBlendFunc();
                     this->setFntFile("bigFont.fnt"_spr);
                     this->setBlendFunc(blendFunc);

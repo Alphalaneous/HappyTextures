@@ -20,23 +20,23 @@ public:
 
     FileWatcher(std::string pathToWatch, std::chrono::duration<int, std::milli> delay) : m_pathToWatch(pathToWatch), m_delay{delay} {
 
-        if(std::filesystem::is_directory(pathToWatch)){
-            for(auto& file : std::filesystem::recursive_directory_iterator(pathToWatch)) {
+        if (std::filesystem::is_directory(pathToWatch)) {
+            for (auto& file : std::filesystem::recursive_directory_iterator(pathToWatch)) {
                 m_paths[file.path().string()] = std::filesystem::last_write_time(file);
             }
         }
     }
 
-    void stop(){
+    void stop() {
         m_running = false;
     }
 
     void start(const std::function<void (std::string, FileStatus)> &action) {
 
-        while(m_running) {
+        while (m_running) {
 
             std::this_thread::sleep_for(m_delay);
-            if(std::filesystem::is_directory(m_pathToWatch)){
+            if (std::filesystem::is_directory(m_pathToWatch)) {
 
                 auto it = m_paths.begin();
                 while (it != m_paths.end()) {
@@ -44,23 +44,19 @@ public:
                         action(it->first, FileStatus::erased);
                         it = m_paths.erase(it);
                     }
-                    else {
-                        it++;
-                    }                    
+                    else it++;    
                 }
 
-                for(auto& file : std::filesystem::recursive_directory_iterator(m_pathToWatch)) {
+                for (auto& file : std::filesystem::recursive_directory_iterator(m_pathToWatch)) {
                     auto currentFileLastWriteTime = std::filesystem::last_write_time(file);
 
-                    if(!contains(file.path().string())) {
+                    if (!contains(file.path().string())) {
                         m_paths[file.path().string()] = currentFileLastWriteTime;
                         action(file.path().string(), FileStatus::created);
-                    } else {
-                        if(m_paths[file.path().string()] != currentFileLastWriteTime) {
-                            m_paths[file.path().string()] = currentFileLastWriteTime;
-                            action(file.path().string(), FileStatus::modified);
-                        }
-                    } 
+                    } else if (m_paths[file.path().string()] != currentFileLastWriteTime) {
+                        m_paths[file.path().string()] = currentFileLastWriteTime;
+                        action(file.path().string(), FileStatus::modified);
+                    }
                 }
             }
         }

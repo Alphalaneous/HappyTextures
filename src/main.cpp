@@ -18,7 +18,6 @@
 #include "nodes/GJChestSprite.h"
 #include "nodes/CCTextInputNode.h"
 #include "icons/IconHandler.h"
-#include "CCDirector.h"
-#include <Geode/modify/CCObject.hpp>
+#include "BackgroundColors.h"
 
 using namespace geode::prelude;

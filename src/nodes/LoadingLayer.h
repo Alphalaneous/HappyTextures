@@ -5,9 +5,9 @@
 
 using namespace geode::prelude;
 
-class $modify(MyLoadingLayer, LoadingLayer){
+class $modify(MyLoadingLayer, LoadingLayer) {
     
-    bool init(bool p0){
+    bool init(bool p0) {
         UIModding::get()->uiCache.clear();
         UIModding::get()->colorCache.clear();
         return LoadingLayer::init(p0);

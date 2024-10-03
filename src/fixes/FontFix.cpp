@@ -13,22 +13,20 @@ bool s_isInCreateTextLayers = false;
 
 class $modify(GJBaseGameLayer) {
     
-    void createTextLayers(){
-
+    void createTextLayers() {
         s_isInCreateTextLayers = true;
         GJBaseGameLayer::createTextLayers();
         s_isInCreateTextLayers = false;
-
     }
 };
 
 class $modify(CCSpriteBatchNode) {
     
-    bool initWithTexture(CCTexture2D* texture, unsigned int capacity){
+    bool initWithTexture(CCTexture2D* texture, unsigned int capacity) {
         bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
 
-        if(doFix){
-            if(s_isInCreateTextLayers && texture == CCTextureCache::sharedTextureCache()->addImage("bigFont.png", false)){
+        if (doFix) {
+            if (s_isInCreateTextLayers && texture == CCTextureCache::sharedTextureCache()->addImage("bigFont.png", false)) {
                 return CCSpriteBatchNode::initWithTexture(CCTextureCache::sharedTextureCache()->addImage("bigFont.png"_spr, false), capacity);
             }
         }
@@ -39,12 +37,12 @@ class $modify(CCSpriteBatchNode) {
 
 class $modify(CCLabelBMFont) {
     
-    static CCLabelBMFont* createBatched(const char* str, const char* fntFile, CCArray* a, int a1){
+    static CCLabelBMFont* createBatched(const char* str, const char* fntFile, CCArray* a, int a1) {
 
         bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
 
-        if(doFix){
-            if(strcmp(fntFile, "bigFont.fnt") == 0){
+        if (doFix) {
+            if (strcmp(fntFile, "bigFont.fnt") == 0) {
                 fntFile = "bigFont.fnt"_spr;
             }
         }
@@ -52,19 +50,19 @@ class $modify(CCLabelBMFont) {
     }
 };
 
-class $modify(CCTextureCache){
-    CCTexture2D* addImage(const char* fileimage, bool p1){
+class $modify(CCTextureCache) {
+    CCTexture2D* addImage(const char* fileimage, bool p1) {
         CCTexture2D* ret = nullptr;
         bool didChange = false;
-        if(strcmp(fileimage, "bigFont.png") == 0){
+        if (strcmp(fileimage, "bigFont.png") == 0) {
             bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
 
-            if(doFix && (PlayLayer::get() || LevelEditorLayer::get())){
+            if (doFix && (PlayLayer::get() || LevelEditorLayer::get())) {
                 didChange = true;
                 ret = CCTextureCache::addImage("bigFont.png"_spr, p1);
             }
         }
-        if(!didChange){
+        if (!didChange) {
             ret = CCTextureCache::addImage(fileimage, p1);
         }
         return ret;

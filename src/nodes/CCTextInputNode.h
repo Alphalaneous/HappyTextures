@@ -4,7 +4,7 @@
 #include <Geode/modify/CCTextInputNode.hpp>
 #include "../Macros.h"
 
-class $modify(MyCCTextInputNode, CCTextInputNode){
+class $modify(MyCCTextInputNode, CCTextInputNode) {
 
     /*void refreshLabel() {
         CCTextInputNode::refreshLabel();
