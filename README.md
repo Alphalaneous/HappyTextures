@@ -1376,7 +1376,7 @@ An example of this is:
 }
 ```
 
-## Hardcoded Colors
+# Hardcoded Colors
 
 It is possible to change GDs hardcoded colors via a `colors.json` file in the `ui` folder. The json is formatted as an object that contains the colors you want to change. These colors require an `r`, `g`, and `b` value, and the `a` (alpha) value is optional. Example (replace "color-id" with an actual ID provided below):
 
