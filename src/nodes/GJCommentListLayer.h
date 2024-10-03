@@ -167,6 +167,17 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
         }
     }
 
+    static cocos2d::extension::CCScale9Sprite* createScale9(const char* file, CCRect rect, CCRect capInsets) {
+		CCScale9Sprite* ret = new CCScale9Sprite;
+		if (ret->initWithFile(file, rect, capInsets)) {
+			ret->autorelease();
+			return ret;
+		}
+
+		delete ret;
+		return nullptr;
+	}
+
     void createMask(CCScale9Sprite* bg) {
 
         removeChildByID("special-border");
@@ -184,7 +195,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 
         MyCCScale9Sprite* myBG = static_cast<MyCCScale9Sprite*>(bg);
 
-        CCScale9Sprite* newBG = CCScale9Sprite::create(myBG->m_fields->textureName.c_str(), myBG->m_fields->rect, myBG->m_fields->capInsets);
+        CCScale9Sprite* newBG = createScale9(myBG->m_fields->textureName.c_str(), myBG->m_fields->rect, myBG->m_fields->capInsets);
         newBG->setContentSize(myBG->getContentSize());
         newBG->setPosition(bg->getPosition());
 
