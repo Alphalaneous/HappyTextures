@@ -9,7 +9,7 @@ A Geometry Dash mod that brings texture packs to the next level!
 - Fixed comment borders being ugly with certain texture packs
 - Extensive Data Driven UI support with JSON
 
-## Data Driven UI
+# Data Driven UI
 
 (For extra help, download the example pack)
 
