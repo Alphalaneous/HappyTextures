@@ -1394,11 +1394,11 @@ It is possible to change GDs hardcoded colors via a `colors.json` file in the `u
 
 A list of modifyable colors provided are as follows:
 
-### Universal
+## Universal
 
 - background
 
-### LevelSearchLayer
+## LevelSearchLayer
 
 - level-search-bg
 - level-search-bar-bg
@@ -1406,7 +1406,7 @@ A list of modifyable colors provided are as follows:
 - difficulty-filters-bg
 - length-filters-bg
 
-### GJListLayer
+## GJListLayer
 
 - list-layer-bg
 - list-cell-odd
@@ -1414,7 +1414,7 @@ A list of modifyable colors provided are as follows:
 - comment-list-outline-brown
 - comment-list-outline-blue
 
-### GJCommentListLayer
+## GJCommentListLayer
 
 - comment-cell-odd
 - comment-cell-even
@@ -1424,21 +1424,21 @@ A list of modifyable colors provided are as follows:
 - comment-cell-bg-even
 - comment-list-layer-bg
 
-### InfoLayer
+## InfoLayer
 
 - info-description-bg
 
-### EditLevelLayer
+## EditLevelLayer
 
 - edit-description-bg
 - edit-name-bg
 
-### MenuLayer
+## MenuLayer
 
 - main-menu-bg
 - main-menu-ground
 
-### GJChestSprite
+## GJChestSprite
 
 - chest-opened-overlay
 - 25-chest-opened-overlay
