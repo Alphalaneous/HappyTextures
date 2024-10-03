@@ -1441,4 +1441,7 @@ A list of modifyable colors provided are as follows:
 ### GJChestSprite
 
 - chest-opened-overlay
+- 25-chest-opened-overlay
+- 50-chest-opened-overlay
+- 100-chest-opened-overlay
 

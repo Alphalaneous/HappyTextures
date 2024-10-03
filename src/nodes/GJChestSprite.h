@@ -36,7 +36,22 @@ class $modify(MyGJChestSprite, GJChestSprite) {
 
                 if (!glow0 || !glow1 || !square) return;
 
-                std::optional<ColorData> dataOpt = UIModding::get()->getColors("chest-opened-overlay");
+                std::optional<ColorData> dataOpt;
+
+                ccColor3B color = glow0->getColor();
+                if (color == ccColor3B{51, 68, 153}) {
+                    dataOpt = UIModding::get()->getColors("chest-opened-overlay");
+                }
+                if (color == ccColor3B{10, 54, 83}) {
+                    dataOpt = UIModding::get()->getColors("25-chest-opened-overlay");
+                }
+                if (color == ccColor3B{41, 81, 59}) {
+                    dataOpt = UIModding::get()->getColors("50-chest-opened-overlay");
+                }
+                if (color == ccColor3B{58, 27, 75}) {
+                    dataOpt = UIModding::get()->getColors("100-chest-opened-overlay");
+                }
+
                 if (dataOpt.has_value()) {
                     ColorData data = dataOpt.value();
 
