@@ -30,10 +30,14 @@ class $modify(MyLevelInfoLayer, LevelInfoLayer) {
                 spriteInner->setTextureRect(spr->getTextureRect());
             }
 
+            #ifndef GEODE_IS_MACOS
+
             if (CCSprite* spr = Utils::getValidSprite("play_loading_progress.png")) {
                 spr->setColor(m_progressTimer->getSprite()->getColor());
                 m_progressTimer->setSprite(spr);
             }
+
+            #endif
 
             Utils::setColorIfExists(spriteOuter, "play-loading-outer");
             Utils::setColorIfExists(spriteCenter, "play-loading-center");
