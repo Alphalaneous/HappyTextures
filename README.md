@@ -9,7 +9,7 @@ A Geometry Dash mod that brings texture packs to the next level!
 - Fixed comment borders being ugly with certain texture packs
 - Extensive Data Driven UI support with JSON
 
-## Data Driven UI
+# Data Driven UI
 
 (For extra help, download the example pack)
 
@@ -1376,7 +1376,7 @@ An example of this is:
 }
 ```
 
-## Replaceable Textures
+# Replaceable Textures
 
 There are a few textures that aren't easily replaceable without affecting the base game, and are thus added for manual sprite overides in Happy Textures.
 
@@ -1387,7 +1387,7 @@ For the loading circle in LevelInfoLayer, you can define an outer, center, inner
 - play_loading_inner
 - play_loading_progress
 
-## Hardcoded Colors
+# Hardcoded Colors
 
 It is possible to change GDs hardcoded colors via a `colors.json` file in the `ui` folder. The json is formatted as an object that contains the colors you want to change. These colors require an `r`, `g`, and `b` value, and the `a` (alpha) value is optional. Example (replace "color-id" with an actual ID provided below):
 
@@ -1405,11 +1405,11 @@ It is possible to change GDs hardcoded colors via a `colors.json` file in the `u
 
 A list of modifyable colors provided are as follows:
 
-### Universal
+## Universal
 
 - background
 
-### LevelSearchLayer
+## LevelSearchLayer
 
 - level-search-bg
 - level-search-bar-bg
@@ -1417,7 +1417,7 @@ A list of modifyable colors provided are as follows:
 - difficulty-filters-bg
 - length-filters-bg
 
-### GJListLayer
+## GJListLayer
 
 - list-layer-bg
 - list-cell-odd
@@ -1425,7 +1425,7 @@ A list of modifyable colors provided are as follows:
 - comment-list-outline-brown
 - comment-list-outline-blue
 
-### GJCommentListLayer
+## GJCommentListLayer
 
 - comment-cell-odd
 - comment-cell-even
@@ -1435,21 +1435,21 @@ A list of modifyable colors provided are as follows:
 - comment-cell-bg-even
 - comment-list-layer-bg
 
-### InfoLayer
+## InfoLayer
 
 - info-description-bg
 
-### EditLevelLayer
+## EditLevelLayer
 
 - edit-description-bg
 - edit-name-bg
 
-### MenuLayer
+## MenuLayer
 
 - main-menu-bg
 - main-menu-ground
 
-### GJChestSprite
+## GJChestSprite
 
 - chest-opened-overlay
 - 25-chest-opened-overlay
