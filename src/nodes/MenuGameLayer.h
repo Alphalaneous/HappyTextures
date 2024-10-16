@@ -36,12 +36,7 @@ class $modify(MyMenuGameLayer, MenuGameLayer) {
             GJGroundLayer* ground = typeinfo_cast<GJGroundLayer*>(getChildByID("ground"));
 
             if (bg) {
-                std::optional<ColorData> dataOpt = UIModding::get()->getColors("main-menu-bg");
-                if (dataOpt.has_value()) {
-                    ColorData data = dataOpt.value();
-                    bg->setColor(data.color);
-                    bg->setOpacity(data.alpha);
-                }
+                Utils::setColorIfExists(bg, "main-menu-bg");
             }
             if (ground) {
                 if (CCSpriteBatchNode* groundSprites = typeinfo_cast<CCSpriteBatchNode*>(ground->getChildByID("ground-sprites"))) {

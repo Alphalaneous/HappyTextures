@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include "UIModding.h"
 using namespace geode::prelude;
 
 namespace Utils {
@@ -55,6 +56,28 @@ namespace Utils {
             return nullptr;
         }
         return spr;
+    }
+
+    inline void setColorIfExists(CCRGBAProtocol* node, std::string colorId) {
+        if (!node) return;
+        std::optional<ColorData> dataOpt = UIModding::get()->getColors(colorId);
+        if (dataOpt.has_value()) {
+            ColorData data = dataOpt.value();
+            node->setColor(data.color);
+            node->setOpacity(data.alpha);
+        }
+    }
+
+    inline std::string getSpriteName(CCSprite* sprite) {
+        if (auto texture = sprite->getTexture()) {
+            for (auto [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
+                if (frame->getTexture() == texture && frame->getRect() == sprite->getTextureRect()) return key;
+            }
+            for (auto [key, obj] : CCDictionaryExt<std::string, CCTexture2D*>(CCTextureCache::sharedTextureCache()->m_pTextures)) {
+                if (obj == texture) return key;
+            }
+        }
+        return "";
     }
 
     static std::vector<std::string> getActivePacks() {

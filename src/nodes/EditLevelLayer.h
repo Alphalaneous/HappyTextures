@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditLevelLayer.hpp>
+#include "../Utils.h"
 
 using namespace geode::prelude;
 
@@ -15,20 +16,10 @@ class $modify(MyEditLevelLayer, EditLevelLayer) {
         if (!EditLevelLayer::init(p0)) return false;
         if (UIModding::get()->doModify) {
             if (CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(this->getChildByID("description-background"))) {
-            std::optional<ColorData> dataOpt = UIModding::get()->getColors("edit-description-bg");
-                if (dataOpt.has_value()) {
-                    ColorData data = dataOpt.value();
-                    bg->setColor(data.color);
-                    bg->setOpacity(data.alpha);
-                }
+                Utils::setColorIfExists(bg, "edit-description-bg");
             }
             if (CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(this->getChildByID("level-name-background"))) {
-            std::optional<ColorData> dataOpt = UIModding::get()->getColors("edit-name-bg");
-                if (dataOpt.has_value()) {
-                    ColorData data = dataOpt.value();
-                    bg->setColor(data.color);
-                    bg->setOpacity(data.alpha);
-                }
+                Utils::setColorIfExists(bg, "edit-name-bg");
             }
         }
         return true;

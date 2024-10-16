@@ -1376,6 +1376,17 @@ An example of this is:
 }
 ```
 
+## Replaceable Textures
+
+There are a few textures that aren't easily replaceable without affecting the base game, and are thus added for manual sprite overides in Happy Textures.
+
+For the loading circle in LevelInfoLayer, you can define an outer, center, inner, and progress sprite (normally 200x200 for uhd). Add these within the normal resources of the pack like any other texture, suffixing them with -uhd, -hd, respectively. The names are:
+
+- play_loading_outer
+- play_loading_center
+- play_loading_inner
+- play_loading_progress
+
 ## Hardcoded Colors
 
 It is possible to change GDs hardcoded colors via a `colors.json` file in the `ui` folder. The json is formatted as an object that contains the colors you want to change. These colors require an `r`, `g`, and `b` value, and the `a` (alpha) value is optional. Example (replace "color-id" with an actual ID provided below):
@@ -1445,3 +1456,9 @@ A list of modifyable colors provided are as follows:
 - 50-chest-opened-overlay
 - 100-chest-opened-overlay
 
+### LevelInfoLayer Loading Circle
+
+- play-loading-outer
+- play-loading-center
+- play-loading-inner
+- play-loading-progress

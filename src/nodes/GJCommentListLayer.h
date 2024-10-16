@@ -25,12 +25,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
         
         if (UIModding::get()->doModify) {
             if (ret->getColor() == ccColor3B{191,114,62}) {
-                std::optional<ColorData> dataOpt = UIModding::get()->getColors("comment-list-layer-bg");
-                if (dataOpt.has_value()) {
-                    ColorData data = dataOpt.value();
-                    ret->setColor(data.color);
-                    ret->setOpacity(data.alpha);
-                }
+                Utils::setColorIfExists(ret, "comment-list-layer-bg");
             }
         }
 

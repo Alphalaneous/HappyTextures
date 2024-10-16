@@ -12,12 +12,7 @@ void setBackground(CCNode* node) {
     if (UIModding::get()->doModify) {
         if (CCSprite* bg = typeinfo_cast<CCSprite*>(node->getChildByIDRecursive("background"))) {
             if (bg->getColor() == ccColor3B{0, 102, 255}) {
-                std::optional<ColorData> dataOpt = UIModding::get()->getColors("background");
-                if (dataOpt.has_value()) {
-                    ColorData data = dataOpt.value();
-                    bg->setColor(data.color);
-                    bg->setOpacity(data.alpha);
-                }
+                Utils::setColorIfExists(bg, "background");
             }
         }
     }
