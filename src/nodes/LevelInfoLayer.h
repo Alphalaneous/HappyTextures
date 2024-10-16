@@ -7,12 +7,19 @@ using namespace geode::prelude;
 
 class $modify(MyLevelInfoLayer, LevelInfoLayer) {
 
-    void onPlay(cocos2d::CCObject* sender) {
-        LevelInfoLayer::onPlay(sender);
+    struct Fields {
+        bool m_didLoad;
+    };
+
+    void loadLevelStep() {
+        LevelInfoLayer::loadLevelStep();
 
         if (UIModding::get()->doModify) {
 
             if (!m_playSprite) return;
+            
+            if (m_fields->m_didLoad) return;
+            m_fields->m_didLoad = true;
 
             CCSprite* spriteOuter = getChildOfType<CCSprite>(m_playSprite, 0);
             CCSprite* spriteInner = getChildOfType<CCSprite>(m_playSprite, 1);
