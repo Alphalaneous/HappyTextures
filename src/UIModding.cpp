@@ -1463,8 +1463,9 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
 
 void UIModding::doUICheck(CCNode* node) {
 
-    std::string path = "ui/" + node->getID() + ".json";
-
+    std::string path = "ui/" + node->getID() + ".json"
+    std::replace(path.begin(), path.end(), '/', '$');
+	
     unsigned long fileSize = 0;
     unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
 
@@ -1515,7 +1516,6 @@ void UIModding::startFileListeners() {
     for (std::string path : packs) {
 
         std::string uiPath = fmt::format("{}{}", path, "ui\\");
-        std::replace(uiPath.begin(), uiPath.end(), '$', '/');
 
         FileWatcher* fw = new FileWatcher(uiPath, std::chrono::milliseconds(500));
         listeners.push_back(fw);
