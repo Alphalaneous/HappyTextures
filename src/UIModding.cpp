@@ -1465,7 +1465,7 @@ void UIModding::doUICheck(CCNode* node) {
 
     std::string nodeID = node->getID();
     std::replace(nodeID.begin(), nodeID.end(), '/', '$');
-    std::string path = "ui/" + nodeID + ".json"
+    std::string path = "ui/" + nodeID + ".json";
     
 	
     unsigned long fileSize = 0;
