@@ -19,5 +19,7 @@
 #include "nodes/CCTextInputNode.h"
 #include "nodes/LevelInfoLayer.h"
 #include "nodes/CustomMusicCell.h"
+#include "nodes/FLAlertLayer.h"
+#include "nodes/TextArea.h"
 #include "icons/IconHandler.h"
 #include "BackgroundColors.h"

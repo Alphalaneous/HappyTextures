@@ -1,4 +1,5 @@
 #include "AlertDelegate.h"
+#include "../nodes/CCLabelBMFont.h"
 
 bool AlertDelegate::init(float w, float h, const char* spr, const char* title) {
 
@@ -20,8 +21,8 @@ bool AlertDelegate::init(float w, float h, const char* spr, const char* title) {
     this->m_mainLayer->addChild(this->m_buttonMenu);
 
     if (strlen(title) > 0) {
-        auto titleLabel = CCLabelBMFont::create(title, "bigFont.fnt");
-
+        MyCCLabelBMFont* titleLabel = static_cast<MyCCLabelBMFont*>(CCLabelBMFont::create(title, "bigFont.fnt"));
+        titleLabel->setHappyTexturesModified(true);
         titleLabel->limitLabelWidth(this->m_pLrSize.width * 4, .8f, .2f);
         titleLabel->setPosition(winSize.width / 2, winSize.height / 2 + this->m_pLrSize.height / 2 - 25);
 

@@ -5,6 +5,7 @@
 #include "Utils.h"
 #include "nodes/CCLabelBMFont.h"
 #include "nodes/CCMenuItemSpriteExtra.h"
+#include "nodes/FLAlertLayer.h"
 #include "UIModding.h"
 #include "DataNode.h"
 #include "alerts/CustomAlert.h"
@@ -1371,6 +1372,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
                                                         }
                                                     }
                                                     FLAlertLayer* alert = geode::createQuickPopup(title.c_str(), description, buttonText.c_str(), nullptr, nullptr, false, true);
+                                                    static_cast<MyFLAlertLayer*>(alert)->setRift();
                                                     DataNode* data = DataNode::create(alert);
                                                     newNode = data;
                                                 }
