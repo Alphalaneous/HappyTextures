@@ -13,7 +13,7 @@ namespace LabelValues {
         auto accountManager = GJAccountManager::get();
         std::string username = accountManager->m_accountID == 0 ? "Signed Out" : accountManager->m_username;
 
-        return LABEL("username", username);
+        return LABEL("username", std::string(username));
     }
 
     static std::pair<std::string, rift::Value> getGameVersion() {
@@ -155,7 +155,7 @@ namespace LabelValues {
     static std::pair<std::string, rift::Value> getLevelCreator() {
         GJGameLevel* level = Utils::getLevel();
         if (level) {
-            return LABEL("level_creator", level->m_creatorName);
+            return LABEL("level_creator", std::string(level->m_creatorName));
         }
         return LABEL("level_creator", "null");
     }
@@ -163,7 +163,7 @@ namespace LabelValues {
     static std::pair<std::string, rift::Value> getLevelName() {
         GJGameLevel* level = Utils::getLevel();
         if (level) {
-            return LABEL("level_name", level->m_levelName);
+            return LABEL("level_name", std::string(level->m_levelName));
         }
         return LABEL("level_name", "null");
     }
@@ -171,7 +171,7 @@ namespace LabelValues {
     static std::pair<std::string, rift::Value> getLevelDescription() {
         GJGameLevel* level = Utils::getLevel();
         if (level) {
-            return LABEL("level_description", level->m_levelDesc);
+            return LABEL("level_description", std::string(level->m_levelDesc));
         }
         return LABEL("level_description", "null");
     }
