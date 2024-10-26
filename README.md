@@ -912,7 +912,7 @@ These events work just as everything else, within them, you can grab children, a
 
 ```
 
-# Event Types
+## Event Types
 
 <table>
 
