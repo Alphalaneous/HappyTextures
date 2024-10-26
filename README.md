@@ -1533,7 +1533,7 @@ A list of modifyable colors provided are as follows:
 - 50-chest-opened-overlay
 - 100-chest-opened-overlay
 
-### LevelInfoLayer Loading Circle
+## LevelInfoLayer Loading Circle
 
 - play-loading-outer
 - play-loading-center
