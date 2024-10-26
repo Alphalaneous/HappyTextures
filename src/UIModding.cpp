@@ -860,6 +860,7 @@ void UIModding::setText(CCNode* node, matjson::Object attributes){
             if (textObject) {
 
                 MyCCLabelBMFont* myTextObject = static_cast<MyCCLabelBMFont*>(textObject);
+                myTextObject->setHappyTexturesModified();
                 textObject->setString(text.c_str());
 
                 if(myTextObject->m_fields->m_isLimited){

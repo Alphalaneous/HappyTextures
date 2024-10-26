@@ -15,6 +15,7 @@ file(GLOB SOURCES
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 
+
 if (NOT DEFINED ENV{GEODE_SDK})
     message(FATAL_ERROR "Unable to find Geode SDK! Please define GEODE_SDK environment variable to point to Geode")
 else()
@@ -22,5 +23,8 @@ else()
 endif()
 
 add_subdirectory($ENV{GEODE_SDK} ${CMAKE_CURRENT_BINARY_DIR}/geode)
+
+include(${CMAKE_SOURCE_DIR}/cmake/IncludeLibs.cmake)
+target_link_libraries(${PROJECT_NAME} third_party)
 
 setup_geode_mod(${PROJECT_NAME})

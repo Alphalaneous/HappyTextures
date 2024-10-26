@@ -1375,6 +1375,81 @@ An example of this is:
     "easing-rate": 2
 }
 ```
+# Label Variables
+
+Using RIFT, you can add variables to your CCLabelBMFonts in the text attribute. RIFT is a powerful string scripting tool (https://github.com/EclipseMenu/rift). It allows for you to run certain functions and read variables into a string. 
+
+Some examples of using a variable in a CCLabelBMFont are: 
+
+```json
+{
+    "attributes": {
+        "text": "MY NAME IS {toUpper(username)}!!!"
+    }
+}
+```
+
+```json
+{
+    "attributes": {
+        "text": "I have half these stars {stars_stat * 2}"
+    }
+}
+```
+
+Happy Textures comes with a ton of variables built in for your use in these labels. Here is a list:
+
+- `username`: Your username
+- `game_version`: The version of GD you are playing on
+- `geode_version`: The version of Geode you are using
+- `previous_string`: The label string before you changed it (in case you want to modify it)
+- `jumps_stat`: Your Total Jumps stat
+- `attempts_stat`: Your Total Attempts stat
+- `completed_levels_stat`: Your Completed Levels stat
+- `completed_online_levels_stat`: Your Completed Online Levels stat
+- `demons_stat`: Your Demons stat
+- `stars_stat`: Your Stars stat
+- `completed_map_packs_stat`: Your Completed Map Packs stat
+- `gold_coins_stat`: Your Gold Coins stat
+- `players_destroyed_stat`: Your Players Destroyed stat
+- `liked_levels_stat`: Your Total Liked Levels stat
+- `rated_lavels_stat`: Your Total Rated Levels stat
+- `user_coins_stat`: Your User Coins stat
+- `diamonds_stat`: Your Diamonds stat
+- `current_orbs_stat`: Your Current Orbs stat
+- `completed_dailies_stat`: Your Completed Daily Levels stat
+- `fire_shards_stat`: Your Fire Shards stat
+- `ice_shards_stat`: Your Ice Shards stat
+- `poison_shards_stat`: Your Poison Shards stat
+- `shadow_shards_stat`: Your Shadow Shards stat
+- `lava_shards_stat`: Your Lava Shards stat
+- `earth_shards_stat`: Your Earth Shards stat
+- `blood_shards_stat`: Your Blood Shards stat
+- `metal_shards_stat`: Your Metal Shards stat
+- `light_shards_stat`: Your Light Shards stat
+- `soul_shards_stat`: Your Soul Shards stat
+- `demon_keys_stat`: Your Demon Keys stat
+- `total_orbs_stat`: Your Total Orbs stat
+- `moons_stat`: Your Moons stat
+- `diamond_shards_stat`: Your Diamond Shards stat
+- `completed_gauntlets_stat`: Your Completed Gauntlets stat
+- `collected_list_rewards_stat`: Your Collected List Rewards stat
+
+The next variables require you to be within a level, either info, playing, or editing
+
+- `level_creator`: The creator of the level
+- `level_name`: The name of the level
+- `level_description`: The description of the level
+- `level_id`: The ID of the level
+- `level_normal_percent`: The percent you have in normal mode on the level
+- `level_practice_percent`: The percent you have in practice mode on the level
+- `level_attempts`: The attempts you have on the level
+- `level_attempt_time`: The attempt time you have on the level
+- `level_best_time`: The best time you have on the level
+- `level_jumps`: The total jumps you have on the level
+- `level_password`: The level password
+- `level_stars`: The level stars/moons
+- `level_length_value`: The level length in number form
 
 # Replaceable Textures
 
@@ -1434,6 +1509,8 @@ A list of modifyable colors provided are as follows:
 - comment-cell-bg-odd
 - comment-cell-bg-even
 - comment-list-layer-bg
+- music-cell-odd
+- music-cell-even
 
 ## InfoLayer
 

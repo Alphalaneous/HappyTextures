@@ -18,9 +18,6 @@
 #include "nodes/GJChestSprite.h"
 #include "nodes/CCTextInputNode.h"
 #include "nodes/LevelInfoLayer.h"
+#include "nodes/CustomMusicCell.h"
 #include "icons/IconHandler.h"
 #include "BackgroundColors.h"
-#include "BackgroundColors.h"
-
-using namespace geode::prelude;
-

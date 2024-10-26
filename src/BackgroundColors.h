@@ -32,6 +32,10 @@ class $modify(CCDirector) {
 
 class $modify(LeaderboardsLayer) {
 
+    static void onModify(auto& self) {
+        (void) self.setHookPriority("LeaderboardsLayer::init", INT_MIN);
+    }
+
     bool init(LeaderboardState p0) {
         if (!LeaderboardsLayer::init(p0)) return false;
         setBackground(this);
@@ -40,6 +44,10 @@ class $modify(LeaderboardsLayer) {
 };
 
 class $modify(LevelBrowserLayer) {
+
+    static void onModify(auto& self) {
+        (void) self.setHookPriority("LevelBrowserLayer::init", INT_MIN);
+    }
 
     bool init(GJSearchObject* p0) {
         if (!LevelBrowserLayer::init(p0)) return false;

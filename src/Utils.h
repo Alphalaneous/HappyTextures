@@ -6,7 +6,7 @@ using namespace geode::prelude;
 
 namespace Utils {
 
-    inline void updateSprite(CCMenuItemSpriteExtra* button) {
+    static void updateSprite(CCMenuItemSpriteExtra* button) {
 
 		auto sprite = button->getNormalImage();
 		auto size = sprite->getScaledContentSize();
@@ -15,7 +15,39 @@ namespace Utils {
 		button->setContentSize(size);
 	}
 
-    inline bool hasNode(CCNode* child, CCNode* node) {
+    template <typename T>
+    static T getLayer() {
+        if (CCScene* scene = CCDirector::get()->m_pRunningScene) {
+            for (CCNode* node : CCArrayExt<CCNode*>(scene->getChildren())) {
+                if (T layer = typeinfo_cast<T>(node)) {
+                    return layer;
+                }
+            }
+        }
+        return nullptr;
+    }
+
+    static int getValidStat(std::string key) {
+        std::string val = GameStatsManager::sharedState()->m_playerStats->valueForKey(key)->m_sString;
+
+        if (val.empty()) val = "0";
+        Result<int> result = geode::utils::numFromString<int>(val);
+        if (result.isOk()) return result.unwrap();
+        return -1;
+    }
+
+    static GJGameLevel* getLevel() {
+        GJGameLevel* level = nullptr;
+        if (GJBaseGameLayer* gjbgl = GJBaseGameLayer::get()) {
+            level = gjbgl->m_level;
+        }
+        if (LevelInfoLayer* lil = Utils::getLayer<LevelInfoLayer*>()) {
+            level = lil->m_level;
+        }
+        return level;
+    }
+
+    static bool hasNode(CCNode* child, CCNode* node) {
         CCNode* parent = child;
         while (true) {
             if (parent) {
@@ -29,7 +61,7 @@ namespace Utils {
         return false;
     }
     
-    inline std::string strReplace(std::string subject, std::string search, std::string replace) {
+    static std::string strReplace(std::string subject, std::string search, std::string replace) {
         size_t pos = 0;
         while ((pos = subject.find(search, pos)) != std::string::npos) {
             subject.replace(pos, search.length(), replace);
@@ -40,7 +72,7 @@ namespace Utils {
 
     //fix texture loader fallback
 
-    inline CCSprite* getValidSprite(const char* sprName) {
+    static CCSprite* getValidSprite(const char* sprName) {
         CCSprite* spr = CCSprite::create(sprName);
         if (!spr || spr->getUserObject("geode.texture-loader/fallback")) {
             return nullptr;
@@ -50,7 +82,7 @@ namespace Utils {
 
     //fix texture loader fallback
 
-    inline CCSprite* getValidSpriteFrame(const char* sprName) {
+    static CCSprite* getValidSpriteFrame(const char* sprName) {
         CCSprite* spr = CCSprite::createWithSpriteFrameName(sprName);
         if (!spr || spr->getUserObject("geode.texture-loader/fallback")) {
             return nullptr;
@@ -58,7 +90,7 @@ namespace Utils {
         return spr;
     }
 
-    inline void setColorIfExists(CCRGBAProtocol* node, std::string colorId) {
+    static void setColorIfExists(CCRGBAProtocol* node, std::string colorId) {
         if (!node) return;
         std::optional<ColorData> dataOpt = UIModding::get()->getColors(colorId);
         if (dataOpt.has_value()) {
@@ -68,7 +100,7 @@ namespace Utils {
         }
     }
 
-    inline std::string getSpriteName(CCSprite* sprite) {
+    static std::string getSpriteName(CCSprite* sprite) {
         if (auto texture = sprite->getTexture()) {
             for (auto [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
                 if (frame->getTexture() == texture && frame->getRect() == sprite->getTextureRect()) return key;

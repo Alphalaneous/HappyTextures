@@ -7,6 +7,10 @@ using namespace geode::prelude;
 
 class $modify(MyLevelInfoLayer, LevelInfoLayer) {
 
+    static void onModify(auto& self) {
+        (void) self.setHookPriority("LevelInfoLayer::loadLevelStep", INT_MIN);
+    }
+
     struct Fields {
         bool m_didLoad;
     };

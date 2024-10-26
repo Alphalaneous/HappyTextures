@@ -3,6 +3,9 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCLabelBMFont.hpp>
 #include "../Utils.h"
+#include "../LabelValues.h"
+#include <rift.hpp>
+
 
 using namespace geode::prelude;
 
@@ -14,8 +17,29 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
         float m_limitMinScale = 1;
         bool m_isLimited = false;
         SEL_SCHEDULE m_schedule;
+        bool m_isHappyTexturesModified;
     };
     
+    void setString(const char *newString, bool needUpdateLabel) {
+
+        if (m_fields->m_isHappyTexturesModified) {
+            rift::Result<rift::Script*> scriptRes = rift::compile(std::string_view(newString));
+            if (!scriptRes.isError()) {
+                rift::Script* script = scriptRes.unwrap();
+                auto vars = LabelValues::getValueMap(getString());
+                std::string newNewString = script->run(vars);
+                delete script;
+                return CCLabelBMFont::setString(newNewString.c_str(), needUpdateLabel);
+            }
+        }
+
+        CCLabelBMFont::setString(newString, needUpdateLabel);
+    }
+
+    void setHappyTexturesModified() {
+        m_fields->m_isHappyTexturesModified = true;
+    }
+
     void limitLabelWidth(float width, float defaultScale, float minScale) {
 
         m_fields->m_limitWidth = width;

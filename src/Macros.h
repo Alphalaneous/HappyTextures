@@ -117,8 +117,10 @@ struct My##class : geode::Modify<My##class, class> { \
 	};\
 	void method(paramType* p0){\
 		class::method(p0);\
-        checkBG(0);\
-		this->schedule(schedule_selector(My##class::checkBG));\
+        if (UIModding::get()->doModify) {\
+            checkBG(0);\
+            this->schedule(schedule_selector(My##class::checkBG));\
+        }\
 	}\
 	void checkBG(float dt) {\
 		CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0);\
@@ -147,3 +149,7 @@ struct My##class : geode::Modify<My##class, class> { \
 };
 
 #define SAFE_RUN(method) retain(); method release();
+
+#define LABEL(name, value) {name, rift::Value::from(value)}
+
+#define STAT(key) Utils::getValidStat(#key)
