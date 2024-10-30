@@ -171,7 +171,7 @@ namespace LabelValues {
     static std::pair<std::string, rift::Value> getLevelDescription() {
         GJGameLevel* level = Utils::getLevel();
         if (level) {
-            return LABEL("level_description", std::string(level->m_levelDesc));
+            return LABEL("level_description", std::string(level->getUnpackedLevelDescription()));
         }
         return LABEL("level_description", "null");
     }

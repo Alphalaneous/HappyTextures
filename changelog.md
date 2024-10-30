@@ -1,3 +1,6 @@
+## 1.6.2
+- Fix a crash with cursed FLAlertLayers
+
 ## 1.6.1
 - Bug fix for variables not working in popups created by HT Packs
 
