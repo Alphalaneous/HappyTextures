@@ -169,12 +169,10 @@ namespace LabelValues {
     }
 
     static std::pair<std::string, rift::Value> getLevelDescription() {
-        #ifndef GEODE_IS_MACOS
         GJGameLevel* level = Utils::getLevel();
         if (level) {
             return LABEL("level_description", std::string(level->getUnpackedLevelDescription()));
         }
-        #endif
         return LABEL("level_description", "null");
     }
 
