@@ -25,15 +25,15 @@ modifyNodeForType(CCMenuItemSpriteExtra, init, (cocos2d::CCNode* p0, cocos2d::CC
 modifyNodeForType(CCLabelBMFont, init, (), ());
 modifyNodeForType(CCLabelBMFont, initWithString, (const char *p0, const char *p1, float p2, CCTextAlignment p3, CCPoint p4), (p0, p1, p2, p3, p4));
 
-#ifndef GEODE_IS_MACOS
-
-//todo mac bindings
 
 #include <Geode/modify/CCScale9Sprite.hpp>
 modifyNodeForType(CCScale9Sprite, init, (), ());
-modifyNodeForType(CCScale9Sprite, initWithBatchNode, (CCSpriteBatchNode* p0, CCRect p1, bool p2, CCRect p3), (p0, p1, p2, p3));
 modifyNodeForType(CCScale9Sprite, initWithFile, (const char* p0, CCRect p1,  CCRect p2), (p0, p1, p2));
+modifyNodeForType(CCScale9Sprite, initWithBatchNode, (CCSpriteBatchNode* p0, CCRect p1, bool p2, CCRect p3), (p0, p1, p2, p3));
 modifyNodeForType(CCScale9Sprite, initWithSpriteFrame, (CCSpriteFrame* p0, CCRect p1), (p0, p1));
+
+#ifndef GEODE_IS_MACOS
+
 modifyNodeForType(CCScale9Sprite, initWithSpriteFrameName, (const char* p0, CCRect p1), (p0, p1));
 
 #endif
@@ -44,10 +44,11 @@ modifyNodeForTypeCreate(CCTextInputNode, create, (float p0, float p1, char const
 #include <Geode/modify/TextArea.hpp>
 modifyNodeForTypeCreate(TextArea, create, (gd::string p0, char const* p1, float p2, float p3, cocos2d::CCPoint p4, float p5, bool p6), (p0, p1, p2, p3, p4, p5, p6));
 
-#ifndef GEODE_IS_MACOS
 
 #include <Geode/modify/SearchButton.hpp>
 modifyNodeForTypeCreate(SearchButton, create, (char const* p0, char const* p1, float p2, char const* p3), (p0, p1, p2, p3));
+
+#ifndef GEODE_IS_MACOS
 
 #include <Geode/modify/SimplePlayer.hpp>
 modifyNodeForType(SimplePlayer, init, (int p0), (p0));
