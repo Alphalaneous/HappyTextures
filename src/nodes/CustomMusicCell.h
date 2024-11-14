@@ -24,7 +24,7 @@ class $modify(MyCustomMusicCell, CustomMusicCell) {
 	}
 
 	void checkBG(float dt) {
-		CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0);
+		CCLayerColor* child = this->getChildByType<CCLayerColor>(0);
 		if (child) {
 			if (m_fields->m_lastBG != child->getColor()) {
 				m_fields->m_lastBG = child->getColor();

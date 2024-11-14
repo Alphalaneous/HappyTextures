@@ -24,11 +24,11 @@ class $modify(MyCommentCell, CommentCell) {
     }
 
 	void checkBG(float dt) {
-        if (CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0)) {
+        if (CCLayerColor* child = this->getChildByType<CCLayerColor>(0)) {
             if (m_fields->m_lastBG != child->getColor()) {
                 m_fields->m_lastBG = child->getColor();
-                CCLayer* layer = getChildOfType<CCLayer>(this, 1);
-                CCScale9Sprite* bg = getChildOfType<CCScale9Sprite>(layer, 0);
+                CCLayer* layer = this->getChildByType<CCLayer>(1);
+                CCScale9Sprite* bg = layer->getChildByType<CCScale9Sprite>(0);
 
                 if (child->getColor() == ccColor3B{161,88,44}) {
                     Utils::setColorIfExists(child, "comment-cell-odd");

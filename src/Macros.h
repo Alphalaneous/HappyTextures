@@ -29,10 +29,10 @@ if (name == #easingTypeName) {\
 
 #define handleModifyForType(typeName) \
 if (type == #typeName) {\
-    UIModding::get()->handleModifications(getChildOfType<typeName>(node, index), childObject);\
+    UIModding::get()->handleModifications(node->getChildByType<typeName>(index), value);\
 }
 
-#define nodesFor(methodName) if(node) UIModding::get()->methodName(node, nodeAttributesObject)
+#define nodesFor(methodName) if(node) UIModding::get()->methodName(node, nodeAttributes)
 
 #define actionForName2(name, x, y, param2) if(type == #name){ \
             if (!isNumber) { \
@@ -81,29 +81,28 @@ class $modify(name){    \
     }\
 };
 
-#define setSpriteVar(varName, jsonName, type)\
+#define setSpriteVar(varName, jsonName, type, unwrap)\
 if (infoVal.contains(#jsonName)) {\
     matjson::Value val = infoVal[#jsonName];\
-    if (val.is_##type()) {\
-        varName = val.as_##type();\
+    if (val.is##type()) {\
+        varName = val.as##type().unwrapOr(unwrap);\
     }\
 }
 
-#define setSpriteVarNum(varName, jsonName, type)\
+#define setSpriteVarNum(varName, jsonName, type, unwrap)\
 if (infoVal.contains(#jsonName)) {\
     matjson::Value val = infoVal[#jsonName];\
-    if (val.is_number()) {\
-        varName = val.as_##type();\
+    if (val.isNumber()) {\
+        varName = val.as##type().unwrapOr(unwrap);\
     }\
 }
 
 #define forEvent(type, method)\
-if (eventObject.contains(#type)) {\
-    matjson::Value eventVal = eventObject[#type];\
-    if (eventVal.is_object()) {\
-        matjson::Object event = eventVal.as_object();\
-        event["_pack-name"] = nodeObject["_pack-name"];\
-        button->set##method(event);\
+if (eventVal.contains(#type)) {\
+    matjson::Value eventType = eventVal[#type];\
+    if (eventType.isObject()) {\
+        eventType["_pack-name"] = nodeObject["_pack-name"];\
+        button->set##method(eventType);\
     }\
 }
 
@@ -123,7 +122,7 @@ struct My##class : geode::Modify<My##class, class> { \
         }\
 	}\
 	void checkBG(float dt) {\
-		CCLayerColor* child = getChildOfType<CCLayerColor>(this, 0);\
+		CCLayerColor* child = this->getChildByType<CCLayerColor>(0);\
 		if (child) {\
 			if (m_fields->m_lastBG != child->getColor()) {\
 				m_fields->m_lastBG = child->getColor();\

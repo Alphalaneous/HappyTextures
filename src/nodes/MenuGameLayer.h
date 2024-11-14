@@ -40,12 +40,12 @@ class $modify(MyMenuGameLayer, MenuGameLayer) {
             }
             if (ground) {
                 if (CCSpriteBatchNode* groundSprites = typeinfo_cast<CCSpriteBatchNode*>(ground->getChildByID("ground-sprites"))) {
-                    if (CCSprite* groundSprite = getChildOfType<CCSprite>(groundSprites, 0)) {
+                    if (CCSprite* groundSprite = groundSprites->getChildByType<CCSprite>(0)) {
                         updateGroundSprite(groundSprite);
                     }
                 }
                 if(CCSpriteBatchNode* groundSprites2 = typeinfo_cast<CCSpriteBatchNode*>(ground->getChildByID("ground-sprites-2"))) {
-                    if (CCSprite* groundSprite = getChildOfType<CCSprite>(groundSprites2, 0)) {
+                    if (CCSprite* groundSprite = groundSprites2->getChildByType<CCSprite>(0)) {
                         updateGroundSprite(groundSprite);
                     }
                 }

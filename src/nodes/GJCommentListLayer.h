@@ -138,7 +138,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
     void updateBordersWithParent(CCNode* parent) {
 
         if (CCNode* bg = parent->getChildByID("background")) {
-            if (getChildOfType<CCLayerGradient>(bg, 0)) {
+            if (bg->getChildByType<CCLayerGradient>(0)) {
                 revert(false);
                 return;
             }
@@ -157,7 +157,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
         if (CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(parent->getChildByID("background"))) {
             createMask(bg);
         }
-        else if (CCScale9Sprite* bg = getChildOfType<CCScale9Sprite>(parent, 0)) {
+        else if (CCScale9Sprite* bg = parent->getChildByType<CCScale9Sprite>(0)) {
             createMask(bg);
         }
     }

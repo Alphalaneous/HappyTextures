@@ -25,9 +25,9 @@ class $modify(MyLevelInfoLayer, LevelInfoLayer) {
             if (m_fields->m_didLoad) return;
             m_fields->m_didLoad = true;
 
-            CCSprite* spriteOuter = getChildOfType<CCSprite>(m_playSprite, 0);
-            CCSprite* spriteInner = getChildOfType<CCSprite>(m_playSprite, 1);
-            CCSprite* spriteCenter = getChildOfType<CCSprite>(m_playSprite, 2);
+            CCSprite* spriteOuter = m_playSprite->getChildByType<CCSprite>(0);
+            CCSprite* spriteInner = m_playSprite->getChildByType<CCSprite>(1);
+            CCSprite* spriteCenter = m_playSprite->getChildByType<CCSprite>(2);
             
             if (!spriteOuter || !spriteInner || !spriteCenter || !m_progressTimer || !m_progressTimer->getSprite()) return;
 

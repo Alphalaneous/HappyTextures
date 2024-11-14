@@ -48,42 +48,33 @@ std::optional<ColorData> UIModding::getColors(std::string name) {
     if (buffer && fileSize != 0) {
         
         std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
-        std::string error;
-        std::optional<matjson::Value> value = matjson::parse(data, error);
+        geode::Result<matjson::Value, matjson::ParseError> value = matjson::parse(data);
 
-        if (value.has_value()) {
-
-            matjson::Value expandedValue = value.value();
-            if (expandedValue.is_object()) {
-
-                matjson::Object object = expandedValue.as_object();
-                if (object.contains(name)) {
-                    matjson::Value colorsVal = object[name];
-                    if (colorsVal.is_object()) {
-                        matjson::Object colors = colorsVal.as_object();
-                        if (colors.contains("r") && colors.contains("g") && colors.contains("b")) {
-                            matjson::Value rValue = colors["r"];
-                            matjson::Value gValue = colors["g"];
-                            matjson::Value bValue = colors["b"];
-                            unsigned char alpha = 255;
-                            if (colors.contains("a")) {
-                                matjson::Value aValue = colors["a"];
-                                if (aValue.is_number()) {
-                                    alpha = aValue.as_int();
-                                }
-                            }
-
-                            if (rValue.is_number() && gValue.is_number() && bValue.is_number()) {
-                                unsigned char r = rValue.as_int();
-                                unsigned char g = gValue.as_int();
-                                unsigned char b = bValue.as_int();
-
-                                ColorData data = ColorData{ccColor3B{r, g, b}, alpha, true};
-                                colorCache.insert({name, data});
-                                delete[] buffer;
-                                return data;
-                            }
+        if (value.isOk()) {
+            matjson::Value expandedValue = value.unwrap();
+            if (expandedValue.isObject() && expandedValue.contains(name)) {
+                matjson::Value colorsVal = expandedValue[name];
+                if (colorsVal.isObject() && colorsVal.contains("r") && colorsVal.contains("g") && colorsVal.contains("b")) {
+                    matjson::Value rValue = colorsVal["r"];
+                    matjson::Value gValue = colorsVal["g"];
+                    matjson::Value bValue = colorsVal["b"];
+                    unsigned char alpha = 255;
+                    if (colorsVal.contains("a")) {
+                        matjson::Value aValue = colorsVal["a"];
+                        if (aValue.isNumber()) {
+                            alpha = aValue.asInt().unwrapOr(255);
                         }
+                    }
+
+                    if (rValue.isNumber() && gValue.isNumber() && bValue.isNumber()) {
+                        unsigned char r = rValue.asInt().unwrapOr(0);
+                        unsigned char g = gValue.asInt().unwrapOr(0);
+                        unsigned char b = bValue.asInt().unwrapOr(0);
+
+                        ColorData data = ColorData{ccColor3B{r, g, b}, alpha, true};
+                        colorCache.insert({name, data});
+                        delete[] buffer;
+                        return data;
                     }
                 }
             }
@@ -96,7 +87,7 @@ std::optional<ColorData> UIModding::getColors(std::string name) {
     return std::nullopt;
 }
 
-void UIModding::recursiveModify(CCNode* node, matjson::Object elements) {
+void UIModding::recursiveModify(CCNode* node, matjson::Value elements) {
 
     CCArray* children = node->getChildren();
     if (CCArray* pageChildren = typeinfo_cast<CCArray*>(node->getUserObject("alphalaneous.pages_api/page-children"))){
@@ -107,44 +98,44 @@ void UIModding::recursiveModify(CCNode* node, matjson::Object elements) {
 
         std::string id = node->getID();
 
-        if (elements.contains("_pack-name") && elements["_pack-name"].is_string()) {
-            std::string identifier = fmt::format("{}/", elements["_pack-name"].as_string());
+        if (elements.contains("_pack-name") && elements["_pack-name"].isString()) {
+            std::string identifier = fmt::format("{}/", elements["_pack-name"].asString().unwrapOr(""));
             id = Utils::strReplace(node->getID(), identifier, "");
         }
         
         if (elements.contains(id)) {
             matjson::Value nodeValue = elements[id];
-
-            if (nodeValue.is_object()) {
-                matjson::Object nodeObject = nodeValue.as_object();
-                handleModifications(node, nodeObject);
+            if (nodeValue.isObject()) {
+                handleModifications(node, nodeValue);
             }
         }
     }
 }
 
-void UIModding::runAction(CCNode* node, matjson::Object attributes) {
+void UIModding::runAction(CCNode* node, matjson::Value attributes) {
 
     #ifndef GEODE_IS_MACOS
 
     if (attributes.contains("actions")) {
         matjson::Value actionsValue = attributes["actions"];
-        if (actionsValue.is_array()) {
+        if (actionsValue.isArray()) {
             
             CCArray* actionArray = CCArray::create();
-            matjson::Array actionValues = actionsValue.as_array();
+            geode::Result<std::vector<matjson::Value>&> actionValues = actionsValue.asArray();
 
-            for (matjson::Value action : actionValues) {
-                if (action.is_object()) {
-                    CCActionInterval* actionInterval = createAction(node, action);
+            if (actionValues.isOk()) {
+                for (matjson::Value action : actionValues.unwrap()) {
+                    if (action.isObject()) {
+                        CCActionInterval* actionInterval = createAction(node, action);
 
-                    if (actionInterval) {
-                        actionArray->addObject(actionInterval);
+                        if (actionInterval) {
+                            actionArray->addObject(actionInterval);
+                        }
                     }
                 }
-            }
-            if (actionArray->count() > 0) {
-                node->runAction(CCSpawn::create(actionArray));
+                if (actionArray->count() > 0) {
+                    node->runAction(CCSpawn::create(actionArray));
+                }
             }
         }
     }
@@ -174,29 +165,29 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action) {
 
         if (action.contains("easing")) {
             matjson::Value easingValue = action["easing"];
-            if (easingValue.is_string()) {
-                easingType = easingValue.as_string();
+            if (easingValue.isString()) {
+                easingType = easingValue.asString().unwrapOr("none");
             }
         }
         if (action.contains("easing-rate")) {
             matjson::Value easingRateVal = action["easing-rate"];
-            if (easingRateVal.is_number()) {
-                easingRate = easingRateVal.as_double();
+            if (easingRateVal.isNumber()) {
+                easingRate = easingRateVal.asDouble().unwrapOr(0);
             }
         }
         if (action.contains("repeat")) {
             matjson::Value repeatVal = action["repeat"];
-            if (repeatVal.is_bool()) {
-                repeat = repeatVal.as_bool();
+            if (repeatVal.isBool()) {
+                repeat = repeatVal.asBool().unwrapOr(false);
             }
-            if (repeatVal.is_number()) {
-                repeatCount = repeatVal.as_int();
+            if (repeatVal.isNumber()) {
+                repeatCount = repeatVal.asInt().unwrapOr(INT32_MAX);
             }
         }
         if (action.contains("duration")) {
             matjson::Value durationValue = action["duration"];
-            if (durationValue.is_number()) {
-                duration = durationValue.as_double();
+            if (durationValue.isNumber()) {
+                duration = durationValue.asDouble().unwrapOr(0);
             }
         }
 
@@ -204,35 +195,35 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action) {
 
         if (action.contains("value")) {
             matjson::Value valueValue = action["value"];
-            if (valueValue.is_number()) {
+            if (valueValue.isNumber()) {
                 isNumber = true;
-                value = valueValue.as_double();
+                value = valueValue.asDouble().unwrapOr(0);
             }
-            else if (valueValue.is_object()) {
+            else if (valueValue.isObject()) {
                 if (valueValue.contains("x") && valueValue.contains("y")) {
                     matjson::Value xValue = valueValue["x"];
                     matjson::Value yValue = valueValue["y"];
 
-                    if (xValue.is_number() && yValue.is_number()) {
-                        x = xValue.as_double();
-                        y = yValue.as_double();
+                    if (xValue.isNumber() && yValue.isNumber()) {
+                        x = xValue.asDouble().unwrapOr(0);
+                        y = yValue.asDouble().unwrapOr(0);
                     }
                 }
                 if (valueValue.contains("width") && valueValue.contains("height")) {
                     matjson::Value wValue = valueValue["width"];
                     matjson::Value hValue = valueValue["height"];
 
-                    if (wValue.is_number() && hValue.is_number()) {
-                        x = wValue.as_double();
-                        y = hValue.as_double();
+                    if (wValue.isNumber() && hValue.isNumber()) {
+                        x = wValue.asDouble().unwrapOr(0);
+                        y = hValue.asDouble().unwrapOr(0);
                     }
                 }
             }
         }
 
         matjson::Value typeValue = action["type"];
-        if (typeValue.is_string()) {
-            std::string type = typeValue.as_string();
+        if (typeValue.isString()) {
+            std::string type = typeValue.asString().unwrapOr("");
 
             if (type == "Sequence") {
 
@@ -241,13 +232,16 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action) {
                 if (action.contains("actions")) {
 
                     matjson::Value seqActions = action["actions"];
-                    if (seqActions.is_array()) {
-                        matjson::Array seqActionsArr = seqActions.as_array();
-                        for (matjson::Value seqAction : seqActionsArr) {
+                    if (seqActions.isArray()) {
+                        geode::Result<std::vector<matjson::Value>&> seqActionsArr = seqActions.asArray();
 
-                            CCActionInterval* seqActionToDo = createAction(node, seqAction);
-                            if (seqActionToDo) {
-                                sequentialActions->addObject(seqActionToDo);
+                        if (seqActionsArr.isOk()) {
+                            for (matjson::Value seqAction : seqActionsArr.unwrap()) {
+
+                                CCActionInterval* seqActionToDo = createAction(node, seqAction);
+                                if (seqActionToDo) {
+                                    sequentialActions->addObject(seqActionToDo);
+                                }
                             }
                         }
                     }
@@ -326,19 +320,19 @@ CCActionInterval* UIModding::getEasingType(std::string name, CCActionInterval* a
     return easingType;
 }
 
-void UIModding::setLayout(CCNode* node, matjson::Object attributes) {
+void UIModding::setLayout(CCNode* node, matjson::Value attributes) {
 
     if (attributes.contains("layout")) {
 
         matjson::Value layoutValue = attributes["layout"];
-        if (layoutValue.is_object()) {
+        if (layoutValue.isObject()) {
             AxisLayout* layout;
 
             if (node->getLayout()) {
                 layout = typeinfo_cast<AxisLayout*>(node->getLayout());
                 if (layoutValue.contains("remove")) {
                     matjson::Value removeValue = layoutValue["remove"];
-                    if (removeValue.is_bool()) {
+                    if (removeValue.isBool()) {
                         node->setLayout(nullptr);
                     }
                 }
@@ -351,8 +345,8 @@ void UIModding::setLayout(CCNode* node, matjson::Object attributes) {
 
                 if (layoutValue.contains("axis")) {
                     matjson::Value axisValue = layoutValue["axis"];
-                    if (axisValue.is_string()) {
-                        std::string axis = axisValue.as_string();
+                    if (axisValue.isString()) {
+                        std::string axis = axisValue.asString().unwrapOr("");
                         if (axis == "row") {
                             layout->setAxis(Axis::Row);
                         }
@@ -363,73 +357,73 @@ void UIModding::setLayout(CCNode* node, matjson::Object attributes) {
                 }
                 if (layoutValue.contains("flip-axis")) {
                     matjson::Value flipAxisValue = layoutValue["flip-axis"];
-                    if (flipAxisValue.is_bool()) {
-                        bool flipAxis = flipAxisValue.as_bool();
+                    if (flipAxisValue.isBool()) {
+                        bool flipAxis = flipAxisValue.asBool().unwrapOr(false);
                         layout->setAxisReverse(flipAxis);
                     }
                 }
                 if (layoutValue.contains("ignore-invisible")) {
                     matjson::Value ignoreInvisibleValue = layoutValue["ignore-invisible"];
-                    if (ignoreInvisibleValue.is_bool()) {
-                        bool ignoreInvisible = ignoreInvisibleValue.as_bool();
+                    if (ignoreInvisibleValue.isBool()) {
+                        bool ignoreInvisible = ignoreInvisibleValue.asBool().unwrapOr(false);
                         layout->ignoreInvisibleChildren(ignoreInvisible);
                     }
                 }
                 if (layoutValue.contains("flip-cross-axis")) {
                     matjson::Value flipCrossAxisValue = layoutValue["flip-cross-axis"];
-                    if (flipCrossAxisValue.is_bool()) {
-                        bool flipCrossAxis = flipCrossAxisValue.as_bool();
+                    if (flipCrossAxisValue.isBool()) {
+                        bool flipCrossAxis = flipCrossAxisValue.asBool().unwrapOr(false);
                         layout->setCrossAxisReverse(flipCrossAxis);
                     }
                 }
                 if (layoutValue.contains("auto-scale")) {
                     matjson::Value autoScaleValue = layoutValue["auto-scale"];
-                    if (autoScaleValue.is_bool()) {
-                        bool autoScale = autoScaleValue.as_bool();
+                    if (autoScaleValue.isBool()) {
+                        bool autoScale = autoScaleValue.asBool().unwrapOr(false);
                         layout->setAutoScale(autoScale);
                     }
                 }
                 if (layoutValue.contains("grow-cross-axis")) {
                     matjson::Value growCrossAxisValue = layoutValue["grow-cross-axis"];
-                    if (growCrossAxisValue.is_bool()) {
-                        bool growCrossAxis = growCrossAxisValue.as_bool();
+                    if (growCrossAxisValue.isBool()) {
+                        bool growCrossAxis = growCrossAxisValue.asBool().unwrapOr(false);
                         layout->setGrowCrossAxis(growCrossAxis);
                     }
                 }
                 if (layoutValue.contains("allow-cross-axis-overflow")) {
                     matjson::Value allowCrossAxisOverflowValue = layoutValue["allow-cross-axis-overflow"];
-                    if (allowCrossAxisOverflowValue.is_bool()) {
-                        bool allowCrossAxisOverflow = allowCrossAxisOverflowValue.as_bool();
+                    if (allowCrossAxisOverflowValue.isBool()) {
+                        bool allowCrossAxisOverflow = allowCrossAxisOverflowValue.asBool().unwrapOr(false);
                         layout->setCrossAxisOverflow(allowCrossAxisOverflow);
                     }
                 }
                 if (layoutValue.contains("gap")) {
                     matjson::Value gapValue = layoutValue["gap"];
-                    if (gapValue.is_number()) {
-                        float gap = gapValue.as_double();
+                    if (gapValue.isNumber()) {
+                        float gap = gapValue.asDouble().unwrapOr(0);
                         layout->setGap(gap);
                     }
                 }
                 if (layoutValue.contains("axis-alignment")) {
                     matjson::Value axisAlignmentValue = layoutValue["axis-alignment"];
-                    if (axisAlignmentValue.is_string()) {
-                        std::string axisAlignmentStr = axisAlignmentValue.as_string();
+                    if (axisAlignmentValue.isString()) {
+                        std::string axisAlignmentStr = axisAlignmentValue.asString().unwrapOr("");
                         AxisAlignment axisAlignment = getAxisAlignment(axisAlignmentStr);
                         layout->setAxisAlignment(axisAlignment);
                     }
                 }
                 if (layoutValue.contains("cross-axis-alignment")) {
                     matjson::Value crossAxisAlignmentValue = layoutValue["cross-axis-alignment"];
-                    if (crossAxisAlignmentValue.is_string()) {
-                        std::string crossAxisAlignmentStr = crossAxisAlignmentValue.as_string();
+                    if (crossAxisAlignmentValue.isString()) {
+                        std::string crossAxisAlignmentStr = crossAxisAlignmentValue.asString().unwrapOr("");
                         AxisAlignment axisAlignment = getAxisAlignment(crossAxisAlignmentStr);
                         layout->setCrossAxisAlignment(axisAlignment);
                     }
                 }
                 if (layoutValue.contains("cross-axis-line-alignment")) {
                     matjson::Value crossAxisLineAlignmentValue = layoutValue["cross-axis-line-alignment"];
-                    if (crossAxisLineAlignmentValue.is_string()) {
-                        std::string crossAxisLineAlignmentStr = crossAxisLineAlignmentValue.as_string();
+                    if (crossAxisLineAlignmentValue.isString()) {
+                        std::string crossAxisLineAlignmentStr = crossAxisLineAlignmentValue.asString().unwrapOr("");
                         AxisAlignment axisAlignment = getAxisAlignment(crossAxisLineAlignmentStr);
                         layout->setCrossAxisLineAlignment(axisAlignment);
                     }
@@ -458,21 +452,21 @@ std::string UIModding::getSound(std::string sound) {
     return soundRet;
 }
 
-void UIModding::playSound(CCNode* node, matjson::Object attributes) {
+void UIModding::playSound(CCNode* node, matjson::Value attributes) {
 
 #ifndef GEODE_IS_MACOS
     
     if (attributes.contains("sound")) {
         matjson::Value soundVal = attributes["sound"];
-        if (soundVal.is_string()) {
-            std::string sound = soundVal.as_string();
+        if (soundVal.isString()) {
+            std::string sound = soundVal.asString().unwrapOr("");
 
             FMODAudioEngine::sharedEngine()->m_backgroundMusicChannel->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_globalChannel->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_channelGroup2->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_system->update();
             std::string soundPath = getSound(sound);
-            if (soundPath != "") {
+            if (!soundPath.empty()) {
                 FMODAudioEngine::sharedEngine()->playEffectAdvanced(soundPath, 1, 0, 1, 1, true, false, 0, 0, 0, 0, false, 0, false, true, 0, 0, 0, 0);
             }
         }
@@ -480,23 +474,22 @@ void UIModding::playSound(CCNode* node, matjson::Object attributes) {
 #endif
 }
 
-void UIModding::openLink(CCNode* node, matjson::Object attributes) {
+void UIModding::openLink(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("link")) {
         matjson::Value linkVal = attributes["link"];
 
-        if (linkVal.is_string()) {
-            std::string link = linkVal.as_string();
+        if (linkVal.isString()) {
+            std::string link = linkVal.asString().unwrapOr("");
             web::openLinkInBrowser(link);
         }
-        if (linkVal.is_object()) {
-            matjson::Object linkObject = linkVal.as_object();
-            if (linkObject.contains("type") && linkObject.contains("id")) {
-                matjson::Value typeVal = linkObject["type"];
-                matjson::Value idVal = linkObject["id"];
+        if (linkVal.isObject()) {
+            if (linkVal.contains("type") && linkVal.contains("id")) {
+                matjson::Value typeVal = linkVal["type"];
+                matjson::Value idVal = linkVal["id"];
 
-                if (typeVal.is_string() && idVal.is_number()) {
-                    std::string type = typeVal.as_string();
-                    int id = idVal.as_int();
+                if (typeVal.isString() && idVal.isNumber()) {
+                    std::string type = typeVal.asString().unwrapOr("");
+                    int id = idVal.asInt().unwrapOr(0);
 
                     if (type == "profile") {
                         ProfilePage::create(id, false)->show();
@@ -512,11 +505,11 @@ void UIModding::openLink(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setShow(CCNode* node, matjson::Object attributes) {
+void UIModding::setShow(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("show")) {
         matjson::Value showVal = attributes["show"];
-        if (showVal.is_bool()) {
-            bool show = showVal.as_bool();
+        if (showVal.isBool()) {
+            bool show = showVal.asBool().unwrapOr(false);
             if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)) {
                 if (show) alert->show();
                 else alert->keyBackClicked();  
@@ -525,30 +518,29 @@ void UIModding::setShow(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setZOrder(CCNode* node, matjson::Object attributes) {
+void UIModding::setZOrder(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("z-order")) {
         matjson::Value zOrderVal = attributes["z-order"];
-        if (zOrderVal.is_number()) {
-            int zOrder = zOrderVal.as_int();
+        if (zOrderVal.isNumber()) {
+            int zOrder = zOrderVal.asInt().unwrapOr(0);
             node->setZOrder(zOrder);
         }
     }
 }
 
-void UIModding::setBlending(CCNode* node, matjson::Object attributes) {
+void UIModding::setBlending(CCNode* node, matjson::Value attributes) {
 
     if (attributes.contains("blending")) {
         matjson::Value blendingVal = attributes["blending"];
-        if (blendingVal.is_object()) {
-            matjson::Object blendingObj = blendingVal.as_object();
-            if (blendingObj.contains("source") && blendingObj.contains("destination")) {
-                matjson::Value sourceVal = blendingObj["source"];
-                matjson::Value destinationVal = blendingObj["destination"];
+        if (blendingVal.isObject()) {
+            if (blendingVal.contains("source") && blendingVal.contains("destination")) {
+                matjson::Value sourceVal = blendingVal["source"];
+                matjson::Value destinationVal = blendingVal["destination"];
 
-                if (sourceVal.is_string() && destinationVal.is_string()) {
+                if (sourceVal.isString() && destinationVal.isString()) {
 
-                    std::string source = sourceVal.as_string();
-                    std::string destination = destinationVal.as_string();
+                    std::string source = sourceVal.asString().unwrapOr("");
+                    std::string destination = destinationVal.asString().unwrapOr("");
 
                     unsigned int src = stringToBlendingMode(source);
                     unsigned int dst = stringToBlendingMode(destination);
@@ -588,20 +580,20 @@ unsigned int UIModding::stringToBlendingMode(std::string value) {
     return val;
 }
 
-void UIModding::setFlip(CCNode* node, matjson::Object attributes) {
+void UIModding::setFlip(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("flip")) {
         matjson::Value flipVal = attributes["flip"];
-        if (flipVal.is_object()) {
+        if (flipVal.isObject()) {
             bool flipX = false;
             bool flipY = false;
 
             if (flipVal.contains("x")) {
                 matjson::Value xVal = flipVal["x"];
-                if (xVal.is_bool()) flipX = xVal.as_bool(); 
+                if (xVal.isBool()) flipX = xVal.asBool().unwrapOr(false); 
             }
             if (flipVal.contains("y")) {
                 matjson::Value yVal = flipVal["y"];
-                if (yVal.is_bool()) flipY = yVal.as_bool();
+                if (yVal.isBool()) flipY = yVal.asBool().unwrapOr(false); 
             }
             if (CCSprite* sprite = typeinfo_cast<CCSprite*>(node)) {
                 sprite->setFlipX(flipX);
@@ -612,25 +604,25 @@ void UIModding::setFlip(CCNode* node, matjson::Object attributes) {
 }
 
 
-void UIModding::setFont(CCNode* node, matjson::Object attributes) {
+void UIModding::setFont(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("font")) {
         matjson::Value fontVal = attributes["font"];
-        if (fontVal.is_string()) {
+        if (fontVal.isString()) {
             CCLabelBMFont* textObject;
 
-            std::string font = fontVal.as_string();
+            std::string font = fontVal.asString().unwrapOr("");
             if (CCLabelBMFont* textNode = typeinfo_cast<CCLabelBMFont*>(node)) {
                 textObject = textNode;
             }
             else if (CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-                if (SearchButton* searchButton = getChildOfType<SearchButton>(node, 0)) {
-                    textObject = getChildOfType<CCLabelBMFont>(searchButton, 0);
+                if (SearchButton* searchButton = node->getChildByType<SearchButton>(0)) {
+                    textObject = searchButton->getChildByType<CCLabelBMFont>(0);
                 }
-                else if (ButtonSprite* buttonSprite = getChildOfType<ButtonSprite>(node, 0)) {
-                    textObject = getChildOfType<CCLabelBMFont>(buttonSprite, 0);
+                else if (ButtonSprite* buttonSprite = node->getChildByType<ButtonSprite>(0)) {
+                    textObject = buttonSprite->getChildByType<CCLabelBMFont>(0);
                 }
                 else {
-                    textObject = getChildOfType<CCLabelBMFont>(node, 0);
+                    textObject = node->getChildByType<CCLabelBMFont>(0);
                 }
             }
             if (textObject) {
@@ -651,10 +643,10 @@ void UIModding::setFont(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setPosition(CCNode* node, matjson::Object attributes) {
+void UIModding::setPosition(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("position")) {
         matjson::Value position = attributes["position"];
-        if (position.is_object()) {
+        if (position.isObject()) {
             
             float x = 0;
             float y = 0;
@@ -663,15 +655,15 @@ void UIModding::setPosition(CCNode* node, matjson::Object attributes) {
                 matjson::Value xVal = position["x"];
                 matjson::Value yVal = position["y"];
 
-                if (xVal.is_number() && yVal.is_number()) {
-                    x = xVal.as_double();
-                    y = yVal.as_double();
+                if (xVal.isNumber() && yVal.isNumber()) {
+                    x = xVal.asDouble().unwrapOr(0);
+                    y = yVal.asDouble().unwrapOr(0);
                 }
             }
             if (position.contains("anchor")) {
                 matjson::Value anchorValue = position["anchor"];
 
-                if (anchorValue.is_object() || anchorValue.is_string()) {
+                if (anchorValue.isObject() || anchorValue.isString()) {
                     CCNode* parent = node->getParent();
                     CCSize nodeSize;
                     if (parent) {
@@ -681,11 +673,11 @@ void UIModding::setPosition(CCNode* node, matjson::Object attributes) {
                         nodeSize = CCDirector::sharedDirector()->getWinSize();
                     }
 
-                    if (!anchorValue.is_string()) {
+                    if (!anchorValue.isString()) {
                         if (anchorValue.contains("relative")) {
                             matjson::Value relativeValue = anchorValue["relative"];
-                            if (relativeValue.is_string()) {
-                                std::string relative = relativeValue.as_string();
+                            if (relativeValue.isString()) {
+                                std::string relative = relativeValue.asString().unwrapOr("");
                                 if (relative == "screen") {
                                     nodeSize = CCDirector::sharedDirector()->getWinSize();
                                 }
@@ -696,16 +688,16 @@ void UIModding::setPosition(CCNode* node, matjson::Object attributes) {
                         }
                     }
 
-                    if (anchorValue.contains("to") || anchorValue.is_string()) {
+                    if (anchorValue.contains("to") || anchorValue.isString()) {
                         matjson::Value anchorToValue;
-                        if (anchorValue.is_string()) {
+                        if (anchorValue.isString()) {
                             anchorToValue = anchorValue;
                         }
                         else if (anchorValue.contains("to")) {
                             anchorToValue = anchorValue["to"];
                         }
-                        if (anchorToValue.is_string()) {
-                            std::string anchorTo = anchorToValue.as_string();
+                        if (anchorToValue.isString()) {
+                            std::string anchorTo = anchorToValue.asString().unwrapOr("");
                             if (anchorTo == "top-left") {
                                 y += nodeSize.height;
                             }
@@ -747,24 +739,24 @@ void UIModding::setPosition(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setColor(CCNode* node, matjson::Object attributes) {
+void UIModding::setColor(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("color")) {
         matjson::Value color = attributes["color"];
-        if (color.is_object()) {
+        if (color.isObject()) {
             if (color.contains("r") && color.contains("g") && color.contains("b")) {
                 matjson::Value colorR = color["r"];
                 matjson::Value colorG = color["g"];
                 matjson::Value colorB = color["b"];
 
-                if (colorR.is_number() && colorG.is_number() && colorB.is_number()) {
+                if (colorR.isNumber() && colorG.isNumber() && colorB.isNumber()) {
 
-                    unsigned char r = colorR.as_int();
-                    unsigned char g = colorG.as_int();
-                    unsigned char b = colorB.as_int();
+                    unsigned char r = colorR.asInt().unwrapOr(0);
+                    unsigned char g = colorG.asInt().unwrapOr(0);
+                    unsigned char b = colorB.asInt().unwrapOr(0);
 
                     if (CCMenuItemSpriteExtra* node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                         node1->setColor(ccColor3B{r, g, b});
-                        if (ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                        if (ButtonSprite* node2 = node1->getChildByType<ButtonSprite>(0)) {
                             node2->setColor(ccColor3B{r, g, b});
                         }
                     }
@@ -774,12 +766,12 @@ void UIModding::setColor(CCNode* node, matjson::Object attributes) {
                 }
             }
         }
-        if (color.is_string()) {
-            std::string colorStr = color.as_string();
+        if (color.isString()) {
+            std::string colorStr = color.asString().unwrapOr("");
             if (colorStr == "reset") {
                 if (EventCCMenuItemSpriteExtra* node1 = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
                     node1->setColor(node1->m_fields->originalColor);
-                    if (ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                    if (ButtonSprite* node2 = node1->getChildByType<ButtonSprite>(0)) {
                         node2->setColor(node1->m_fields->originalColor); 
                     }
                 }
@@ -788,21 +780,21 @@ void UIModding::setColor(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::removeChild(CCNode* node, matjson::Object attributes) {
+void UIModding::removeChild(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("remove")) {
         matjson::Value removeVal = attributes["remove"];
-        if (removeVal.is_bool()) {
-            bool remove = removeVal.as_bool();
+        if (removeVal.isBool()) {
+            bool remove = removeVal.asBool().unwrapOr(false);
             if (remove) removalQueue->addObject(node);
         }
     }
 }
 
-void UIModding::setScaleMult(CCNode* node, matjson::Object attributes) {
+void UIModding::setScaleMult(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("scale-multiplier")) {
         matjson::Value mulVal = attributes["scale-multiplier"];
-        if (mulVal.is_number()) {
-            float multiplier = mulVal.as_double();
+        if (mulVal.isNumber()) {
+            float multiplier = mulVal.asDouble().unwrapOr(0);
             if (CCMenuItemSpriteExtra* button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 button->m_scaleMultiplier = multiplier;
             }
@@ -810,11 +802,11 @@ void UIModding::setScaleMult(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setScaleBase(CCNode* node, matjson::Object attributes) {
+void UIModding::setScaleBase(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("base-scale")) {
         matjson::Value baseVal = attributes["base-scale"];
-        if (baseVal.is_number()) {
-            float base = baseVal.as_double();
+        if (baseVal.isNumber()) {
+            float base = baseVal.asDouble().unwrapOr(0);
             if (CCMenuItemSpriteExtra* button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 button->m_baseScale = base;
             }
@@ -822,11 +814,11 @@ void UIModding::setScaleBase(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setDisablePages(CCNode* node, matjson::Object attributes) {
+void UIModding::setDisablePages(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("disable-pages")) {
         matjson::Value pagesVal = attributes["disable-pages"];
-        if (pagesVal.is_bool()) {
-            bool disablePages = pagesVal.as_bool();
+        if (pagesVal.isBool()) {
+            bool disablePages = pagesVal.asBool().unwrapOr(false);
             if (disablePages) {
                 if (CCMenuItemSpriteExtra* disableItem = typeinfo_cast<CCMenuItemSpriteExtra*>(node->getUserObject("alphalaneous.pages_api/disable"))) {
                     (disableItem->m_pListener->*disableItem->m_pfnSelector)(disableItem);
@@ -836,26 +828,26 @@ void UIModding::setDisablePages(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setText(CCNode* node, matjson::Object attributes){
+void UIModding::setText(CCNode* node, matjson::Value attributes){
     if (attributes.contains("text")) {
         matjson::Value textVal = attributes["text"];
-        if (textVal.is_string()) {
+        if (textVal.isString()) {
 
             CCLabelBMFont* textObject;
 
-            std::string text = textVal.as_string();
+            std::string text = textVal.asString().unwrapOr("");
             if (CCLabelBMFont* textNode = typeinfo_cast<CCLabelBMFont*>(node)) {
                 textObject = textNode;
             }
             else if (CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-                if (SearchButton* searchButton = getChildOfType<SearchButton>(node, 0)){
-                    textObject = getChildOfType<CCLabelBMFont>(searchButton, 0);
+                if (SearchButton* searchButton = node->getChildByType<SearchButton>(0)){
+                    textObject = searchButton->getChildByType<CCLabelBMFont>(0);
                 }
-                else if (ButtonSprite* buttonSprite = getChildOfType<ButtonSprite>(node, 0)) {
-                    textObject = getChildOfType<CCLabelBMFont>(buttonSprite, 0);
+                else if (ButtonSprite* buttonSprite = node->getChildByType<ButtonSprite>(0)) {
+                    textObject = buttonSprite->getChildByType<CCLabelBMFont>(0);
                 }
                 else {
-                    textObject = getChildOfType<CCLabelBMFont>(node, 0);
+                    textObject = node->getChildByType<CCLabelBMFont>(0);
                 }
             }
             if (textObject) {
@@ -872,11 +864,11 @@ void UIModding::setText(CCNode* node, matjson::Object attributes){
     }
 }
 
-void UIModding::setSprite(CCNode* node, matjson::Object attributes) {
+void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("sprite")) {
         matjson::Value sprite = attributes["sprite"];
-        if (sprite.is_string()) {
-            std::string spriteName = sprite.as_string();
+        if (sprite.isString()) {
+            std::string spriteName = sprite.asString().unwrapOr("");
 
             CCSprite* spr = Utils::getValidSprite(spriteName.c_str());
             if (!spr) return;
@@ -889,11 +881,11 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes) {
 
                 if (attributes.contains("button-info")) {
                     matjson::Value infoVal = attributes["button-info"];
-                    if (infoVal.is_object()) {
+                    if (infoVal.isObject()) {
                         if (infoVal.contains("type")) {
                             matjson::Value typeVal = infoVal["type"];
-                            if (typeVal.is_string()) {
-                                std::string type = typeVal.as_string();
+                            if (typeVal.isString()) {
+                                std::string type = typeVal.asString().unwrapOr("");
                                 if (type == "labeled") {
 
                                     std::string caption = "";
@@ -904,13 +896,13 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes) {
                                     float height = 30;
                                     float scale = 1;
                                     
-                                    setSpriteVar(caption, text, string);
-                                    setSpriteVar(font, font, string);
-                                    setSpriteVar(texture, sprite, string);
-                                    setSpriteVarNum(width, width, int);
-                                    setSpriteVarNum(height, height, double);
-                                    setSpriteVarNum(scale, scale, double);
-                                    setSpriteVar(absolute, absolute, bool);
+                                    setSpriteVar(caption, text, String, "");
+                                    setSpriteVar(font, font, String, "");
+                                    setSpriteVar(texture, sprite, String, "");
+                                    setSpriteVarNum(width, width, Int, 0);
+                                    setSpriteVarNum(height, height, Double, 0);
+                                    setSpriteVarNum(scale, scale, Double, 0);
+                                    setSpriteVar(absolute, absolute, Bool, false);
                                     
                                     CCSprite* spr = Utils::getValidSprite(texture.c_str());
                                     if (!spr) return;
@@ -932,10 +924,10 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes) {
                         }
                     }
                 }
-                if (ButtonSprite* buttonSprite = getChildOfType<ButtonSprite>(node, 0)) {
+                if (ButtonSprite* buttonSprite = node->getChildByType<ButtonSprite>(0)) {
                     buttonSprite->updateBGImage(spriteName.c_str());
                 }
-                else if (CCSprite* sprite = getChildOfType<CCSprite>(node, 0)) {
+                else if (CCSprite* sprite = node->getChildByType<CCSprite>(0)) {
                     buttonNode->setNormalImage(spr);
                     Utils::updateSprite(buttonNode);
                 }
@@ -944,13 +936,11 @@ void UIModding::setSprite(CCNode* node, matjson::Object attributes) {
     }
 }
 
-
-
-void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes) {
+void UIModding::setSpriteFrame(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("sprite-frame")) {
         matjson::Value sprite = attributes["sprite-frame"];
-        if (sprite.is_string()) {
-            std::string spriteName = sprite.as_string();
+        if (sprite.isString()) {
+            std::string spriteName = sprite.asString().unwrapOr("");
             if (CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
                 CCSprite* spr = Utils::getValidSpriteFrame(spriteName.c_str());
                 if(spr) {
@@ -970,14 +960,14 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setOpacity(CCNode* node, matjson::Object attributes) {
+void UIModding::setOpacity(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("opacity")) {
         matjson::Value opacity = attributes["opacity"];
-        if (opacity.is_number()) {
-            unsigned char opacityNum = opacity.as_int();
+        if (opacity.isNumber()) {
+            unsigned char opacityNum = opacity.asInt().unwrapOr(0);
             if (CCMenuItemSpriteExtra* node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 node1->setOpacity(opacityNum);
-                if (ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                if (ButtonSprite* node2 = node1->getChildByType<ButtonSprite>(0)) {
                     node2->setOpacity(opacityNum);
                 }
             }
@@ -988,12 +978,12 @@ void UIModding::setOpacity(CCNode* node, matjson::Object attributes) {
                 nodeRGBA->setOpacity(opacityNum);
             }
         }
-        if (opacity.is_string()) {
-            std::string opacityStr = opacity.as_string();
+        if (opacity.isString()) {
+            std::string opacityStr = opacity.asString().unwrapOr("");
             if (opacityStr == "reset") {
                 if (EventCCMenuItemSpriteExtra* node1 = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
                     node1->setOpacity(node1->m_fields->originalOpacity);
-                    if (ButtonSprite* node2 = getChildOfType<ButtonSprite>(node1, 0)) {
+                    if (ButtonSprite* node2 = node1->getChildByType<ButtonSprite>(0)) {
                         node2->setOpacity(node1->m_fields->originalOpacity);
                     }
                 }
@@ -1002,120 +992,113 @@ void UIModding::setOpacity(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setVisible(CCNode* node, matjson::Object attributes) {
+void UIModding::setVisible(CCNode* node, matjson::Value attributes) {
 
     if (attributes.contains("visible")) {
         matjson::Value visible = attributes["visible"];
-        if (visible.is_bool()) {
-            node->setVisible(visible.as_bool());
+        if (visible.isBool()) {
+            node->setVisible(visible.asBool().unwrapOr(false));
         }
     }
 }
 
-void UIModding::updateLayout(CCNode* node, matjson::Object attributes) {
+void UIModding::updateLayout(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("update-layout")) {
         matjson::Value update = attributes["update-layout"];
-        if (update.is_bool()) {
-            if (update.as_bool()) {
+        if (update.isBool()) {
+            if (update.asBool().unwrapOr(false)) {
                 if (CCNode* parent = node->getParent()) parent->updateLayout();
             }
         }
     }
 }
 
-void UIModding::setIgnoreAnchorPos(CCNode* node, matjson::Object attributes) {
+void UIModding::setIgnoreAnchorPos(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("ignore-anchor-pos")) {
         matjson::Value ignore = attributes["ignore-anchor-pos"];
-        if (ignore.is_bool()) {
-            node->ignoreAnchorPointForPosition(ignore.as_bool());
+        if (ignore.isBool()) {
+            node->ignoreAnchorPointForPosition(ignore.asBool().unwrapOr(false));
         }
     }
 }
 
-void UIModding::setScale(CCNode* node, matjson::Object attributes) {
+void UIModding::setScale(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("scale")) {
         matjson::Value scale = attributes["scale"];
-        if (scale.is_object()) {
-            matjson::Object scaleAttributes = scale.as_object();
-
-            if (scaleAttributes.contains("x")) {
-                matjson::Value scaleX = scaleAttributes["x"];
-                if (!scaleX.is_null() && scaleX.is_number()) {
-                    node->setScaleX(scaleX.as_double());
+        if (scale.isObject()) {
+            if (scale.contains("x")) {
+                matjson::Value scaleX = scale["x"];
+                if (!scaleX.isNull() && scaleX.isNumber()) {
+                    node->setScaleX(scaleX.asDouble().unwrapOr(0));
                 }
             }
-            if (scaleAttributes.contains("y")) {
-                matjson::Value scaleY = scaleAttributes["y"];
-                if (!scaleY.is_null() && scaleY.is_number()) {
-                    node->setScaleY(scaleY.as_double());
+            if (scale.contains("y")) {
+                matjson::Value scaleY = scale["y"];
+                if (!scaleY.isNull() && scaleY.isNumber()) {
+                    node->setScaleY(scaleY.asDouble().unwrapOr(0));
                 }
             }
         }
 
-        if (scale.is_number()) {
-            node->setScale(scale.as_double());
+        if (scale.isNumber()) {
+            node->setScale(scale.asDouble().unwrapOr(0));
         }
     }
 }
 
-void UIModding::setRotation(CCNode* node, matjson::Object attributes) {
+void UIModding::setRotation(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("rotation")) {
         matjson::Value rotation = attributes["rotation"];
-        if (rotation.is_object()) {
-            matjson::Object rotationAttributes = rotation.as_object();
+        if (rotation.isObject()) {
 
-            if (rotationAttributes.contains("x")) {
-                matjson::Value rotationX = rotationAttributes["x"];
-                if (!rotationX.is_null() && rotationX.is_number()) {
-                    node->setRotationX(rotationX.as_double());
+            if (rotation.contains("x")) {
+                matjson::Value rotationX = rotation["x"];
+                if (!rotationX.isNull() && rotationX.isNumber()) {
+                    node->setRotationX(rotationX.asDouble().unwrapOr(0));
                 }
             }
-            if (rotationAttributes.contains("y")) {
-                matjson::Value rotationY = rotationAttributes["y"];
-                if (!rotationY.is_null() && rotationY.is_number()) {
-                    node->setRotationY(rotationY.as_double());
+            if (rotation.contains("y")) {
+                matjson::Value rotationY = rotation["y"];
+                if (!rotationY.isNull() && rotationY.isNumber()) {
+                    node->setRotationY(rotationY.asDouble().unwrapOr(0));
                 }
             }
         }
 
-        if (rotation.is_number()) {
-            node->setRotation(rotation.as_double());
+        if (rotation.isNumber()) {
+            node->setRotation(rotation.asDouble().unwrapOr(0));
         }
     }
 }
 
-void UIModding::setSkew(CCNode* node, matjson::Object attributes) {
+void UIModding::setSkew(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("skew")) {
         matjson::Value skew = attributes["skew"];
-        if (skew.is_object()) {
-            matjson::Object skewAttributes = skew.as_object();
-
-            if (skewAttributes.contains("x")) {
-                matjson::Value skewX = skewAttributes["x"];
-                if (skewX.is_number()) node->setSkewX(skewX.as_double());
+        if (skew.isObject()) {
+            if (skew.contains("x")) {
+                matjson::Value skewX = skew["x"];
+                if (skewX.isNumber()) node->setSkewX(skewX.asDouble().unwrapOr(0));
             }
 
-            if (skewAttributes.contains("y")) {
-                matjson::Value skewY = skewAttributes["y"];
-                if (skewY.is_number()) node->setSkewY(skewY.as_double());
+            if (skew.contains("y")) {
+                matjson::Value skewY = skew["y"];
+                if (skewY.isNumber()) node->setSkewY(skewY.asDouble().unwrapOr(0));
             }
         }
     }
 }
 
-void UIModding::setAnchorPoint(CCNode* node, matjson::Object attributes) {
+void UIModding::setAnchorPoint(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("anchor-point")) {
         matjson::Value anchorPoint = attributes["anchor-point"];
-        if (anchorPoint.is_object()) {
-            matjson::Object anchorPointAttributes = anchorPoint.as_object();
+        if (anchorPoint.isObject()) {
+            if (anchorPoint.contains("x") && anchorPoint.contains("y")) {
+                matjson::Value anchorPointX = anchorPoint["x"];
+                matjson::Value anchorPointY = anchorPoint["y"];
 
-            if (anchorPointAttributes.contains("x") && anchorPointAttributes.contains("y")) {
-                matjson::Value anchorPointX = anchorPointAttributes["x"];
-                matjson::Value anchorPointY = anchorPointAttributes["y"];
-
-                if (anchorPointX.is_number() && anchorPointY.is_number()) {
-                    float anchorPointValueX = anchorPointX.as_double();
-                    float anchorPointValueY = anchorPointY.as_double();
+                if (anchorPointX.isNumber() && anchorPointY.isNumber()) {
+                    float anchorPointValueX = anchorPointX.asDouble().unwrapOr(0);
+                    float anchorPointValueY = anchorPointY.asDouble().unwrapOr(0);
                     node->setAnchorPoint({anchorPointValueX, anchorPointValueY});
                 }
             }
@@ -1123,19 +1106,17 @@ void UIModding::setAnchorPoint(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::setContentSize(CCNode* node, matjson::Object attributes) {
+void UIModding::setContentSize(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("content-size")) {
         matjson::Value contentSize = attributes["content-size"];
-        if (contentSize.is_object()) {
-            matjson::Object contentSizeAttributes = contentSize.as_object();
+        if (contentSize.isObject()) {
+            if (contentSize.contains("width") && contentSize.contains("height")) {
+                matjson::Value contentSizeWidth = contentSize["width"];
+                matjson::Value contentSizeHeight = contentSize["height"];
 
-            if (contentSizeAttributes.contains("width") && contentSizeAttributes.contains("height")) {
-                matjson::Value contentSizeWidth = contentSizeAttributes["width"];
-                matjson::Value contentSizeHeight = contentSizeAttributes["height"];
-
-                if (contentSizeWidth.is_number() && contentSizeHeight.is_number()) {
-                    float contentSizeValueWidth = contentSizeWidth.as_double();
-                    float contentSizeValueHeight = contentSizeHeight.as_double();
+                if (contentSizeWidth.isNumber() && contentSizeHeight.isNumber()) {
+                    float contentSizeValueWidth = contentSizeWidth.asDouble().unwrapOr(0);
+                    float contentSizeValueHeight = contentSizeHeight.asDouble().unwrapOr(0);
 
                     node->setContentSize({contentSizeValueWidth, contentSizeValueHeight});
                 }
@@ -1144,7 +1125,7 @@ void UIModding::setContentSize(CCNode* node, matjson::Object attributes) {
     }
 }
 
-void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
+void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
 
     if (DataNode* data = typeinfo_cast<DataNode*>(node)){
         node = data->m_data;
@@ -1152,9 +1133,8 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
 
     if (nodeObject.contains("attributes")) {
         matjson::Value nodeAttributes = nodeObject["attributes"];
-        if (nodeAttributes.is_object()) {
-            matjson::Object nodeAttributesObject = nodeAttributes.as_object();
-            nodeAttributesObject["_pack-name"] = nodeObject["_pack-name"];
+        if (nodeAttributes.isObject()) {
+            nodeAttributes["_pack-name"] = nodeObject["_pack-name"];
             
             nodesFor(setDisablePages);
             nodesFor(setLayout);
@@ -1183,7 +1163,8 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
             #ifndef GEODE_IS_MACOS
             nodesFor(runAction);
             #endif
-            nodesFor(playSound);
+            //todo wait for fmod fixes
+            //nodesFor(playSound);
             nodesFor(openLink);
             
         }
@@ -1191,11 +1172,9 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
 
     if (nodeObject.contains("event")) {
         matjson::Value eventVal = nodeObject["event"];
-        if (eventVal.is_object()) {
-            matjson::Object eventObject = eventVal.as_object();
+        if (eventVal.isObject()) {
 
-            eventObject["_pack-name"] = nodeObject["_pack-name"];
-
+            eventVal["_pack-name"] = nodeObject["_pack-name"];
             if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
                 forEvent(on-click, OnClick);
                 forEvent(on-release, OnRelease);
@@ -1208,99 +1187,90 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
 
     if (nodeObject.contains("parent")) {
         matjson::Value parentVal = nodeObject["parent"];
-        if (parentVal.is_object()) {
-            matjson::Object parentObject = parentVal.as_object();
-
-            parentObject["_pack-name"] = nodeObject["_pack-name"];
-
-            if (CCNode* parent = node->getParent()) handleModifications(parent, parentObject);
+        if (parentVal.isObject()) {
+            parentVal["_pack-name"] = nodeObject["_pack-name"];
+            if (CCNode* parent = node->getParent()) handleModifications(parent, parentVal);
         }
     }
 
     if (nodeObject.contains("children")) {
         matjson::Value childrenVal = nodeObject["children"];
-        if (childrenVal.is_object()) {
-            matjson::Object childrenObject = childrenVal.as_object();
-
-            childrenObject["_pack-name"] = nodeObject["_pack-name"];
+        if (childrenVal.isObject()) {
+            childrenVal["_pack-name"] = nodeObject["_pack-name"];
 
             if (childrenVal.contains("node")) {
-                matjson::Value nodeChildrenVal = childrenObject["node"];
-                if (nodeChildrenVal.is_object()) {
-                    matjson::Object nodeChildrenObject = nodeChildrenVal.as_object();
-
-                    nodeChildrenObject["_pack-name"] = nodeObject["_pack-name"];
-
-                    recursiveModify(node, nodeChildrenObject);
+                matjson::Value nodeChildrenVal = childrenVal["node"];
+                if (nodeChildrenVal.isObject()) {
+                    nodeChildrenVal["_pack-name"] = nodeObject["_pack-name"];
+                    recursiveModify(node, nodeChildrenVal);
                 }
             }
             if (childrenVal.contains("index")) {
-                matjson::Value indexChildrenVal = childrenObject["index"];
-                if (indexChildrenVal.is_array()) {
-                    matjson::Array nodeChildrenArray = indexChildrenVal.as_array();
+                matjson::Value indexChildrenVal = childrenVal["index"];
+                if (indexChildrenVal.isArray()) {
+                    geode::Result<std::vector<matjson::Value>&> nodeChildrenArray = indexChildrenVal.asArray();
+                    if (nodeChildrenArray.isOk()) {
+                        for (matjson::Value value : nodeChildrenArray.unwrap()) {
+                            if (value.isObject()) {
+                                value["_pack-name"] = nodeObject["_pack-name"];
 
-                    for (matjson::Value value : nodeChildrenArray) {
-                        if (value.is_object()) {
-                            matjson::Object childObject = value.as_object();
-                            childObject["_pack-name"] = nodeObject["_pack-name"];
-
-                            int index = 0;
-                            std::string type = "CCNode";
-                            if (value.contains("index")) {
-                                matjson::Value indexVal = value["index"];
-                                if (indexVal.is_number()) {
-                                    index = indexVal.as_int();
+                                int index = 0;
+                                std::string type = "CCNode";
+                                if (value.contains("index")) {
+                                    matjson::Value indexVal = value["index"];
+                                    if (indexVal.isNumber()) {
+                                        index = indexVal.asInt().unwrapOr(0);
+                                    }
                                 }
-                            }
-                            if (value.contains("type")) {
-                                matjson::Value typeVal = value["type"];
-                                if (typeVal.is_string()) {
-                                    type = typeVal.as_string();
+                                if (value.contains("type")) {
+                                    matjson::Value typeVal = value["type"];
+                                    if (typeVal.isString()) {
+                                        type = typeVal.asString().unwrapOr("");
+                                    }
                                 }
-                            }
 
-                            handleModifyForType(CCSprite);
-                            handleModifyForType(CCMenu);
-                            handleModifyForType(CCMenuItemSpriteExtra);
-                            handleModifyForType(CCLabelBMFont);
-                            handleModifyForType(CCLayer);
-                            handleModifyForType(CCScale9Sprite);
-                            handleModifyForType(CCSpriteBatchNode);
-                            handleModifyForType(CCTextInputNode);
-                            #ifndef GEODE_IS_MACOS
-                            handleModifyForType(CCTextFieldTTF);
-                            #endif
-                            handleModifyForType(TextArea);
-                            handleModifyForType(MultilineBitmapFont);
-                            handleModifyForType(Slider);
-                            handleModifyForType(ButtonSprite);
-                            handleModifyForType(CircleButtonSprite);
-                            handleModifyForType(SearchButton);
-                            handleModifyForType(LoadingCircle);
-                            handleModifyForType(BoomScrollLayer);
-                            handleModifyForType(ListButtonBar);
-                            handleModifyForType(ExtendedLayer);
-                            handleModifyForType(OptionsLayer);
-                            handleModifyForType(SimplePlayer);
-                            handleModifyForType(DailyLevelNode);
-                            handleModifyForType(GJListLayer);
-                            handleModifyForType(CustomListView);
-                            handleModifyForType(TableView);
-                            handleModifyForType(CCContentLayer);
-                            handleModifyForType(CCLayerColor);
-                            handleModifyForType(LevelCell);
-                            handleModifyForType(CustomSongWidget);
-                            handleModifyForType(GJDifficultySprite);
-                            handleModifyForType(GJCommentListLayer);
+                                handleModifyForType(CCSprite);
+                                handleModifyForType(CCMenu);
+                                handleModifyForType(CCMenuItemSpriteExtra);
+                                handleModifyForType(CCLabelBMFont);
+                                handleModifyForType(CCLayer);
+                                handleModifyForType(CCScale9Sprite);
+                                handleModifyForType(CCSpriteBatchNode);
+                                handleModifyForType(CCTextInputNode);
+                                #ifndef GEODE_IS_MACOS
+                                handleModifyForType(CCTextFieldTTF);
+                                #endif
+                                handleModifyForType(TextArea);
+                                handleModifyForType(MultilineBitmapFont);
+                                handleModifyForType(Slider);
+                                handleModifyForType(ButtonSprite);
+                                handleModifyForType(CircleButtonSprite);
+                                handleModifyForType(SearchButton);
+                                handleModifyForType(LoadingCircle);
+                                handleModifyForType(BoomScrollLayer);
+                                handleModifyForType(ListButtonBar);
+                                handleModifyForType(ExtendedLayer);
+                                handleModifyForType(OptionsLayer);
+                                handleModifyForType(SimplePlayer);
+                                handleModifyForType(DailyLevelNode);
+                                handleModifyForType(GJListLayer);
+                                handleModifyForType(CustomListView);
+                                handleModifyForType(TableView);
+                                handleModifyForType(CCContentLayer);
+                                handleModifyForType(CCLayerColor);
+                                handleModifyForType(LevelCell);
+                                handleModifyForType(CustomSongWidget);
+                                handleModifyForType(GJDifficultySprite);
+                                handleModifyForType(GJCommentListLayer);
+                            }
                         }
                     }
                 }
             }
             if (childrenVal.contains("all")) {
-                matjson::Value allChildrenVal = childrenObject["all"];
-                if (allChildrenVal.is_object()) {
-                    matjson::Object allChildrenObject = allChildrenVal.as_object();
-                    allChildrenObject["_pack-name"] = nodeObject["_pack-name"];
+                matjson::Value allChildrenVal = childrenVal["all"];
+                if (allChildrenVal.isObject()) {
+                    allChildrenVal["_pack-name"] = nodeObject["_pack-name"];
 
                     CCArray* children = node->getChildren();
                     if (CCArray* pageChildren = typeinfo_cast<CCArray*>(node->getUserObject("alphalaneous.pages_api/page-children"))){
@@ -1308,151 +1278,152 @@ void UIModding::handleModifications(CCNode* node, matjson::Object nodeObject) {
                     }
 
                     for (CCNode* node : CCArrayExt<CCNode*>(children)) {
-                        handleModifications(node, allChildrenObject);
+                        handleModifications(node, allChildrenVal);
                     }
                 }
             }
             if (childrenVal.contains("new")) {
-                matjson::Value newChildrenVal = childrenObject["new"];
-                if (newChildrenVal.is_array()) {
-                    matjson::Array newChildrenArray = newChildrenVal.as_array();
-                    for (matjson::Value value : newChildrenArray) {
-                        if (value.is_object()) {
-                            matjson::Object childObject = value.as_object();
-                            childObject["_pack-name"] = nodeObject["_pack-name"];
+                matjson::Value newChildrenVal = childrenVal["new"];
+                if (newChildrenVal.isArray()) {
+                    geode::Result<std::vector<matjson::Value>&> newChildrenArray = newChildrenVal.asArray();
+                    
+                    if (newChildrenArray.isOk()) {
+                        for (matjson::Value value : newChildrenArray.unwrap()) {
+                            if (value.isObject()) {
+                                value["_pack-name"] = nodeObject["_pack-name"];
 
-                            int index = 0;
-                            std::string type = "Node";
-                            if (value.contains("type") && value.contains("id")) {
-                                matjson::Value typeVal = value["type"];
-                                if (typeVal.is_string()) {
-                                    type = typeVal.as_string();
-                                    CCNode* newNode = nullptr;
-                                    if (type == "CCSprite") {
-                                        newNode = CCSprite::create();
-                                    }
-                                    if (type == "CCLabelBMFont") {
-                                        newNode = CCLabelBMFont::create("", "chatFont.fnt");
-                                    }
-                                    if (type == "CCMenu") {
-                                        newNode = CCMenu::create();
-                                    }
-                                    if (type == "CCLayerColor") {
-                                        newNode = CCLayerColor::create(ccColor4B{0,0,0,0});
-                                    }
-                                    if (type == "CCMenuItemSpriteExtra") {
-                                        newNode = CCMenuItemSpriteExtra::create(CCSprite::create(), nullptr, nullptr, nullptr);
-                                    }
-                                    if (type == "CCScale9Sprite") {
-                                        if(childObject.contains("attributes")){
-                                            matjson::Value attributesVal = childObject["attributes"];
-                                            if(attributesVal.contains("sprite")){
-                                                matjson::Value spriteVal = attributesVal["sprite"];
-                                                if(spriteVal.is_string()){
-                                                    std::string sprite = spriteVal.as_string();
-                                                    newNode = CCScale9Sprite::create(sprite.c_str());
-                                                }
-                                            }
+                                int index = 0;
+                                std::string type = "Node";
+                                if (value.contains("type") && value.contains("id")) {
+                                    matjson::Value typeVal = value["type"];
+                                    if (typeVal.isString()) {
+                                        type = typeVal.asString().unwrapOr("");
+                                        CCNode* newNode = nullptr;
+                                        if (type == "CCSprite") {
+                                            newNode = CCSprite::create();
                                         }
-                                    }
-                                    if (type == "Alert") {
-                                        if (childObject.contains("attributes")) {
-                                            matjson::Value attributesVal = childObject["attributes"];
-                                            if (attributesVal.contains("title") && attributesVal.contains("description")) {
-                                                matjson::Value titleVal = attributesVal["title"];
-                                                matjson::Value descVal = attributesVal["description"];
-                                                if (titleVal.is_string() && descVal.is_string()) {
-                                                    std::string title = titleVal.as_string();
-                                                    std::string description = descVal.as_string();
-                                                    std::string buttonText = "Okay";
-                                                    if (attributesVal.contains("button-text")) {
-                                                        matjson::Value buttonVal = attributesVal["button-text"];
-                                                        if (buttonVal.is_string()) {
-                                                            buttonText = buttonVal.as_string();
-                                                        }
-                                                    }
-                                                    FLAlertLayer* alert = geode::createQuickPopup(title.c_str(), description, buttonText.c_str(), nullptr, nullptr, false, true);
-                                                    static_cast<MyFLAlertLayer*>(alert)->setRift();
-                                                    DataNode* data = DataNode::create(alert);
-                                                    newNode = data;
-                                                }
-                                            }
+                                        if (type == "CCLabelBMFont") {
+                                            newNode = CCLabelBMFont::create("", "chatFont.fnt");
                                         }
-                                    }
-                                    if (type == "Popup") {
-                                        std::string sprite = "GJ_square01.png";
-                                        std::string title = "";
-                                        float width = 60;
-                                        float height = 60;
-
-                                        if (childObject.contains("attributes")) {
-                                            matjson::Value attributesVal = childObject["attributes"];
-                                            
-                                            
-                                            if (attributesVal.contains("sprite")) {
-                                                matjson::Value spriteVal = attributesVal["sprite"];
-                                                if (spriteVal.is_string()) {
-                                                    sprite = spriteVal.as_string();
-                                                }
-                                            }
-                                            if (attributesVal.contains("popup-size")) {
-                                                matjson::Value contentSize = attributesVal["popup-size"];
-                                                if (contentSize.is_object()) {
-                                                    matjson::Object contentSizeAttributes = contentSize.as_object();
-                                                    if (contentSizeAttributes.contains("width") && contentSizeAttributes.contains("height")) {
-                                                        matjson::Value contentSizeWidth = contentSizeAttributes["width"];
-                                                        matjson::Value contentSizeHeight = contentSizeAttributes["height"];
-
-                                                        if (contentSizeWidth.is_number() && contentSizeHeight.is_number()) {
-                                                            width = contentSizeWidth.as_double();
-                                                            height = contentSizeHeight.as_double();
-                                                        }
+                                        if (type == "CCMenu") {
+                                            newNode = CCMenu::create();
+                                        }
+                                        if (type == "CCLayerColor") {
+                                            newNode = CCLayerColor::create(ccColor4B{0,0,0,0});
+                                        }
+                                        if (type == "CCMenuItemSpriteExtra") {
+                                            newNode = CCMenuItemSpriteExtra::create(CCSprite::create(), nullptr, nullptr, nullptr);
+                                        }
+                                        if (type == "CCScale9Sprite") {
+                                            if(value.contains("attributes")){
+                                                matjson::Value attributesVal = value["attributes"];
+                                                if(attributesVal.contains("sprite")){
+                                                    matjson::Value spriteVal = attributesVal["sprite"];
+                                                    if(spriteVal.isString()){
+                                                        std::string sprite = spriteVal.asString().unwrapOr("");
+                                                        newNode = CCScale9Sprite::create(sprite.c_str());
                                                     }
                                                 }
                                             }
-                                            if (attributesVal.contains("title")) {
-                                                matjson::Value titleVal = attributesVal["title"];
-                                                if (titleVal.is_string()) {
-                                                    title = titleVal.as_string();
+                                        }
+                                        if (type == "Alert") {
+                                            if (value.contains("attributes")) {
+                                                matjson::Value attributesVal = value["attributes"];
+                                                if (attributesVal.contains("title") && attributesVal.contains("description")) {
+                                                    matjson::Value titleVal = attributesVal["title"];
+                                                    matjson::Value descVal = attributesVal["description"];
+                                                    if (titleVal.isString() && descVal.isString()) {
+                                                        std::string title = titleVal.asString().unwrapOr("");
+                                                        std::string description = descVal.asString().unwrapOr("");
+                                                        std::string buttonText = "Okay";
+                                                        if (attributesVal.contains("button-text")) {
+                                                            matjson::Value buttonVal = attributesVal["button-text"];
+                                                            if (buttonVal.isString()) {
+                                                                buttonText = buttonVal.asString().unwrapOr("");
+                                                            }
+                                                        }
+                                                        FLAlertLayer* alert = geode::createQuickPopup(title.c_str(), description, buttonText.c_str(), nullptr, nullptr, false, true);
+                                                        static_cast<MyFLAlertLayer*>(alert)->setRift();
+                                                        DataNode* data = DataNode::create(alert);
+                                                        newNode = data;
+                                                    }
                                                 }
                                             }
                                         }
-                                        CustomAlert* alert = CustomAlert::create(width, height, sprite, title);
-                                        DataNode* data = DataNode::create(alert);
-                                        newNode = data;
-                                    }
-                                    if (newNode) {
-                                        
-                                        matjson::Value idVal = value["id"];
-                                        std::string fullID;
-                                        if (idVal.is_string()) {
-                                            std::string id = idVal.as_string();
-                                            std::string packName = "missing";
-                                            if (nodeObject.contains("_pack-name") && nodeObject["_pack-name"].is_string()) {
-                                                packName = nodeObject["_pack-name"].as_string();
+                                        if (type == "Popup") {
+                                            std::string sprite = "GJ_square01.png";
+                                            std::string title = "";
+                                            float width = 60;
+                                            float height = 60;
+
+                                            if (value.contains("attributes")) {
+                                                matjson::Value attributesVal = value["attributes"];
+                                                
+                                                
+                                                if (attributesVal.contains("sprite")) {
+                                                    matjson::Value spriteVal = attributesVal["sprite"];
+                                                    if (spriteVal.isString()) {
+                                                        sprite = spriteVal.asString().unwrapOr("");
+                                                    }
+                                                }
+                                                if (attributesVal.contains("popup-size")) {
+                                                    matjson::Value contentSize = attributesVal["popup-size"];
+                                                    if (contentSize.isObject()) {
+                                                        if (contentSize.contains("width") && contentSize.contains("height")) {
+                                                            matjson::Value contentSizeWidth = contentSize["width"];
+                                                            matjson::Value contentSizeHeight = contentSize["height"];
+
+                                                            if (contentSizeWidth.isNumber() && contentSizeHeight.isNumber()) {
+                                                                width = contentSizeWidth.asDouble().unwrapOr(0);
+                                                                height = contentSizeHeight.asDouble().unwrapOr(0);
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                                if (attributesVal.contains("title")) {
+                                                    matjson::Value titleVal = attributesVal["title"];
+                                                    if (titleVal.isString()) {
+                                                        title = titleVal.asString().unwrapOr("");
+                                                    }
+                                                }
                                             }
-                                            fullID = fmt::format("{}/{}", packName, id);
-
-                                            newNode->setID(fullID.c_str());
+                                            CustomAlert* alert = CustomAlert::create(width, height, sprite, title);
+                                            DataNode* data = DataNode::create(alert);
+                                            newNode = data;
                                         }
+                                        if (newNode) {
+                                            
+                                            matjson::Value idVal = value["id"];
+                                            std::string fullID;
+                                            if (idVal.isString()) {
+                                                std::string id = idVal.asString().unwrapOr("");
+                                                std::string packName = "missing";
+                                                if (nodeObject.contains("_pack-name") && nodeObject["_pack-name"].isString()) {
+                                                    packName = nodeObject["_pack-name"].asString().unwrapOr("");
+                                                }
+                                                fullID = fmt::format("{}/{}", packName, id);
 
-                                        if (DataNode* data = typeinfo_cast<DataNode*>(newNode)) {
-                                            if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(data->m_data)) {
-                                                alert->setID(fullID.c_str());
+                                                newNode->setID(fullID.c_str());
                                             }
-                                            data->setID(fullID.c_str());
-                                        }
 
-                                        if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)) {
-                                            alert->m_mainLayer->removeChildByID(fullID);
-                                            alert->m_mainLayer->addChild(newNode);
+                                            if (DataNode* data = typeinfo_cast<DataNode*>(newNode)) {
+                                                if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(data->m_data)) {
+                                                    alert->setID(fullID.c_str());
+                                                }
+                                                data->setID(fullID.c_str());
+                                            }
+
+                                            if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)) {
+                                                alert->m_mainLayer->removeChildByID(fullID);
+                                                alert->m_mainLayer->addChild(newNode);
+                                            }
+                                            else {
+                                                node->removeChildByID(fullID);
+                                                node->addChild(newNode);
+                                            }
+                                            
+                                            handleModifications(newNode, value);
                                         }
-                                        else {
-                                            node->removeChildByID(fullID);
-                                            node->addChild(newNode);
-                                        }
-                                        
-                                        handleModifications(newNode, childObject);
                                     }
                                 }
                             }
@@ -1477,15 +1448,12 @@ void UIModding::doUICheck(CCNode* node) {
     if (buffer && fileSize != 0) {
 
         std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
-        std::string error;
-        std::optional<matjson::Value> value = matjson::parse(data, error);
+        geode::Result<matjson::Value, matjson::ParseError> value = matjson::parse(data);
 
-        if (value.has_value()) {
+        if (value.isOk()) {
 
-            matjson::Value expandedValue = value.value();
-            if (expandedValue.is_object()) {
-                matjson::Object object = expandedValue.as_object();
-
+            matjson::Value expandedValue = value.unwrap();
+            if (expandedValue.isObject()) {
                 std::string fullPathStr = CCFileUtils::sharedFileUtils()->fullPathForFilename(path.c_str(), false);
 
                 std::filesystem::path fullPath(fullPathStr);
@@ -1498,9 +1466,9 @@ void UIModding::doUICheck(CCNode* node) {
                 }
                 std::replace( name.begin(), name.end(), ' ', '-');
                 
-                object["_pack-name"] = name.substr(0, name.find_last_of("."));;
+                expandedValue["_pack-name"] = name.substr(0, name.find_last_of("."));;
 
-                handleModifications(node, object);
+                handleModifications(node, expandedValue);
             }
             for (CCNode* node : CCArrayExt<CCNode*>(removalQueue)) {
                 node->removeFromParentAndCleanup(true);
@@ -1583,11 +1551,10 @@ void UIModding::doUICheckForType(std::string type, CCNode* node) {
         if (buffer && fileSize != 0) {
             
             std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
-            std::string error;
-            std::optional<matjson::Value> valueOpt = matjson::parse(data, error);
+            geode::Result<matjson::Value, matjson::ParseError> valueOpt = matjson::parse(data);
 
-            if (valueOpt.has_value()) {
-                value = valueOpt.value();
+            if (valueOpt.isOk()) {
+                value = valueOpt.unwrap();
                 uiCache.insert({type, value});
             }
             else {
@@ -1599,8 +1566,7 @@ void UIModding::doUICheckForType(std::string type, CCNode* node) {
         }
         delete[] buffer;
     }
-    if (!value.is_null()) {
-        matjson::Object object = value.as_object();
-        handleModifications(node, object);
+    if (!value.isNull()) {
+        handleModifications(node, value);
     }
 }
