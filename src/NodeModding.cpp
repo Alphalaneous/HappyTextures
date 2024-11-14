@@ -25,11 +25,12 @@ modifyNodeForType(CCMenuItemSpriteExtra, init, (cocos2d::CCNode* p0, cocos2d::CC
 modifyNodeForType(CCLabelBMFont, init, (), ());
 modifyNodeForType(CCLabelBMFont, initWithString, (const char *p0, const char *p1, float p2, CCTextAlignment p3, CCPoint p4), (p0, p1, p2, p3, p4));
 
-#include <Geode/modify/CCScale9Sprite.hpp>
-modifyNodeForType(CCScale9Sprite, init, (), ());
-
 #ifndef GEODE_IS_MACOS
 
+//todo mac bindings
+
+#include <Geode/modify/CCScale9Sprite.hpp>
+modifyNodeForType(CCScale9Sprite, init, (), ());
 modifyNodeForType(CCScale9Sprite, initWithBatchNode, (CCSpriteBatchNode* p0, CCRect p1, bool p2, CCRect p3), (p0, p1, p2, p3));
 modifyNodeForType(CCScale9Sprite, initWithFile, (const char* p0, CCRect p1,  CCRect p2), (p0, p1, p2));
 modifyNodeForType(CCScale9Sprite, initWithSpriteFrame, (CCSpriteFrame* p0, CCRect p1), (p0, p1));
