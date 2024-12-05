@@ -928,8 +928,8 @@ void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
                     buttonSprite->updateBGImage(spriteName.c_str());
                 }
                 else if (CCSprite* sprite = node->getChildByType<CCSprite>(0)) {
-                    buttonNode->setNormalImage(spr);
-                    Utils::updateSprite(buttonNode);
+                    sprite->setTexture(spr->getTexture());
+                    sprite->setTextureRect(spr->getTextureRect());
                 }
             }
         }
@@ -952,8 +952,11 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Value attributes) {
             if (CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
                 CCSprite* spr = Utils::getValidSpriteFrame(spriteName.c_str());
                 if (spr) {
-                    buttonNode->setNormalImage(spr);
-                    Utils::updateSprite(buttonNode);
+                    if (CCSprite* spriteNode = buttonNode->getChildByType<CCSprite>(0)) {
+                        spriteNode->setTexture(spr->getTexture());
+                        spriteNode->setTextureRect(spr->getTextureRect());
+		        spriteNode->setTextureAtlas(spr->getTextureAtlas());
+                    }
                 }
             }
         }
