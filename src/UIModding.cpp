@@ -454,8 +454,6 @@ std::string UIModding::getSound(std::string sound) {
 
 void UIModding::playSound(CCNode* node, matjson::Value attributes) {
 
-#ifndef GEODE_IS_MACOS
-    
     if (attributes.contains("sound")) {
         matjson::Value soundVal = attributes["sound"];
         if (soundVal.isString()) {
@@ -471,7 +469,6 @@ void UIModding::playSound(CCNode* node, matjson::Value attributes) {
             }
         }
     }
-#endif
 }
 
 void UIModding::openLink(CCNode* node, matjson::Value attributes) {
@@ -864,75 +861,136 @@ void UIModding::setText(CCNode* node, matjson::Value attributes){
     }
 }
 
+std::vector<std::string> generateValidSprites(std::string path, matjson::Value spriteList) {
+
+    std::vector<std::string> sprites;
+    std::vector<std::string> validSprites;
+
+    if (!path.empty()) {
+        std::vector<std::string> packs = Utils::getActivePacks();
+        for (std::string packPath : packs) {
+            std::string sprPath = fmt::format("{}{}", packPath, path);
+            if (std::filesystem::is_directory(sprPath)) {
+                for (const auto& entry : std::filesystem::directory_iterator(sprPath)) {
+                    std::string textureName = utils::string::split(entry.path().filename().string(), ".").at(0);
+                    if (!utils::string::endsWith(textureName, "-hd") && !utils::string::endsWith(textureName, "-uhd")) {
+                        std::string sprName = fmt::format("{}\\{}", path, entry.path().filename().string());
+                        sprites.push_back(sprName);
+                    }
+                }
+            }
+        }
+    }
+
+    if (spriteList.isArray()) {
+        for (matjson::Value v : spriteList.asArray().unwrap()) {
+            if (v.isString()) sprites.push_back(v.asString().unwrapOr(""));
+        }
+    }
+
+    for (std::string sprStr : sprites) {
+        if (Utils::getValidSprite(sprStr.c_str())) {
+            validSprites.push_back(sprStr);
+        }
+    }
+    return validSprites;
+}
+
 void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("sprite")) {
         matjson::Value sprite = attributes["sprite"];
-        if (sprite.isString()) {
-            std::string spriteName = sprite.asString().unwrapOr("");
+        CCSprite* spr;
+        std::string spriteName;
+        if (sprite.isObject()) {
+            matjson::Value randomObject = sprite["random"];
+            std::string mode = randomObject["mode"].asString().unwrapOr("load");
+            std::string id = randomObject["id"].asString().unwrapOr("");
+            std::string path = randomObject["path"].asString().unwrapOr("");
+            matjson::Value spriteList = randomObject["sprites"];
 
-            CCSprite* spr = Utils::getValidSprite(spriteName.c_str());
-            if (!spr) return;
-
-            if (CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
-                spriteNode->setTexture(spr->getTexture());
-                spriteNode->setTextureRect(spr->getTextureRect());
+            if (mode == "load" || id.empty()) {
+                std::vector<std::string> validSprites = generateValidSprites(path, spriteList);
+                if (!validSprites.empty()) spriteName = validSprites.at(Utils::getRandomNumber(0, validSprites.size()-1));
             }
-            if (CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+            else if (mode == "session") {
+                if (!randomSprites.contains(id)) {
+                    std::vector<std::string> validSprites = generateValidSprites(path, spriteList);
+                    if (!validSprites.empty()) randomSprites[id] = validSprites.at(Utils::getRandomNumber(0, validSprites.size()-1));
+                }
+                spriteName = randomSprites[id];
+            }
+            spr = Utils::getValidSprite(spriteName.c_str());
+            if (!spr) return;
+        }
+        if (sprite.isString()) {
+            spriteName = sprite.asString().unwrapOr("");
+            spr = Utils::getValidSprite(spriteName.c_str());
+            if (!spr) return;
+        }
 
-                if (attributes.contains("button-info")) {
-                    matjson::Value infoVal = attributes["button-info"];
-                    if (infoVal.isObject()) {
-                        if (infoVal.contains("type")) {
-                            matjson::Value typeVal = infoVal["type"];
-                            if (typeVal.isString()) {
-                                std::string type = typeVal.asString().unwrapOr("");
-                                if (type == "labeled") {
+        if (CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
+            spriteNode->setTexture(spr->getTexture());
+            spriteNode->setTextureRect(spr->getTextureRect());
+        }
+        if (CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
 
-                                    std::string caption = "";
-                                    int width = 30;
-                                    bool absolute = false;
-                                    std::string font = "bigFont.fnt";
-                                    std::string texture = "GJ_button_01.png";
-                                    float height = 30;
-                                    float scale = 1;
-                                    
-                                    setSpriteVar(caption, text, String, "");
-                                    setSpriteVar(font, font, String, "");
-                                    setSpriteVar(texture, sprite, String, "");
-                                    setSpriteVarNum(width, width, Int, 0);
-                                    setSpriteVarNum(height, height, Double, 0);
-                                    setSpriteVarNum(scale, scale, Double, 0);
-                                    setSpriteVar(absolute, absolute, Bool, false);
-                                    
-                                    CCSprite* spr = Utils::getValidSprite(texture.c_str());
-                                    if (!spr) return;
+            if (attributes.contains("button-info")) {
+                matjson::Value infoVal = attributes["button-info"];
+                if (infoVal.isObject()) {
+                    if (infoVal.contains("type")) {
+                        matjson::Value typeVal = infoVal["type"];
+                        if (typeVal.isString()) {
+                            std::string type = typeVal.asString().unwrapOr("");
+                            if (type == "labeled") {
 
-                                    CCLabelBMFont* fnt = CCLabelBMFont::create("", font.c_str());
+                                std::string caption = "";
+                                int width = 30;
+                                bool absolute = false;
+                                std::string font = "bigFont.fnt";
+                                std::string texture = "GJ_button_01.png";
+                                float height = 30;
+                                float scale = 1;
+                                
+                                setSpriteVar(caption, text, String, "");
+                                setSpriteVar(font, font, String, "");
+                                setSpriteVar(texture, sprite, String, "");
+                                setSpriteVarNum(width, width, Int, 0);
+                                setSpriteVarNum(height, height, Double, 0);
+                                setSpriteVarNum(scale, scale, Double, 0);
+                                setSpriteVar(absolute, absolute, Bool, false);
+                                
+                                CCSprite* spr = Utils::getValidSprite(texture.c_str());
+                                if (!spr) return;
 
-                                    if (spr && fnt) {
-                                        auto buttonSprite = ButtonSprite::create(caption.c_str(), width, absolute, font.c_str(), texture.c_str(), height, scale);
-                                        buttonNode->setNormalImage(buttonSprite);
-		                                Utils::updateSprite(buttonNode);
-                                    }
+                                CCLabelBMFont* fnt = CCLabelBMFont::create("", font.c_str());
 
-                                }
-                                else if (type == "sprite") {
-                                    buttonNode->setNormalImage(spr);
+                                if (spr && fnt) {
+                                    auto buttonSprite = ButtonSprite::create(caption.c_str(), width, absolute, font.c_str(), texture.c_str(), height, scale);
+                                    buttonNode->setNormalImage(buttonSprite);
                                     Utils::updateSprite(buttonNode);
                                 }
+
+                            }
+                            else if (type == "sprite") {
+                                buttonNode->setNormalImage(spr);
+                                Utils::updateSprite(buttonNode);
                             }
                         }
                     }
                 }
-                if (ButtonSprite* buttonSprite = node->getChildByType<ButtonSprite>(0)) {
-                    buttonSprite->updateBGImage(spriteName.c_str());
-                }
-                else if (CCSprite* sprite = node->getChildByType<CCSprite>(0)) {
-                    sprite->setTexture(spr->getTexture());
-                    sprite->setTextureRect(spr->getTextureRect());
-                }
+            }
+            if (ButtonSprite* buttonSprite = node->getChildByType<ButtonSprite>(0)) {
+                buttonSprite->updateBGImage(spriteName.c_str());
+            }
+            else if (CCSprite* sprite = node->getChildByType<CCSprite>(0)) {
+                sprite->setTexture(spr->getTexture());
+                sprite->setTextureRect(spr->getTextureRect());
+                sprite->setContentSize(spr->getContentSize());
+                buttonNode->setContentSize(spr->getContentSize());
+                sprite->setPosition(buttonNode->getContentSize()/2);
             }
         }
+        
     }
 }
 
@@ -955,7 +1013,10 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Value attributes) {
                     if (CCSprite* spriteNode = buttonNode->getChildByType<CCSprite>(0)) {
                         spriteNode->setTexture(spr->getTexture());
                         spriteNode->setTextureRect(spr->getTextureRect());
-		        spriteNode->setTextureAtlas(spr->getTextureAtlas());
+		                spriteNode->setTextureAtlas(spr->getTextureAtlas());
+                        spriteNode->setContentSize(spr->getContentSize());
+                        buttonNode->setContentSize(spr->getContentSize());
+                        spriteNode->setPosition(buttonNode->getContentSize()/2);
                     }
                 }
             }
@@ -1167,7 +1228,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
             nodesFor(runAction);
             #endif
             //todo wait for fmod fixes
-            //nodesFor(playSound);
+            nodesFor(playSound);
             nodesFor(openLink);
             
         }
@@ -1537,39 +1598,51 @@ AxisAlignment UIModding::getAxisAlignment(std::string name) {
     return axisAlignment;
 }
 
+void UIModding::loadNodeFiles() {
+    std::vector<std::string> packs = Utils::getActivePacks();
+    for (std::string path : packs) {
+        std::string nodePath = fmt::format("{}{}", path, "ui\\nodes\\");
+        if (std::filesystem::is_directory(nodePath)) {
+            for (const auto& entry : std::filesystem::directory_iterator(nodePath)) {
+
+                matjson::Value value;
+                std::string fileName = entry.path().filename().string();
+                
+                std::vector<std::string> parts = utils::string::split(fileName, ".");
+                std::string type = parts.at(0);
+
+                std::string path = "ui/nodes/" + fileName;
+
+                unsigned long fileSize = 0;
+                unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
+
+                if (buffer && fileSize != 0) {
+                    
+                    std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
+                    geode::Result<matjson::Value, matjson::ParseError> valueOpt = matjson::parse(data);
+
+                    if (valueOpt.isOk()) {
+                        value = valueOpt.unwrap();
+                        uiCache.insert({type, value});
+                    }
+                    else {
+                        uiCache.insert({type, matjson::Value(nullptr)});
+                    }
+                }
+                else {
+                    uiCache.insert({type, matjson::Value(nullptr)});
+                }
+                delete[] buffer;
+            }
+        }
+    }
+}
 
 void UIModding::doUICheckForType(std::string type, CCNode* node) {
-
-    matjson::Value value;
-
     if (uiCache.contains(type)) {
-        value = uiCache[type];
-    }
-    else {
-        std::string path = "ui/nodes/" + type + ".json";
-
-        unsigned long fileSize = 0;
-        unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
-
-        if (buffer && fileSize != 0) {
-            
-            std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
-            geode::Result<matjson::Value, matjson::ParseError> valueOpt = matjson::parse(data);
-
-            if (valueOpt.isOk()) {
-                value = valueOpt.unwrap();
-                uiCache.insert({type, value});
-            }
-            else {
-                uiCache.insert({type, matjson::Value(nullptr)});
-            }
+        matjson::Value value = uiCache[type];
+        if (!value.isNull()) {
+            handleModifications(node, value);
         }
-        else {
-            uiCache.insert({type, matjson::Value(nullptr)});
-        }
-        delete[] buffer;
-    }
-    if (!value.isNull()) {
-        handleModifications(node, value);
     }
 }

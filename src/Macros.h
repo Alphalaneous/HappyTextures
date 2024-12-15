@@ -49,37 +49,6 @@ if (type == #typeName) {\
             } \
         }
 
-#define modifyNodeForType(name, method, params, values) \
-class $modify(name){    \
-\
-    static void onModify(auto& self) {\
-        (void) self.setHookPriority(#name "::" #method, INT_MIN);\
-    }\
-\
-    bool method params { \
-        if (!name::method values) return false;\
-        if (UIModding::get()->doModify) {\
-            UIModding::get()->doUICheckForType(#name, this);\
-        }\
-        return true;\
-    }\
-};
-
-#define modifyNodeForTypeCreate(name, method, params, values) \
-class $modify(name){    \
-\
-    static void onModify(auto& self) {\
-        (void) self.setHookPriority(#name "::" #method, INT_MIN);\
-    }\
-\
-    static name* method params { \
-        auto ret = name::method values; \
-        if (UIModding::get()->doModify) {\
-            UIModding::get()->doUICheckForType(#name, ret);\
-        }\
-        return ret;\
-    }\
-};
 
 #define setSpriteVar(varName, jsonName, type, unwrap)\
 if (infoVal.contains(#jsonName)) {\
@@ -109,7 +78,7 @@ if (eventVal.contains(#type)) {\
 #define setCellColors(class, method, paramType) \
 struct My##class : geode::Modify<My##class, class> { \
     static void onModify(auto& self) {\
-        (void) self.setHookPriority(#class "::" #method, INT_MIN);\
+        (void) self.setHookPriority(#class "::" #method, INT_MIN - 1);\
     }\
 	struct Fields {\
 		ccColor3B m_lastBG;\

@@ -1,7 +1,5 @@
 #pragma once
 
-#ifdef GEODE_IS_WINDOWS
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenu.hpp>
 #include "CCMenuItemSpriteExtra.h"
@@ -11,12 +9,8 @@
 using namespace geode::prelude;
 
 class EventCCMenuItem;
-class KeybindsLayer {
-
-};
-class EventsPush {
-
-};
+class KeybindsLayer {};
+class EventsPush {};
 
 class $modify(EventCCMenu, CCMenu) {
 
@@ -96,5 +90,3 @@ class $modify(EventCCMenu, CCMenu) {
         }
     }
 };
-
-#endif

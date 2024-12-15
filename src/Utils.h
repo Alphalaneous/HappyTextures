@@ -2,6 +2,8 @@
 
 #include <Geode/Geode.hpp>
 #include "UIModding.h"
+#include <random>
+
 using namespace geode::prelude;
 
 namespace Utils {
@@ -90,6 +92,14 @@ namespace Utils {
         return spr;
     }
 
+    static std::string nameForClass(std::string className) {
+        std::vector<std::string> strSplit = utils::string::split(className, " ");
+        std::string part0 = strSplit[strSplit.size()-1];
+        std::vector<std::string> strColonSplit = utils::string::split(part0, "::");
+        std::string part1 = strColonSplit[strColonSplit.size()-1];
+        return part1;
+    }
+
     static void setColorIfExists(CCRGBAProtocol* node, std::string colorId) {
         if (!node) return;
         std::optional<ColorData> dataOpt = UIModding::get()->getColors(colorId);
@@ -110,6 +120,18 @@ namespace Utils {
             }
         }
         return "";
+    }
+
+    static int getRandomNumber(int lower, int upper) {
+        if (lower > upper) {
+            std::swap(lower, upper);
+        }
+
+        static std::random_device rd; 
+        static std::mt19937 gen(rd()); 
+
+        std::uniform_int_distribution<> dist(lower, upper);
+        return dist(gen);
     }
 
     static std::vector<std::string> getActivePacks() {

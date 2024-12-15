@@ -17,9 +17,12 @@ protected:
 public:
     std::map<std::string, matjson::Value> uiCache;
     std::map<std::string, ColorData> colorCache;
+    std::map<std::string, std::string> randomSprites;
+
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();
     bool doModify;
+    bool finishedLoad;
 
     void recursiveModify(CCNode* node, matjson::Value elements);
     void setVisible(CCNode* node, matjson::Value attributes);
@@ -54,6 +57,7 @@ public:
     CCActionInterval* getEasingType(std::string name, CCActionInterval* action, float rate);
     unsigned int stringToBlendingMode(std::string value);
     void handleModifications(CCNode* node, matjson::Value nodeObject);
+    void loadNodeFiles();
     void doUICheck(CCNode* node);
     void doUICheckForType(std::string name, CCNode* node);
     std::vector<std::string> getActivePacks();

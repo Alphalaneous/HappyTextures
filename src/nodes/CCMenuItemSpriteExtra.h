@@ -16,11 +16,11 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
 
     struct Fields {
-        matjson::Value onClick;
-        matjson::Value onRelease;
-        matjson::Value onActivate;
-        matjson::Value onHover;
-        matjson::Value onExit;
+        std::vector<matjson::Value> onClick;
+        std::vector<matjson::Value> onRelease;
+        std::vector<matjson::Value> onActivate;
+        std::vector<matjson::Value> onHover;
+        std::vector<matjson::Value> onExit;
         bool overrideOnClick = false;
         bool overrideOnRelease = false;
         bool overrideOnActivate = false;
@@ -32,7 +32,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         unsigned char originalOpacity;
     };
     void setOnClick(matjson::Value onClick) {
-        m_fields->onClick = onClick;
+        m_fields->onClick.push_back(onClick);
         if (onClick.contains("override")) {
             matjson::Value overrideVal = onClick["override"];
             if (overrideVal.isBool()) {
@@ -41,7 +41,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         }
     }
     void setOnRelease(matjson::Value onRelease) {
-        m_fields->onRelease = onRelease;
+        m_fields->onRelease.push_back(onRelease);
         if (onRelease.contains("override")) {
             matjson::Value overrideVal = onRelease["override"];
             if (overrideVal.isBool()) {
@@ -50,7 +50,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         }
     }
     void setOnActivate(matjson::Value onActivate) {
-        m_fields->onActivate = onActivate;
+        m_fields->onActivate.push_back(onActivate);
         if (onActivate.contains("override")) {
             matjson::Value overrideVal = onActivate["override"];
             if (overrideVal.isBool()) {
@@ -60,19 +60,25 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
     void setOnHover(matjson::Value onHover) {
         m_fields->hasHover = true;
-        m_fields->onHover = onHover;
+        m_fields->onHover.push_back(onHover);
     }
     void setOnExit(matjson::Value onExit) {
         m_fields->hasExit = true;
-        m_fields->onExit = onExit;
+        m_fields->onExit.push_back(onExit);
+    }
+
+    void modifyForEach(std::vector<matjson::Value> values) {
+        for (matjson::Value value : values) {
+            UIModding::get()->handleModifications(this, value);
+        }
     }
 
     void runOnHover() {
-        UIModding::get()->handleModifications(this, m_fields->onHover);
+        modifyForEach(m_fields->onHover);
     }
 
     void runOnExit() {
-        UIModding::get()->handleModifications(this, m_fields->onExit);
+        modifyForEach(m_fields->onExit);
     }
 
     void selected() {
@@ -81,7 +87,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
             if (!m_fields->overrideOnClick) {
                 CCMenuItemSpriteExtra::selected();
             }
-            UIModding::get()->handleModifications(this, m_fields->onClick);
+            modifyForEach(m_fields->onClick);
         )
     }
 
@@ -91,7 +97,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
             if (!m_fields->overrideOnRelease) {
                 CCMenuItemSpriteExtra::unselected();
             }
-            UIModding::get()->handleModifications(this, m_fields->onRelease);
+            modifyForEach(m_fields->onRelease);
         )
     }
 
@@ -101,7 +107,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
             if (!m_fields->overrideOnActivate) {
                 CCMenuItemSpriteExtra::activate();
             }
-            UIModding::get()->handleModifications(this, m_fields->onActivate);
+            modifyForEach(m_fields->onActivate);
         )
     }
 

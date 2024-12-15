@@ -11,11 +11,9 @@ class $modify(MyMenuLayer, MenuLayer) {
         (void) self.setHookPriority("MenuLayer::init", INT_MIN/2-1);
     }
 
-    bool init(){
-
-        if (!MenuLayer::init()) {
-            return false;
-        }
+    bool init() {
+        UIModding::get()->finishedLoad = true;
+        if (!MenuLayer::init()) return false;
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
 
         if (UIModding::get()->doModify) {
