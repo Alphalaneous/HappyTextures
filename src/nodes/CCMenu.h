@@ -1,5 +1,7 @@
 #pragma once
 
+#ifndef GEODE_IS_MACOS
+
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenu.hpp>
 #include "CCMenuItemSpriteExtra.h"
@@ -90,3 +92,5 @@ class $modify(EventCCMenu, CCMenu) {
         }
     }
 };
+
+#endif
