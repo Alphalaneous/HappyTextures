@@ -27,11 +27,6 @@ if (name == #easingTypeName) {\
     easingType = CCEase##easingTypeName::create(action);\
 }
 
-#define handleModifyForType(typeName) \
-if (type == #typeName) {\
-    UIModding::get()->handleModifications(node->getChildByType<typeName>(index), value);\
-}
-
 #define nodesFor(methodName) if(node) UIModding::get()->methodName(node, nodeAttributes)
 
 #define actionForName2(name, x, y, param2) if(type == #name){ \

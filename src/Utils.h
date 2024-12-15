@@ -140,27 +140,9 @@ namespace Utils {
         std::vector<std::string> packPaths;
         Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
-            std::filesystem::path textureLoaderPacks = textureLoader->getConfigDir();
-            std::string packDirStr = fmt::format("{}{}", textureLoaderPacks, "\\packs");
-            std::filesystem::path packDir = std::filesystem::path(packDirStr);
-
-            for (std::string path : paths) {
-
-                std::filesystem::path fpath = std::filesystem::path(path);
-                std::filesystem::path pathParent = std::filesystem::path(path);
-
-                while (pathParent.has_parent_path()) {
-
-                    if (pathParent == packDir) {
-                        if (std::find(packPaths.begin(), packPaths.end(), fpath.string()) == packPaths.end()) {
-                            packPaths.push_back(fpath.string());
-                            break;
-                        }
-                    }
-                    if (pathParent == std::filesystem::current_path().root_path()) {
-                        break;
-                    }
-                    pathParent = pathParent.parent_path();
+            for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
+                if (value.isObject() && value.contains("path") && value["path"].isString()) {
+                    packPaths.push_back(value["path"].asString().unwrap() + "\\");
                 }
             }
         }
@@ -168,5 +150,40 @@ namespace Utils {
         packPaths.push_back(resourcesDir);
 
         return packPaths;
+    }
+
+    static CCNode* getChildByTypeName(CCNode* node, int index, std::string name) {
+        size_t indexCounter = 0;
+
+        if (node->getChildrenCount() == 0) return nullptr;
+        // start from end for negative index
+        if (index < 0) {
+            index = -index - 1;
+            for (size_t i = node->getChildrenCount() - 1; i >= 0; i--) {
+                CCNode* idxNode = static_cast<CCNode*>(node->getChildren()->objectAtIndex(i));
+                std::string className = nameForClass(typeid(*idxNode).name());
+                if (className == name) {
+                    if (indexCounter == index) {
+                        return idxNode;
+                    }
+                    ++indexCounter;
+                }
+                if (i == 0) break;
+            }
+        }
+        else {
+            for (size_t i = 0; i < node->getChildrenCount(); i++) {
+                CCNode* idxNode = static_cast<CCNode*>(node->getChildren()->objectAtIndex(i));
+                std::string className = nameForClass(typeid(*idxNode).name());
+                if (className == name) {
+                    if (indexCounter == index) {
+                        return idxNode;
+                    }
+                    ++indexCounter;
+                }
+            }
+        }
+
+        return nullptr;
     }
 }

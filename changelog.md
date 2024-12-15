@@ -1,3 +1,8 @@
+## 1.7.1
+- Fix a freeze that could happen on launch if GD was on a separate drive
+- Fix node modifications not properly reloading on pack change
+- Getting a node by type now allows for any class to be passed in
+
 ## 1.7.0
 - Node Specific Changes Updates:
   - Now any node type can be modified

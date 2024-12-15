@@ -1292,40 +1292,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
                                         type = typeVal.asString().unwrapOr("");
                                     }
                                 }
-
-                                handleModifyForType(CCSprite);
-                                handleModifyForType(CCMenu);
-                                handleModifyForType(CCMenuItemSpriteExtra);
-                                handleModifyForType(CCLabelBMFont);
-                                handleModifyForType(CCLayer);
-                                handleModifyForType(CCScale9Sprite);
-                                handleModifyForType(CCSpriteBatchNode);
-                                handleModifyForType(CCTextInputNode);
-                                #ifndef GEODE_IS_MACOS
-                                handleModifyForType(CCTextFieldTTF);
-                                #endif
-                                handleModifyForType(TextArea);
-                                handleModifyForType(MultilineBitmapFont);
-                                handleModifyForType(Slider);
-                                handleModifyForType(ButtonSprite);
-                                handleModifyForType(CircleButtonSprite);
-                                handleModifyForType(SearchButton);
-                                handleModifyForType(LoadingCircle);
-                                handleModifyForType(BoomScrollLayer);
-                                handleModifyForType(ListButtonBar);
-                                handleModifyForType(ExtendedLayer);
-                                handleModifyForType(OptionsLayer);
-                                handleModifyForType(SimplePlayer);
-                                handleModifyForType(DailyLevelNode);
-                                handleModifyForType(GJListLayer);
-                                handleModifyForType(CustomListView);
-                                handleModifyForType(TableView);
-                                handleModifyForType(CCContentLayer);
-                                handleModifyForType(CCLayerColor);
-                                handleModifyForType(LevelCell);
-                                handleModifyForType(CustomSongWidget);
-                                handleModifyForType(GJDifficultySprite);
-                                handleModifyForType(GJCommentListLayer);
+                                UIModding::get()->handleModifications(Utils::getChildByTypeName(node, index, type), value);
                             }
                         }
                     }
