@@ -9,8 +9,8 @@
 using namespace geode::prelude;
 
 class EventCCMenuItem;
-class KeybindsLayer {};
-class EventsPush {};
+class KeybindsLayer : CCLayer{};
+class EventsPush : CCNode {};
 
 class $modify(EventCCMenu, CCMenu) {
 

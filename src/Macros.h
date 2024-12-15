@@ -78,7 +78,7 @@ if (eventVal.contains(#type)) {\
 #define setCellColors(class, method, paramType) \
 struct My##class : geode::Modify<My##class, class> { \
     static void onModify(auto& self) {\
-        (void) self.setHookPriority(#class "::" #method, INT_MIN - 1);\
+        (void) self.setHookPriority(#class "::" #method, INT_MIN);\
     }\
 	struct Fields {\
 		ccColor3B m_lastBG;\
