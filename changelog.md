@@ -1,3 +1,6 @@
+## 1.7.2
+- Add the ability to run certain button callbacks anywhere
+
 ## 1.7.1
 - Fix a freeze that could happen on launch if GD was on a separate drive
 - Fix node modifications not properly reloading on pack change

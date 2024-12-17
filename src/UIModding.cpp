@@ -9,6 +9,7 @@
 #include "UIModding.h"
 #include "DataNode.h"
 #include "alerts/CustomAlert.h"
+#include "Callbacks.h"
 
 using namespace geode::prelude;
 
@@ -140,6 +141,25 @@ void UIModding::runAction(CCNode* node, matjson::Value attributes) {
         }
     }
     #endif
+}
+
+void UIModding::runCallback(CCNode* node, matjson::Value attributes) {
+    if (attributes.contains("callback")) {
+        matjson::Value callbackValue = attributes["callback"];
+
+        if (callbackValue.contains("class") && callbackValue.contains("method")) {
+            std::string className = callbackValue["class"].asString().unwrapOr("");
+            std::string methodName = callbackValue["method"].asString().unwrapOr("");
+
+            if (Callbacks::get()->m_callbacks.contains(className)) {
+                std::map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>> callbackMap = Callbacks::get()->m_callbacks[className];
+                if (callbackMap.contains(methodName)) {
+                    std::pair<CCNode*, cocos2d::SEL_MenuHandler> callback = callbackMap[methodName];
+		            (callback.first->*callback.second)(Callbacks::get()->getDummyButton());
+                }
+            }
+        }
+    }
 }
 
 CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action) {
@@ -1230,7 +1250,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
             //todo wait for fmod fixes
             nodesFor(playSound);
             nodesFor(openLink);
-            
+            nodesFor(runCallback);
         }
     }
 

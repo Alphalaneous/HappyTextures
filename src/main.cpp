@@ -21,5 +21,5 @@
 #include "nodes/CustomMusicCell.h"
 #include "nodes/FLAlertLayer.h"
 #include "nodes/TextArea.h"
-#include "icons/IconHandler.h"
+#include "nodes/GJGarageLayer.h"
 #include "BackgroundColors.h"

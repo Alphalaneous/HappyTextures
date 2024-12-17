@@ -116,3 +116,13 @@ struct My##class : geode::Modify<My##class, class> { \
 #define LABEL(name, value) {name, rift::Value::from(value)}
 
 #define STAT(key) Utils::getValidStat(#key)
+
+#define CREATE_DUMMY(clazz) m_layers[#clazz] = createUBDummyLayer<clazz>().get(); CCNode* self = m_layers[#clazz]; \
+std::map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>> callbacks; \
+m_callbacks[#clazz] = callbacks
+
+#define CREATE_NORMAL(clazz) m_layers[#clazz] = clazz::create(); CCNode* self = m_layers[#clazz]; \
+std::map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>> callbacks; \
+m_callbacks[#clazz] = callbacks
+
+#define REGISTER_CALLBACK(clazz, method) m_callbacks[#clazz][#method] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(clazz::##method))

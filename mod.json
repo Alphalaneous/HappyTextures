@@ -5,11 +5,11 @@
         "android": "2.2074",
         "mac": "2.2074"
     },
-    "version": "v1.7.1",
+    "version": "v1.7.2",
     "id": "alphalaneous.happy_textures",
     "name": "Happy Textures :3",
     "developer": "Alphalaneous",
-    "description": "Fixes texture pack annoyances",
+    "description": "Texture Packs on a whole new level!",
     "early-load": true,
     "dependencies": [
         {

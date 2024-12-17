@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuLayer.hpp>
+#include "../Callbacks.h"
 
 using namespace geode::prelude;
 
@@ -15,6 +16,7 @@ class $modify(MyMenuLayer, MenuLayer) {
         UIModding::get()->finishedLoad = true;
         if (!MenuLayer::init()) return false;
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+        Callbacks::get()->generateAll();
 
         if (UIModding::get()->doModify) {
             if (Mod::get()->getSettingValue<bool>("hot-reload")) {
