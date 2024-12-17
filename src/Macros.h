@@ -125,4 +125,4 @@ m_callbacks[#clazz] = callbacks
 std::map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>> callbacks; \
 m_callbacks[#clazz] = callbacks
 
-#define REGISTER_CALLBACK(clazz, method) m_callbacks[#clazz][#method] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(clazz::##method))
+#define REGISTER_CALLBACK(clazz, method) m_callbacks[#clazz][#method] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(clazz::method))
