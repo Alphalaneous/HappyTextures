@@ -142,6 +142,38 @@ void UIModding::runAction(CCNode* node, matjson::Value attributes) {
     }
     #endif
 }
+std::string formatAddressIntoOffsetImpl(uintptr_t addr, bool module) {
+    HMODULE mod;
+
+    if (!GetModuleHandleExA(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS |
+        GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+        reinterpret_cast<char*>(addr), &mod)
+    ) {
+        mod = nullptr;
+    }
+
+    wchar_t buffer[MAX_PATH];
+    std::string const module_name = (!mod || !GetModuleFileNameW(mod, buffer, MAX_PATH)) ? "Unknown" : std::filesystem::path(buffer).filename().string();
+
+    if(module) return fmt::format("{} + {:#x}", module_name, addr - reinterpret_cast<uintptr_t>(mod));
+    return fmt::format("{:#x}", addr - reinterpret_cast<uintptr_t>(mod));
+}
+
+std::string formatAddressIntoOffset(uintptr_t addr, bool module) {
+    static std::unordered_map<uintptr_t, std::pair<std::string, std::string>> formatted;
+    auto it = formatted.find(addr);
+    if (it != formatted.end()) {
+        if(module) return it->second.first;
+        else return it->second.second;
+    } else {
+        auto const txt = formatAddressIntoOffsetImpl(addr, true);
+        auto const txtNoModule = formatAddressIntoOffsetImpl(addr, false);
+        auto const pair = std::make_pair(txt, txtNoModule);
+        formatted.insert({ addr, pair });
+        if(module) return pair.first;
+        else return pair.second;
+    }
+}
 
 void UIModding::runCallback(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("callback")) {

@@ -21,6 +21,7 @@ void Callbacks::generateAll() {
 CCMenuItemSpriteExtra* Callbacks::getDummyButton() {
     if (!m_dummyButton) {
         m_dummyButton = CCMenuItemSpriteExtra::create(CCSprite::create(), nullptr, nullptr);
+        m_dummyButton->setUserObject("dummy"_spr, CCBool::create(true));
     }
     return m_dummyButton;
 }

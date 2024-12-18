@@ -1,3 +1,6 @@
+## 1.7.3
+- Fix an issue with MenuLayer::onPlay callbacks not working because apparently it is a meanie head and wanted to be rude :(
+
 ## 1.7.2
 - Add the ability to run certain button callbacks anywhere
 

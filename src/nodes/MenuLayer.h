@@ -12,6 +12,15 @@ class $modify(MyMenuLayer, MenuLayer) {
         (void) self.setHookPriority("MenuLayer::init", INT_MIN/2-1);
     }
 
+    void onPlay(CCObject* obj) {
+        if (static_cast<CCNode*>(obj)->getUserObject("dummy"_spr)) {
+            CCDirector::get()->pushScene(CCTransitionFade::create(0.5, LevelSelectLayer::scene(0)));
+        }
+        else {
+            MenuLayer::onPlay(obj);
+        }
+    }
+
     bool init() {
         UIModding::get()->finishedLoad = true;
         if (!MenuLayer::init()) return false;
