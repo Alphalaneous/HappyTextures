@@ -1,3 +1,9 @@
+## 1.7.4
+- Fix a crash that can occur when pressing space on the main menu
+- Fix a crash that can occur with invalid parents
+- Added new scroll-to-top attribute for ScrollLayers
+- Added new lock-attributes attribute to reset attributes every frame 
+
 ## 1.7.3
 - Fix an issue with MenuLayer::onPlay callbacks not working because apparently it is a meanie head and wanted to be rude :(
 

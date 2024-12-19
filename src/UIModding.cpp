@@ -6,6 +6,7 @@
 #include "nodes/CCLabelBMFont.h"
 #include "nodes/CCMenuItemSpriteExtra.h"
 #include "nodes/FLAlertLayer.h"
+#include "nodes/CCNode.h"
 #include "UIModding.h"
 #include "DataNode.h"
 #include "alerts/CustomAlert.h"
@@ -141,6 +142,30 @@ void UIModding::runAction(CCNode* node, matjson::Value attributes) {
         }
     }
     #endif
+}
+
+void UIModding::runScrollToTop(CCNode* node, matjson::Value attributes) {
+    if (attributes.contains("scroll-to-top")) {
+        bool scrollToTop = attributes["scroll-to-top"].asBool().unwrapOr(false);
+        if (scrollToTop) {
+            if (geode::ScrollLayer* scrollLayer = typeinfo_cast<geode::ScrollLayer*>(node)) {
+                scrollLayer->scrollToTop();
+            }
+        }
+    }
+}
+
+
+
+void UIModding::setLocked(CCNode* node, matjson::Value attributes) {
+    if (attributes.contains("lock-attributes")) {
+        bool lockAttributes = attributes["lock-attributes"].asBool().unwrapOr(false);
+        if (lockAttributes) {
+            matjson::Value value;
+            value["attributes"] = attributes;
+            static_cast<MyCCNode*>(node)->setAttributesLocked(value);
+        }
+    }
 }
 
 void UIModding::runCallback(CCNode* node, matjson::Value attributes) {
@@ -1215,6 +1240,8 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
         node = data->m_data;
     }
 
+    if (!node) return;
+
     if (nodeObject.contains("attributes")) {
         matjson::Value nodeAttributes = nodeObject["attributes"];
         if (nodeAttributes.isObject()) {
@@ -1244,10 +1271,11 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
             nodesFor(setShow);
             nodesFor(removeChild);
             nodesFor(updateLayout);
+            nodesFor(runScrollToTop);
+            nodesFor(setLocked);
             #ifndef GEODE_IS_MACOS
             nodesFor(runAction);
             #endif
-            //todo wait for fmod fixes
             nodesFor(playSound);
             nodesFor(openLink);
             nodesFor(runCallback);
@@ -1273,7 +1301,9 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
         matjson::Value parentVal = nodeObject["parent"];
         if (parentVal.isObject()) {
             parentVal["_pack-name"] = nodeObject["_pack-name"];
-            if (CCNode* parent = node->getParent()) handleModifications(parent, parentVal);
+            if (CCNode* parent = node->getParent()) {
+                handleModifications(parent, parentVal);
+            }
         }
     }
 

@@ -22,4 +22,5 @@
 #include "nodes/FLAlertLayer.h"
 #include "nodes/TextArea.h"
 #include "nodes/GJGarageLayer.h"
+#include "nodes/CCNode.h"
 #include "BackgroundColors.h"

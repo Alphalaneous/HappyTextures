@@ -155,7 +155,7 @@ namespace Utils {
     static CCNode* getChildByTypeName(CCNode* node, int index, std::string name) {
         size_t indexCounter = 0;
 
-        if (node->getChildrenCount() == 0) return nullptr;
+        if (!node || node->getChildrenCount() == 0) return nullptr;
         // start from end for negative index
         if (index < 0) {
             index = -index - 1;

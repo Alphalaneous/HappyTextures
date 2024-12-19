@@ -13,12 +13,13 @@ class $modify(MyMenuLayer, MenuLayer) {
     }
 
     void onPlay(CCObject* obj) {
-        if (static_cast<CCNode*>(obj)->getUserObject("dummy"_spr)) {
-            CCDirector::get()->pushScene(CCTransitionFade::create(0.5, LevelSelectLayer::scene(0)));
+        if (CCNode* node = typeinfo_cast<CCNode*>(obj)) {
+            if (node->getUserObject("dummy"_spr)) {
+                CCDirector::get()->pushScene(CCTransitionFade::create(0.5, LevelSelectLayer::scene(0)));
+                return;
+            }
         }
-        else {
-            MenuLayer::onPlay(obj);
-        }
+        MenuLayer::onPlay(obj);
     }
 
     bool init() {

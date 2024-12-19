@@ -54,6 +54,8 @@ public:
     void updateLayout(CCNode* node, matjson::Value attributes);
     void runAction(CCNode* node, matjson::Value attributes);
     void runCallback(CCNode* node, matjson::Value attributes);
+    void runScrollToTop(CCNode* node, matjson::Value attributes);
+    void setLocked(CCNode* node, matjson::Value attributes);
     CCActionInterval* createAction(CCNode* node, matjson::Value action);
     CCActionInterval* getEasingType(std::string name, CCActionInterval* action, float rate);
     unsigned int stringToBlendingMode(std::string value);
