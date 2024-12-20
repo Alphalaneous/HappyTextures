@@ -1,3 +1,8 @@
+## 1.7.5
+- Allow inputting hex colors
+- Fix sprite frame texture rotate bug
+- Fix an issue where onCreator and onGarage wouldn't work
+
 ## 1.7.4
 - Fix a crash that can occur when pressing space on the main menu
 - Fix a crash that can occur with invalid parents

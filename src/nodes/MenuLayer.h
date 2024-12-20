@@ -22,6 +22,26 @@ class $modify(MyMenuLayer, MenuLayer) {
         MenuLayer::onPlay(obj);
     }
 
+    void onCreator(CCObject* obj) {
+        if (CCNode* node = typeinfo_cast<CCNode*>(obj)) {
+            if (node->getUserObject("dummy"_spr)) {
+                CCDirector::get()->pushScene(CCTransitionFade::create(0.5, CreatorLayer::scene()));
+                return;
+            }
+        }
+        MenuLayer::onCreator(obj);
+    }
+
+    void onGarage(CCObject* obj) {
+        if (CCNode* node = typeinfo_cast<CCNode*>(obj)) {
+            if (node->getUserObject("dummy"_spr)) {
+                CCDirector::get()->pushScene(CCTransitionFade::create(0.5, GJGarageLayer::scene()));
+                return;
+            }
+        }
+        MenuLayer::onGarage(obj);
+    }
+
     bool init() {
         UIModding::get()->finishedLoad = true;
         if (!MenuLayer::init()) return false;

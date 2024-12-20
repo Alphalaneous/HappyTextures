@@ -818,6 +818,18 @@ void UIModding::setColor(CCNode* node, matjson::Value attributes) {
                     }
                 }
             }
+            else if (utils::string::startsWith(colorStr, "#")) {
+                ccColor3B color = cc3bFromHexString(colorStr).unwrapOr(ccColor3B{255, 0, 255});
+                if (CCMenuItemSpriteExtra* node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+                    node1->setColor(color);
+                    if (ButtonSprite* node2 = node1->getChildByType<ButtonSprite>(0)) {
+                        node2->setColor(color);
+                    }
+                }
+                if (CCRGBAProtocol* node1 = typeinfo_cast<CCRGBAProtocol*>(node)) {
+                    node1->setColor(color);
+                }
+            }
         }
     }
 }
@@ -975,7 +987,7 @@ void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
 
         if (CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
             spriteNode->setTexture(spr->getTexture());
-            spriteNode->setTextureRect(spr->getTextureRect());
+            spriteNode->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
         }
         if (CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
 
@@ -1029,7 +1041,7 @@ void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
             }
             else if (CCSprite* sprite = node->getChildByType<CCSprite>(0)) {
                 sprite->setTexture(spr->getTexture());
-                sprite->setTextureRect(spr->getTextureRect());
+                sprite->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
                 sprite->setContentSize(spr->getContentSize());
                 buttonNode->setContentSize(spr->getContentSize());
                 sprite->setPosition(buttonNode->getContentSize()/2);
@@ -1049,7 +1061,7 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Value attributes) {
                 if(spr) {
                     spriteNode->setTextureAtlas(spr->getTextureAtlas());
                     spriteNode->setTexture(spr->getTexture());
-                    spriteNode->setTextureRect(spr->getTextureRect());
+                    spriteNode->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
                 }
             }
             if (CCMenuItemSpriteExtra* buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
@@ -1057,7 +1069,7 @@ void UIModding::setSpriteFrame(CCNode* node, matjson::Value attributes) {
                 if (spr) {
                     if (CCSprite* spriteNode = buttonNode->getChildByType<CCSprite>(0)) {
                         spriteNode->setTexture(spr->getTexture());
-                        spriteNode->setTextureRect(spr->getTextureRect());
+                        spriteNode->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
 		                spriteNode->setTextureAtlas(spr->getTextureAtlas());
                         spriteNode->setContentSize(spr->getContentSize());
                         buttonNode->setContentSize(spr->getContentSize());
