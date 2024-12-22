@@ -1587,8 +1587,8 @@ void UIModding::startFileListeners() {
         listeners.push_back(fw);
 
         std::thread thread([=](FileWatcher* self){
-            self->start([=] (std::string pathToWatch, FileStatus status) -> void {
-                if (!std::filesystem::is_regular_file(std::filesystem::path(pathToWatch)) && status != FileStatus::erased) {
+            self->start([=] (std::filesystem::path pathToWatch, FileStatus status) -> void {
+                if (!std::filesystem::is_regular_file(pathToWatch) && status != FileStatus::erased) {
                     return;
                 }
                 Loader::get()->queueInMainThread([]{
@@ -1630,7 +1630,7 @@ AxisAlignment UIModding::getAxisAlignment(std::string name) {
 void UIModding::loadNodeFiles() {
     std::vector<std::string> packs = Utils::getActivePacks();
     for (std::string path : packs) {
-        std::filesystem::path nodePath = std::filesystem::path{fmt::format("{}{}", path, "ui\\nodes\\")};
+        std::filesystem::path nodePath = std::filesystem::path{fmt::format("{}{}", path, "ui\\nodes\\")}.lexically_normal().make_preferred();
         log::info("nodePath {}", nodePath);
         if (std::filesystem::is_directory(nodePath)) {
             log::info("Path is directory");
