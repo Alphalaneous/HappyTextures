@@ -1,6 +1,7 @@
 ## 1.7.7 
 - Zipped packs should work properly now
-- 
+- Fixed issues with file listener
+- Fixed issues with path separators
 
 ## 1.7.6
 - Node by typeid bugfix
