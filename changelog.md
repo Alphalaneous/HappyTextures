@@ -1,3 +1,6 @@
+## 1.7.6
+- Node by typeid bugfix
+
 ## 1.7.5
 - Allow inputting hex colors
 - Fix sprite frame texture rotate bug

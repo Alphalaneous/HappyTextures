@@ -100,6 +100,27 @@ namespace Utils {
         return part1;
     }
 
+    static std::string getNodeName(CCObject* node) {
+    #ifdef GEODE_IS_WINDOWS
+        return nameForClass(typeid(*node).name() + 6);
+    #else 
+        {
+            std::string ret;
+
+            int status = 0;
+            auto demangle = abi::__cxa_demangle(typeid(*node).name(), 0, 0, &status);
+            if (status == 0) {
+                ret = demangle;
+            }
+            free(demangle);
+
+            return nameForClass(ret);
+        }
+    #endif
+    }
+
+    
+
     static void setColorIfExists(CCRGBAProtocol* node, std::string colorId) {
         if (!node) return;
         std::optional<ColorData> dataOpt = UIModding::get()->getColors(colorId);
@@ -161,7 +182,7 @@ namespace Utils {
             index = -index - 1;
             for (size_t i = node->getChildrenCount() - 1; i >= 0; i--) {
                 CCNode* idxNode = static_cast<CCNode*>(node->getChildren()->objectAtIndex(i));
-                std::string className = nameForClass(typeid(*idxNode).name());
+                std::string className = getNodeName(idxNode);
                 if (className == name) {
                     if (indexCounter == index) {
                         return idxNode;
@@ -174,7 +195,7 @@ namespace Utils {
         else {
             for (size_t i = 0; i < node->getChildrenCount(); i++) {
                 CCNode* idxNode = static_cast<CCNode*>(node->getChildren()->objectAtIndex(i));
-                std::string className = nameForClass(typeid(*idxNode).name());
+                std::string className = getNodeName(idxNode);
                 if (className == name) {
                     if (indexCounter == index) {
                         return idxNode;
