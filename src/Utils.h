@@ -161,7 +161,12 @@ namespace Utils {
         if (textureLoader) {
             for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
                 if (value.isObject() && value.contains("path") && value["path"].isString()) {
-                    packPaths.push_back(value["path"].asString().unwrap() + "\\");
+                    std::string path = value["path"].asString().unwrap();
+                    if (utils::string::endsWith(path, ".zip")) {
+                        std::filesystem::path pathFs{path};
+                        path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
+                    }
+                    packPaths.push_back(path + "\\");
                 }
             }
         }
