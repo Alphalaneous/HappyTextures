@@ -1630,7 +1630,7 @@ AxisAlignment UIModding::getAxisAlignment(std::string name) {
 void UIModding::loadNodeFiles() {
     std::vector<std::string> packs = Utils::getActivePacks();
     for (std::string path : packs) {
-        std::string nodePath = fmt::format("{}{}", path, "ui\\nodes\\");
+        std::filesystem::path nodePath = std::filesystem::path{fmt::format("{}{}", path, "ui\\nodes\\")};
         log::info("nodePath {}", nodePath);
         if (std::filesystem::is_directory(nodePath)) {
             log::info("Path is directory");

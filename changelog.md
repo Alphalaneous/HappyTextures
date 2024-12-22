@@ -1,3 +1,7 @@
+## 1.7.7 
+- Zipped packs should work properly now
+- 
+
 ## 1.7.6
 - Node by typeid bugfix
 
