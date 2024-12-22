@@ -165,7 +165,7 @@ namespace Utils {
                 }
             }
         }
-        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "Resources\\");
+        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "\\Resources\\");
         packPaths.push_back(resourcesDir);
 
         return packPaths;
