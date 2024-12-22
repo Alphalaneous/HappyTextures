@@ -1532,7 +1532,7 @@ void UIModding::doUICheck(CCNode* node) {
 
     std::string nodeID = node->getID();
     std::replace(nodeID.begin(), nodeID.end(), '/', '$');
-    std::string path = "ui/" + nodeID + ".json";
+    std::string path = "ui\\" + nodeID + ".json";
     
 	
     unsigned long fileSize = 0;
@@ -1631,7 +1631,9 @@ void UIModding::loadNodeFiles() {
     std::vector<std::string> packs = Utils::getActivePacks();
     for (std::string path : packs) {
         std::string nodePath = fmt::format("{}{}", path, "ui\\nodes\\");
+        log::info("nodePath {}", nodePath);
         if (std::filesystem::is_directory(nodePath)) {
+            log::info("Path is directory");
             for (const auto& entry : std::filesystem::directory_iterator(nodePath)) {
 
                 matjson::Value value;
@@ -1640,25 +1642,29 @@ void UIModding::loadNodeFiles() {
                 std::vector<std::string> parts = utils::string::split(fileName, ".");
                 std::string type = parts.at(0);
 
-                std::string path = "ui/nodes/" + fileName;
+                std::string path = "ui\\nodes\\" + fileName;
 
                 unsigned long fileSize = 0;
                 unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
 
                 if (buffer && fileSize != 0) {
+                    log::info("Valid file");
                     
                     std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
                     geode::Result<matjson::Value, matjson::ParseError> valueOpt = matjson::parse(data);
 
                     if (valueOpt.isOk()) {
+                        log::info("Valid json");
                         value = valueOpt.unwrap();
                         uiCache.insert({type, value});
                     }
                     else {
+                        log::info("Invalid json");
                         uiCache.insert({type, matjson::Value(nullptr)});
                     }
                 }
                 else {
+                    log::info("Invalid file");
                     uiCache.insert({type, matjson::Value(nullptr)});
                 }
                 delete[] buffer;

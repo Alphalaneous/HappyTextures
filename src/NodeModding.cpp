@@ -13,7 +13,8 @@ class $modify(MyCCObject, CCObject) {
     }
 
     CCObject* autorelease() {
-        if (!UIModding::get()->finishedLoad || !UIModding::get()->doModify) return CCObject::autorelease();
+        if (!UIModding::get()->finishedLoad || !UIModding::get()->doModify) 
+            return CCObject::autorelease();
         
         if (CCNode* node = typeinfo_cast<CCNode*>(this)) {
             node->retain();
