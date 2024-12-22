@@ -19,7 +19,6 @@ class $modify(MyCCObject, CCObject) {
         if (CCNode* node = typeinfo_cast<CCNode*>(this)) {
             node->retain();
             std::string className = Utils::getNodeName(this);
-            log::info("class {}", className);
             queueInMainThread([=] {
                 UIModding::get()->doUICheckForType(className, node);
                 node->release();

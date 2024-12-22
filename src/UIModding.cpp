@@ -1631,9 +1631,7 @@ void UIModding::loadNodeFiles() {
     std::vector<std::string> packs = Utils::getActivePacks();
     for (std::string path : packs) {
         std::filesystem::path nodePath = std::filesystem::path{utils::string::replace(fmt::format("{}{}", path, "ui/nodes/"), "\\", "/")}.lexically_normal().make_preferred();
-        log::info("nodePath {}", nodePath);
         if (std::filesystem::is_directory(nodePath)) {
-            log::info("Path is directory");
             for (const auto& entry : std::filesystem::directory_iterator(nodePath)) {
 
                 matjson::Value value;
@@ -1648,23 +1646,19 @@ void UIModding::loadNodeFiles() {
                 unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
 
                 if (buffer && fileSize != 0) {
-                    log::info("Valid file");
                     
                     std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
                     geode::Result<matjson::Value, matjson::ParseError> valueOpt = matjson::parse(data);
 
                     if (valueOpt.isOk()) {
-                        log::info("Valid json");
                         value = valueOpt.unwrap();
                         uiCache.insert({type, value});
                     }
                     else {
-                        log::info("Invalid json");
                         uiCache.insert({type, matjson::Value(nullptr)});
                     }
                 }
                 else {
-                    log::info("Invalid file");
                     uiCache.insert({type, matjson::Value(nullptr)});
                 }
                 delete[] buffer;
