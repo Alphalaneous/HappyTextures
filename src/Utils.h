@@ -104,18 +104,16 @@ namespace Utils {
     #ifdef GEODE_IS_WINDOWS
         return nameForClass(typeid(*node).name() + 6);
     #else 
-        {
-            std::string ret;
+        std::string ret;
 
-            int status = 0;
-            auto demangle = abi::__cxa_demangle(typeid(*node).name(), 0, 0, &status);
-            if (status == 0) {
-                ret = demangle;
-            }
-            free(demangle);
-
-            return nameForClass(ret);
+        int status = 0;
+        auto demangle = abi::__cxa_demangle(typeid(*node).name(), 0, 0, &status);
+        if (status == 0) {
+            ret = demangle;
         }
+        free(demangle);
+
+        return nameForClass(ret);
     #endif
     }
 
