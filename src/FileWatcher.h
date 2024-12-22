@@ -21,7 +21,7 @@ public:
     FileWatcher(std::string pathToWatch, std::chrono::duration<int, std::milli> delay) : m_pathToWatch(pathToWatch), m_delay{delay} {
 
         if (std::filesystem::is_directory(pathToWatch)) {
-            auto path = std::filesystem::path{pathToWatch}.lexically_normal().make_preferred();
+            auto path = std::filesystem::path{utils::string::replace(pathToWatch, "\\", "/")}.lexically_normal().make_preferred();
             for (auto& file : std::filesystem::recursive_directory_iterator(path)) {
                 m_paths[file.path()] = std::filesystem::last_write_time(file);
             }

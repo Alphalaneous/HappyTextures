@@ -1532,7 +1532,7 @@ void UIModding::doUICheck(CCNode* node) {
 
     std::string nodeID = node->getID();
     std::replace(nodeID.begin(), nodeID.end(), '/', '$');
-    std::string path = "ui\\" + nodeID + ".json";
+    std::string path = "ui/" + nodeID + ".json";
     
 	
     unsigned long fileSize = 0;
@@ -1630,7 +1630,7 @@ AxisAlignment UIModding::getAxisAlignment(std::string name) {
 void UIModding::loadNodeFiles() {
     std::vector<std::string> packs = Utils::getActivePacks();
     for (std::string path : packs) {
-        std::filesystem::path nodePath = std::filesystem::path{fmt::format("{}{}", path, "ui\\nodes\\")}.lexically_normal().make_preferred();
+        std::filesystem::path nodePath = std::filesystem::path{utils::string::replace(fmt::format("{}{}", path, "ui/nodes/"), "\\", "/")}.lexically_normal().make_preferred();
         log::info("nodePath {}", nodePath);
         if (std::filesystem::is_directory(nodePath)) {
             log::info("Path is directory");
@@ -1642,7 +1642,7 @@ void UIModding::loadNodeFiles() {
                 std::vector<std::string> parts = utils::string::split(fileName, ".");
                 std::string type = parts.at(0);
 
-                std::string path = "ui\\nodes\\" + fileName;
+                std::string path = "ui/nodes/" + fileName;
 
                 unsigned long fileSize = 0;
                 unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
