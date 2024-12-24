@@ -21,7 +21,7 @@ void setBackground(CCNode* node) {
 class $modify(CCDirector) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("CCDirector::willSwitchToScene", INT_MIN);
+        HOOK_LATEST("cocos2d::CCDirector::willSwitchToScene");
     }
 
     void willSwitchToScene(CCScene* scene) {
@@ -33,7 +33,7 @@ class $modify(CCDirector) {
 class $modify(LeaderboardsLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("LeaderboardsLayer::init", INT_MIN);
+        HOOK_LATEST("LeaderboardsLayer::init");
     }
 
     bool init(LeaderboardState p0) {
@@ -46,7 +46,7 @@ class $modify(LeaderboardsLayer) {
 class $modify(LevelBrowserLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("LevelBrowserLayer::init", INT_MIN);
+        HOOK_LATEST("LevelBrowserLayer::init");
     }
 
     bool init(GJSearchObject* p0) {

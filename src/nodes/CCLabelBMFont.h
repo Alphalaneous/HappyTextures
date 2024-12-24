@@ -11,6 +11,12 @@ using namespace geode::prelude;
 
 class $modify(MyCCLabelBMFont, CCLabelBMFont) {
 
+    static void onModify(auto& self) {
+        HOOK_LATEST("cocos2d::CCLabelBMFont::setString");
+        HOOK_LATEST("cocos2d::CCLabelBMFont::limitLabelWidth");
+        HOOK_LATEST("cocos2d::CCLabelBMFont::create");
+    }
+
     struct Fields {
         float m_limitWidth = 1;
         float m_limitDefaultScale = 1;
@@ -61,21 +67,15 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
 
         auto myRet = static_cast<MyCCLabelBMFont*>(ret);
 
-        #ifndef GEODE_IS_MACOS
-
         bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
 
         if (doFix) {
             myRet->m_fields->m_schedule = schedule_selector(MyCCLabelBMFont::checkParent);
             ret->schedule(myRet->m_fields->m_schedule);
         }
-
-        #endif
         
         return ret;
     }
-
-    #ifndef GEODE_IS_MACOS
 
     void checkParent(float dt) {
         
@@ -90,6 +90,4 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
             this->unschedule(m_fields->m_schedule);
         }
     }
-
-    #endif
 };

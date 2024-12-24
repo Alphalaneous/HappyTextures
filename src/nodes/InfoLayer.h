@@ -8,7 +8,7 @@ using namespace geode::prelude;
 class $modify(MyInfoLayer, InfoLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("InfoLayer::init", INT_MIN);
+        HOOK_LATEST("InfoLayer::init");
     }
 
     bool init(GJGameLevel* p0, GJUserScore* p1, GJLevelList* p2){

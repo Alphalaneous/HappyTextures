@@ -7,8 +7,6 @@
 
 using namespace geode::prelude;
 
-#ifndef GEODE_IS_MACOS
-
 bool s_isInCreateTextLayers = false;
 
 class $modify(GJBaseGameLayer) {
@@ -68,5 +66,3 @@ class $modify(CCTextureCache) {
         return ret;
     }
 };
-
-#endif

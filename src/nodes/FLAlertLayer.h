@@ -8,6 +8,10 @@
 
 class $modify(MyFLAlertLayer, FLAlertLayer) {
 
+    static void onModify(auto& self) {
+        HOOK_LATEST("FLAlertLayer::init");
+    }
+
     struct Fields {
         TextArea* m_contentTextArea = nullptr;
         CCLabelBMFont* m_title = nullptr;

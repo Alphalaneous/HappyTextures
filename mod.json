@@ -5,7 +5,7 @@
         "android": "2.2074",
         "mac": "2.2074"
     },
-    "version": "v1.7.7",
+    "version": "v1.7.8",
     "id": "alphalaneous.happy_textures",
     "name": "Happy Textures :3",
     "developer": "Alphalaneous",
@@ -37,15 +37,13 @@
             "name": "CCScale9Sprite Fix",
             "description": "Fix sprite overlapping when you have transparent CCScale9Sprites (Such as on the level search page).",
             "type": "bool",
-            "default": true,
-            "platforms": ["win", "android"]
+            "default": true
         },
         "pusab-fix": {
             "name": "Pusab Fix",
             "description": "Makes changing pusab in texture packs not affect the font within levels.",
             "type": "bool",
-            "default": true,
-            "platforms": ["win", "android"]
+            "default": true
         },
         "comment-border-fix": {
             "name": "Comment Border Fix",

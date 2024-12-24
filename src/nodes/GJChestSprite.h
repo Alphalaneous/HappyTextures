@@ -8,7 +8,7 @@ using namespace geode::prelude;
 class $modify(MyGJChestSprite, GJChestSprite) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("GJChestSprite::switchToState", INT_MIN);
+        HOOK_LATEST("GJChestSprite::switchToState");
     }
 
     static CCNode* getChildBySpriteFrameName(CCNode* parent, const char* name, int index = 0) {

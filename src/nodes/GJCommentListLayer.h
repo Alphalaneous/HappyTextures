@@ -17,7 +17,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
     };
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("GJCommentListLayer::create", INT_MIN);
+        HOOK_LATEST("GJCommentListLayer::create");
     }
 
     static GJCommentListLayer* create(BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, bool p5) {

@@ -18,14 +18,9 @@ using namespace geode::prelude;
 setCellColors(LevelCell, loadFromLevel, GJGameLevel);
 setCellColors(LevelListCell, loadFromList, GJLevelList);
 setCellColors(GJScoreCell, loadFromScore, GJUserScore);
-
-#ifndef GEODE_IS_MACOS
-
 setCellColors(GJUserCell, loadFromScore, GJUserScore);
 setCellColors(AchievementCell, loadFromDict, CCDictionary);
 setCellColors(StatsCell, loadFromObject, StatsObject);
 setCellColors(GJMessageCell, loadFromMessage, GJUserMessage);
 setCellColors(MapPackCell, loadFromMapPack, GJMapPack);
 setCellColors(GJLevelScoreCell, loadFromScore, GJUserScore);
-
-#endif

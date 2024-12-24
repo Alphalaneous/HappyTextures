@@ -8,7 +8,7 @@ using namespace geode::prelude;
 class $modify(MyLevelSearchLayer, LevelSearchLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("LevelSearchLayer::init", INT_MIN);
+        HOOK_LATEST("LevelSearchLayer::init");
     }
 
     bool init(int p0) {

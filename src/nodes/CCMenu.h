@@ -1,7 +1,5 @@
 #pragma once
 
-#ifndef GEODE_IS_MACOS
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenu.hpp>
 #include "CCMenuItemSpriteExtra.h"
@@ -17,7 +15,7 @@ class EventsPush : CCNode {};
 class $modify(EventCCMenu, CCMenu) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("CCMenu::initWithArray", INT_MAX);
+        HOOK_LATEST("cocos2d::CCMenu::initWithArray");
     }
 
     struct Fields {
@@ -92,5 +90,3 @@ class $modify(EventCCMenu, CCMenu) {
         }
     }
 };
-
-#endif

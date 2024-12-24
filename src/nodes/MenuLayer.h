@@ -9,7 +9,7 @@ using namespace geode::prelude;
 class $modify(MyMenuLayer, MenuLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("MenuLayer::init", INT_MIN/2-1);
+        HOOK_LATEST("MenuLayer::init");
     }
 
     void onPlay(CCObject* obj) {

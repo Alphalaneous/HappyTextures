@@ -8,6 +8,10 @@ using namespace geode::prelude;
 
 class $modify(MyGJGarageLayer, GJGarageLayer) {
 
+    static void onModify(auto& self) {
+        HOOK_LATEST("GJGarageLayer::onShards");
+    }
+
     void onShards(cocos2d::CCObject* sender) {
         GJGarageLayer::onShards(sender);
         ShardsPage* page = static_cast<ShardsPage*>(getChildByID("ShardsPage"));

@@ -9,7 +9,7 @@ using namespace geode::prelude;
 class $modify(MyCCObject, CCObject) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("CCObject::autorelease", INT_MIN - 1);
+        HOOK_LATEST("cocos2d::CCObject::autorelease");
     }
 
     CCObject* autorelease() {

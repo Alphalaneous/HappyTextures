@@ -3,7 +3,7 @@
 
 Callbacks* Callbacks::instance = nullptr;
 
-//do cursed UB stuff to simplify the code
+//do cursed UB stuff, currently unused but may be useful in the future
 
 template <typename T>
 FakeNodeLayer<T> Callbacks::createUBDummyLayer() {

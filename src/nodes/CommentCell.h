@@ -13,7 +13,7 @@ class $modify(MyCommentCell, CommentCell) {
 	};
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("CommentCell::loadFromComment", INT_MIN);
+        HOOK_LATEST("CommentCell::loadFromComment");
     }
 
     void loadFromComment(GJComment* p0) {

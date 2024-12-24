@@ -8,7 +8,7 @@ using namespace geode::prelude;
 class $modify(MyCustomMusicCell, CustomMusicCell) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("CustomMusicCell::loadFromObject", INT_MIN);
+        HOOK_LATEST("CustomMusicCell::loadFromObject");
     }
 
 	struct Fields {

@@ -8,7 +8,7 @@ using namespace geode::prelude;
 class $modify(MyGJDropDownLayer, GJDropDownLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("GJDropDownLayer::showLayer", INT_MIN);
+        HOOK_LATEST("GJDropDownLayer::showLayer");
     }
 
     void showLayer(bool p0) {

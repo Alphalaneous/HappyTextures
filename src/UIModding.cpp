@@ -116,8 +116,6 @@ void UIModding::recursiveModify(CCNode* node, matjson::Value elements) {
 
 void UIModding::runAction(CCNode* node, matjson::Value attributes) {
 
-    #ifndef GEODE_IS_MACOS
-
     if (attributes.contains("actions")) {
         matjson::Value actionsValue = attributes["actions"];
         if (actionsValue.isArray()) {
@@ -141,7 +139,6 @@ void UIModding::runAction(CCNode* node, matjson::Value attributes) {
             }
         }
     }
-    #endif
 }
 
 void UIModding::runScrollToTop(CCNode* node, matjson::Value attributes) {
@@ -189,8 +186,6 @@ void UIModding::runCallback(CCNode* node, matjson::Value attributes) {
 
 CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action) {
     CCActionInterval* retAction = nullptr;
-
-    #ifndef GEODE_IS_MACOS
 
     if (action.contains("type")) {
 
@@ -327,7 +322,6 @@ CCActionInterval* UIModding::createAction(CCNode* node, matjson::Value action) {
             }
         }
     }
-    #endif
     return retAction;
 }
 
@@ -338,8 +332,6 @@ CCActionInterval* UIModding::getEasingType(std::string name, CCActionInterval* a
     if (name == "none") {
         easingType = action;
     }
-
-#ifndef GEODE_IS_MACOS
 
     typeForEaseCC(EaseInOut);
     typeForEaseCC(EaseIn);
@@ -359,8 +351,6 @@ CCActionInterval* UIModding::getEasingType(std::string name, CCActionInterval* a
     typeForEase(BackInOut);
     typeForEase(BackIn);
     typeForEase(BackOut);
-
-#endif
 
     return easingType;
 }
@@ -1285,9 +1275,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
             nodesFor(updateLayout);
             nodesFor(runScrollToTop);
             nodesFor(setLocked);
-            #ifndef GEODE_IS_MACOS
             nodesFor(runAction);
-            #endif
             nodesFor(playSound);
             nodesFor(openLink);
             nodesFor(runCallback);

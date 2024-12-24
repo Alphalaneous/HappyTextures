@@ -1,3 +1,4 @@
+
 #pragma once
 
 #include <Geode/Geode.hpp>
@@ -9,7 +10,7 @@ using namespace geode::prelude;
 class $modify(MyEditLevelLayer, EditLevelLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("EditLevelLayer::init", INT_MIN);
+        HOOK_LATEST("EditLevelLayer::init");
     }
 
     bool init(GJGameLevel* p0) {

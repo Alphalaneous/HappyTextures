@@ -1,3 +1,8 @@
+## 1.7.8
+- list-cell-selected added to hardcoded color modifications for leaderboards
+- changed hook prio logic
+- Mac support for everything
+
 ## 1.7.7 
 - Zipped packs should work properly now
 - Fixed issues with file listener

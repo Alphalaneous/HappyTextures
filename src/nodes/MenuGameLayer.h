@@ -8,7 +8,7 @@ using namespace geode::prelude;
 class $modify(MyMenuGameLayer, MenuGameLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("MenuGameLayer::update", INT_MIN);
+        HOOK_LATEST("MenuGameLayer::update");
     }
 
     void updateGroundSprite(CCSprite* spr) {

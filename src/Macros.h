@@ -1,3 +1,7 @@
+#define HOOK_LATEST(method) queueInMainThread([&self] {\
+    (void) self.setHookPriorityAfterPost(method, Utils::getHookPrioLatest(method));\
+});
+
 #define public_cast(value, member) [](auto* v) { \
     class FriendClass__; \
     using T = std::remove_pointer<decltype(v)>::type; \
@@ -73,7 +77,7 @@ if (eventVal.contains(#type)) {\
 #define setCellColors(class, method, paramType) \
 struct My##class : geode::Modify<My##class, class> { \
     static void onModify(auto& self) {\
-        (void) self.setHookPriority(#class "::" #method, INT_MIN);\
+        HOOK_LATEST(#class "::" #method);\
     }\
 	struct Fields {\
 		ccColor3B m_lastBG;\
@@ -100,6 +104,14 @@ struct My##class : geode::Modify<My##class, class> { \
                 }\
                 else if (child->getColor() == ccColor3B{194,114,62}) {\
                     std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-even");\
+                    if (dataOpt.has_value()) {\
+                        ColorData data = dataOpt.value();\
+                        child->setColor(data.color);\
+                        child->setOpacity(data.alpha);\
+                    }\
+                }\
+                else if (child->getColor() == ccColor3B{230,150,10}) {\
+                    std::optional<ColorData> dataOpt = UIModding::get()->getColors("list-cell-selected");\
                     if (dataOpt.has_value()) {\
                         ColorData data = dataOpt.value();\
                         child->setColor(data.color);\

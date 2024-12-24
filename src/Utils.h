@@ -141,6 +141,25 @@ namespace Utils {
         return "";
     }
 
+    static std::string getHookPrioLatest(const std::string& name) {
+        int minPriority = INT_MAX - 1;
+        const Mod* currentMod = Mod::get();
+        std::string latestModID = currentMod->getID();
+
+        for (const auto* mod : Loader::get()->getAllMods()) {
+            if (mod == currentMod) continue;
+
+            for (const auto* hook : mod->getHooks()) {
+                if (hook->getDisplayName() == name && hook->getPriority() < minPriority) {
+                    minPriority = hook->getPriority();
+                    latestModID = mod->getID();
+                }
+            }
+        }
+
+        return latestModID;
+    }
+
     static int getRandomNumber(int lower, int upper) {
         if (lower > upper) {
             std::swap(lower, upper);

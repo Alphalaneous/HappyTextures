@@ -9,7 +9,7 @@ using namespace geode::prelude;
 class $modify(MyCCScene, CCScene) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("CCScene::create", INT_MIN);
+        HOOK_LATEST("cocos2d::CCScene::create");
     }
 
     struct Fields {

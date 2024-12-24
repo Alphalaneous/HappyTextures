@@ -8,7 +8,7 @@ using namespace geode::prelude;
 class $modify(MyGJListLayer, GJListLayer) {
 
     static void onModify(auto& self) {
-        (void) self.setHookPriority("GJListLayer::create", INT_MIN);
+        HOOK_LATEST("GJListLayer::create");
     }
 
 	static GJListLayer* create(BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, int p5) {

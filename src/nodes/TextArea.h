@@ -7,6 +7,10 @@
 
 class $modify(MyTextArea, TextArea) {
 
+    static void onModify(auto& self) {
+        HOOK_LATEST("TextArea::setString");
+    }
+
     struct Fields {
         bool m_isHappyTexturesModified;
         std::string m_string;
