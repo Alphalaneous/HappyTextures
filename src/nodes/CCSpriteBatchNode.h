@@ -8,8 +8,6 @@
 
 using namespace geode::prelude;
 
-#ifdef GEODE_IS_WINDOWS
-
 class BatchHandler {
 //this exists to efficiently add fields without to much of a performance impact
 public:
@@ -20,7 +18,7 @@ public:
     }
     bool isFake(cocos2d::CCSpriteBatchNode* node) {
 		if (typeinfo_cast<CCLabelBMFont*>(node) || node->getUserObject("dont-fake"_spr)) return false;
-		return !Config::get().m_batchNodesEnabled;
+		return !Config::get()->m_batchNodesEnabled;
 		//if disabling individual batch nodes gets added, uncomment this out
         //return m_batchNodes[node];
     }
@@ -131,5 +129,3 @@ class $modify(BatchlessCCSprite, CCSprite) {
 		CCSprite::setBatchNode(pobSpriteBatchNode);
 	}
 };
-
-#endif

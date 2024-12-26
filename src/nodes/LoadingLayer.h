@@ -20,7 +20,7 @@ class $modify(MyLoadingLayer, LoadingLayer) {
         queueInMainThread([] {
             Utils::reloadFileNames();
             UIModding::get()->loadNodeFiles();
-            Config::get().loadPackJsons();
+            Config::get()->loadPackJsons();
         });
 
         return true;

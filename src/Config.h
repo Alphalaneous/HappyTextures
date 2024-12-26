@@ -4,6 +4,8 @@
 #include "Utils.h"
 
 class Config {
+    protected:
+    static Config* instance;
     public:
     bool m_batchNodesEnabled = true;
 
@@ -28,9 +30,11 @@ class Config {
         if (m_batchNodesEnabled) m_batchNodesEnabled = config["batch-nodes"].asBool().unwrapOr(true);
     }
 
-    static Config& get() {
-        static Config instance;
+    static Config* get() {
+
+        if (!instance) {
+            instance = new Config();
+        };
         return instance;
     }
-
 };

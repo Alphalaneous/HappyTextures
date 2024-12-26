@@ -47,7 +47,7 @@ class $modify(MyMenuLayer, MenuLayer) {
         UIModding::get()->finishedLoad = true;
         if (!MenuLayer::init()) return false;
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
-        Callbacks::get().generateAll();
+        Callbacks::get()->generateAll();
 
         if (UIModding::get()->doModify) {
             if (Mod::get()->getSettingValue<bool>("hot-reload")) {

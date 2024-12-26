@@ -37,8 +37,11 @@ public:
 
     CCMenuItemSpriteExtra* getDummyButton();
 
-    static Callbacks& get() {
-        static Callbacks instance;
+    static Callbacks* get() {
+
+        if (!instance) {
+            instance = new Callbacks();
+        };
         return instance;
     }
 };
