@@ -179,10 +179,10 @@ namespace Utils {
 
     static std::vector<std::string> getActivePacks() {
 
-        if (!UIModding::get()->activePackCache.empty()) return UIModding::get()->activePackCache;
+        //if (!UIModding::get()->activePackCache.empty()) return UIModding::get()->activePackCache;
 
-        Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
-        if (textureLoader) {
+        //Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
+        //if (textureLoader) {
             /*for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
                 if (value.isObject() && value.contains("path") && value["path"].isString()) {
                     std::string path = value["path"].asString().unwrapOr("");
@@ -195,8 +195,8 @@ namespace Utils {
             }*/
         }
 
-        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "/Resources/");
-        UIModding::get()->activePackCache.push_back(resourcesDir);
+        //std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "/Resources/");
+        //UIModding::get()->activePackCache.push_back(resourcesDir);
 
         return UIModding::get()->activePackCache;
     }
