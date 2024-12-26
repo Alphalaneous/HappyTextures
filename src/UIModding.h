@@ -18,6 +18,8 @@ public:
     std::map<std::string, matjson::Value> uiCache;
     std::map<std::string, ColorData> colorCache;
     std::map<std::string, std::string> randomSprites;
+    std::vector<std::string> activePackCache;
+    std::unordered_map<std::string, bool> filenameCache;
 
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();

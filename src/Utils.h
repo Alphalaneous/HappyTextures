@@ -173,17 +173,13 @@ namespace Utils {
         return dist(gen);
     }
 
-    static std::vector<std::string> activePackCache;
-    static std::unordered_map<std::string, bool> filenameCache;
-
     static void clearActivePackCache() {
-        activePackCache.clear();
+        UIModding::get()->activePackCache.clear();
     }
 
     static std::vector<std::string> getActivePacks() {
-        return activePackCache;
 
-        /*if (!activePackCache.empty()) return activePackCache;
+        if (!UIModding::get()->activePackCache.empty()) return UIModding::get()->activePackCache;
 
         Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
@@ -194,36 +190,36 @@ namespace Utils {
                         std::filesystem::path pathFs{path};
                         path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
                     }
-                    activePackCache.push_back(path + "/");
+                    UIModding::get()->activePackCache.push_back(path + "/");
                 }
             }
         }
 
         #ifdef GEODE_IS_ANDROID 
-        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getAndroidPath(), "\\Resources\\");
+        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getAndroidPath(), "/Resources/");
         #else
-        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "\\Resources\\");
+        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "/Resources/");
         #endif
-        activePackCache.push_back(resourcesDir);
+        UIModding::get()->activePackCache.push_back(resourcesDir);
 
-        return activePackCache;*/
+        return UIModding::get()->activePackCache;
     }
 
     static void reloadFileNames() {
-        filenameCache.clear();
+        UIModding::get()->filenameCache.clear();
         for (std::string packPath : Utils::getActivePacks()) {
             for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
-                /*if (entry.is_regular_file()) {
+                if (entry.is_regular_file()) {
                     std::string pathStr = entry.path().string();
                     std::string subStr = pathStr.substr(packPath.size());
-                    filenameCache[utils::string::replace(subStr, "\\", "/")] = true;
-                }*/
+                    UIModding::get()->filenameCache[utils::string::replace(subStr, "\\", "/")] = true;
+                }
             }
         }
     }
 
     static bool spriteExistsInPacks(std::string fileName) {
-        return filenameCache[fileName];
+        return UIModding::get()->filenameCache[fileName];
     }
 
     static CCNode* getChildByTypeName(CCNode* node, int index, std::string name) {
