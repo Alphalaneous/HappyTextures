@@ -1,3 +1,7 @@
+## 1.8.1
+- Fix crash on non-windows
+- Change individual sprite changing logic
+
 ## 1.8.0
 - Support for retexturing individual sprites outside of spritesheets (see wiki for more details)
 - Support for disabling batch nodes (for UI purposes, in levels they will not be disabled)
