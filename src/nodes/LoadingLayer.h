@@ -17,11 +17,11 @@ class $modify(MyLoadingLayer, LoadingLayer) {
 
         if (!LoadingLayer::init(p0)) return false;
 
-        queueInMainThread([] {
+        /*queueInMainThread([] {
             Utils::reloadFileNames();
             UIModding::get()->loadNodeFiles();
             Config::get()->loadPackJsons();
-        });
+        });*/
 
         return true;
     }
