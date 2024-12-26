@@ -209,7 +209,7 @@ namespace Utils {
             for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
                 if (entry.is_regular_file()) {
                     std::string pathStr = entry.path().string();
-                    std::string subStr = pathStr.substr(packPath.size(), pathStr.size()-1);
+                    std::string subStr = pathStr.substr(packPath.size());
                     filenameCache[utils::string::replace(subStr, "\\", "/")] = true;
                 }
             }
