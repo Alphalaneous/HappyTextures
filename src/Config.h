@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "../Utils.h"
+#include "Utils.h"
 
 class Config {
     public:
