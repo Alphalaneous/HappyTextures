@@ -5,6 +5,7 @@
 #include <Geode/modify/LeaderboardsLayer.hpp>
 #include <Geode/modify/LevelBrowserLayer.hpp>
 #include "UIModding.h"
+#include "Macros.h"
 
 using namespace geode::prelude;
 

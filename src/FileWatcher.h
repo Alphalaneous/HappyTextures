@@ -7,6 +7,7 @@
 #include <string>
 #include <functional>
 #include <Geode/Geode.hpp>
+#include "Macros.h"
 
 using namespace geode::prelude;
 /**

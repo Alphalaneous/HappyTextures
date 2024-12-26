@@ -1,4 +1,5 @@
 #include <Geode/Geode.hpp>
+#include "Macros.h"
 #include "nodes/CCLabelBMFont.h"
 #include "nodes/CCMenu.h"
 #include "nodes/CCMenuItemSpriteExtra.h"
@@ -23,4 +24,6 @@
 #include "nodes/TextArea.h"
 #include "nodes/GJGarageLayer.h"
 #include "nodes/CCNode.h"
+#include "nodes/CCSprite.h"
+#include "nodes/CCSpriteBatchNode.h"
 #include "BackgroundColors.h"

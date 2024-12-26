@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CommentCell.hpp>
 #include "../Utils.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 

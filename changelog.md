@@ -1,6 +1,10 @@
+## 1.8.0
+- Support for retexturing individual sprites outside of spritesheets (see wiki for more details)
+- Support for disabling batch nodes (for UI purposes, in levels they will not be disabled)
+
 ## 1.7.8
 - list-cell-selected added to hardcoded color modifications for leaderboards
-- changed hook prio logic
+- Changed hook prio logic
 - Mac support for everything
 
 ## 1.7.7 

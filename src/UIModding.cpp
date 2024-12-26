@@ -1,6 +1,5 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
-#include "Macros.h"
 #include "FileWatcher.h"
 #include "Utils.h"
 #include "nodes/CCLabelBMFont.h"
@@ -11,6 +10,7 @@
 #include "DataNode.h"
 #include "alerts/CustomAlert.h"
 #include "Callbacks.h"
+#include "Macros.h"
 
 using namespace geode::prelude;
 
@@ -173,11 +173,11 @@ void UIModding::runCallback(CCNode* node, matjson::Value attributes) {
             std::string className = callbackValue["class"].asString().unwrapOr("");
             std::string methodName = callbackValue["method"].asString().unwrapOr("");
 
-            if (Callbacks::get()->m_callbacks.contains(className)) {
-                std::map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>> callbackMap = Callbacks::get()->m_callbacks[className];
+            if (Callbacks::get().m_callbacks.contains(className)) {
+                std::map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>> callbackMap = Callbacks::get().m_callbacks[className];
                 if (callbackMap.contains(methodName)) {
                     std::pair<CCNode*, cocos2d::SEL_MenuHandler> callback = callbackMap[methodName];
-		            (callback.first->*callback.second)(Callbacks::get()->getDummyButton());
+		            (callback.first->*callback.second)(Callbacks::get().getDummyButton());
                 }
             }
         }

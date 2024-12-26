@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJCommentListLayer.hpp>
 #include "CCScale9Sprite.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 

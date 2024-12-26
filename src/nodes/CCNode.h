@@ -4,6 +4,7 @@
 #include <Geode/modify/CCNode.hpp>
 #include "../UIModding.h"
 #include "../Utils.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 

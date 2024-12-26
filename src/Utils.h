@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include "UIModding.h"
 #include <random>
+#include "Macros.h"
 
 using namespace geode::prelude;
 
@@ -172,10 +173,17 @@ namespace Utils {
         return dist(gen);
     }
 
+    static std::vector<std::string> activePackCache;
+    static std::unordered_map<std::string, bool> filenameCache;
+
+    static void clearActivePackCache() {
+        activePackCache.clear();
+    }
+
     static std::vector<std::string> getActivePacks() {
 
-        gd::vector<gd::string> paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
-        std::vector<std::string> packPaths;
+        if (!activePackCache.empty()) return activePackCache;
+
         Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
             for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
@@ -185,14 +193,31 @@ namespace Utils {
                         std::filesystem::path pathFs{path};
                         path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
                     }
-                    packPaths.push_back(path + "\\");
+                    activePackCache.push_back(path + "\\");
                 }
             }
         }
         std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "\\Resources\\");
-        packPaths.push_back(resourcesDir);
+        activePackCache.push_back(resourcesDir);
 
-        return packPaths;
+        return activePackCache;
+    }
+
+    static void reloadFileNames() {
+        filenameCache.clear();
+        for (std::string packPath : getActivePacks()) {
+            for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
+                if (entry.is_regular_file()) {
+                    std::string pathStr = entry.path().string();
+                    std::string subStr = pathStr.substr(packPath.size(), pathStr.size());
+                    filenameCache[utils::string::replace(subStr, "\\", "/")] = true;
+                }
+            }
+        }
+    }
+
+    static bool spriteExistsInPacks(std::string fileName) {
+        return filenameCache[fileName];
     }
 
     static CCNode* getChildByTypeName(CCNode* node, int index, std::string name) {

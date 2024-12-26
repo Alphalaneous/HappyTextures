@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCScene.hpp>
 #include "../UIModding.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 

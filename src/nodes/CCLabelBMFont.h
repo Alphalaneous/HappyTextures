@@ -4,8 +4,9 @@
 #include <Geode/modify/CCLabelBMFont.hpp>
 #include "../Utils.h"
 #include "../LabelValues.h"
-#include <rift.hpp>
+#include "../Macros.h"
 
+#include <rift.hpp>
 
 using namespace geode::prelude;
 

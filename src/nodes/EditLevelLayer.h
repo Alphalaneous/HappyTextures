@@ -4,6 +4,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/EditLevelLayer.hpp>
 #include "../Utils.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 

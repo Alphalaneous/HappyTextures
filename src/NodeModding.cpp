@@ -1,8 +1,8 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCObject.hpp>
-#include "Macros.h"
 #include "UIModding.h"
 #include "Utils.h"
+#include "Macros.h"
 
 using namespace geode::prelude;
 

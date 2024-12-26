@@ -10,7 +10,6 @@
 #include <Geode/modify/GJMessageCell.hpp>
 #include <Geode/modify/GJUserCell.hpp>
 #include <Geode/modify/GJLevelScoreCell.hpp>
-
 #include "../Macros.h"
 
 using namespace geode::prelude;

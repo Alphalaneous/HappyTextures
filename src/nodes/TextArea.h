@@ -4,6 +4,7 @@
 #include <Geode/modify/TextArea.hpp>
 #include <rift.hpp>
 #include "CCLabelBMFont.h"
+#include "../Macros.h"
 
 class $modify(MyTextArea, TextArea) {
 

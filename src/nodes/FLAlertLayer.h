@@ -5,6 +5,7 @@
 #include <rift.hpp>
 #include "CCLabelBMFont.h"
 #include "TextArea.h"
+#include "../Macros.h"
 
 class $modify(MyFLAlertLayer, FLAlertLayer) {
 

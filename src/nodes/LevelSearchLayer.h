@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelSearchLayer.hpp>
+#include "../Macros.h"
 
 using namespace geode::prelude;
 

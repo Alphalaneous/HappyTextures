@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJGarageLayer.hpp>
 #include "../Callbacks.h"
+#include "../Macros.h"
 
 using namespace geode::prelude;
 

@@ -1,3 +1,4 @@
+
 #define HOOK_LATEST(method) queueInMainThread([&self] {\
     (void) self.setHookPriorityAfterPost(method, Utils::getHookPrioLatest(method));\
 });

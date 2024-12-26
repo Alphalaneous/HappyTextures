@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include "Macros.h"
 
 using namespace geode::prelude;
 
@@ -36,12 +37,8 @@ public:
 
     CCMenuItemSpriteExtra* getDummyButton();
 
-    static Callbacks* get() {
-
-        if (!instance) {
-            instance = new Callbacks();
-        };
+    static Callbacks& get() {
+        static Callbacks instance;
         return instance;
     }
-
 };
