@@ -194,12 +194,8 @@ namespace Utils {
                 }
             }
         }
-
-        #ifdef GEODE_IS_ANDROID 
-        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getAndroidPath(), "/Resources/");
-        #else
+        
         std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "/Resources/");
-        #endif
         UIModding::get()->activePackCache.push_back(resourcesDir);
 
         return UIModding::get()->activePackCache;
