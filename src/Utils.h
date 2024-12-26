@@ -195,9 +195,6 @@ namespace Utils {
             }
         }
 
-        //std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "/Resources/");
-        //UIModding::get()->activePackCache.push_back(resourcesDir);
-
         return UIModding::get()->activePackCache;
     }
 
