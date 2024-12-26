@@ -8,8 +8,6 @@
 
 using namespace geode::prelude;
 
-#ifdef GEODE_IS_WINDOWS
-
 class BatchHandler {
 //this exists to efficiently add fields without to much of a performance impact
 public:
@@ -131,5 +129,3 @@ class $modify(BatchlessCCSprite, CCSprite) {
 		CCSprite::setBatchNode(pobSpriteBatchNode);
 	}
 };
-
-#endif
