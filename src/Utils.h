@@ -185,16 +185,16 @@ namespace Utils {
         if (textureLoader) {
             for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
                 if (value.isObject() && value.contains("path") && value["path"].isString()) {
-                    std::string path = value["path"].asString().unwrapOr("");
+                    /*std::string path = value["path"].asString().unwrapOr("");
                     if (utils::string::endsWith(path, ".zip")) {
                         std::filesystem::path pathFs{path};
                         path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
                     }
-                    UIModding::get()->activePackCache.push_back(path + "/");
+                    UIModding::get()->activePackCache.push_back(path + "/");*/
                 }
             }
         }
-        
+
         std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "/Resources/");
         UIModding::get()->activePackCache.push_back(resourcesDir);
 
