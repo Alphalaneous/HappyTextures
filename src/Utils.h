@@ -181,31 +181,37 @@ namespace Utils {
     }
 
     static std::vector<std::string> getActivePacks() {
+        return activePackCache;
 
-        if (!activePackCache.empty()) return activePackCache;
+        /*if (!activePackCache.empty()) return activePackCache;
 
         Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
             for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
                 if (value.isObject() && value.contains("path") && value["path"].isString()) {
-                    std::string path = value["path"].asString().unwrap();
+                    std::string path = value["path"].asString().unwrapOr("");
                     if (utils::string::endsWith(path, ".zip")) {
                         std::filesystem::path pathFs{path};
                         path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
                     }
-                    activePackCache.push_back(path + "\\");
+                    activePackCache.push_back(path + "/");
                 }
             }
         }
+
+        #ifdef GEODE_IS_ANDROID 
+        std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getAndroidPath(), "\\Resources\\");
+        #else
         std::string resourcesDir = fmt::format("{}{}", CCFileUtils::sharedFileUtils()->getWritablePath2(), "\\Resources\\");
+        #endif
         activePackCache.push_back(resourcesDir);
 
-        return activePackCache;
+        return activePackCache;*/
     }
 
     static void reloadFileNames() {
         filenameCache.clear();
-        for (std::string packPath : getActivePacks()) {
+        for (std::string packPath : Utils::getActivePacks()) {
             for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
                 /*if (entry.is_regular_file()) {
                     std::string pathStr = entry.path().string();
