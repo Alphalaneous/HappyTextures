@@ -20,6 +20,7 @@ public:
     std::map<std::string, std::string> randomSprites;
     std::vector<std::string> activePackCache;
     std::unordered_map<std::string, bool> filenameCache;
+    std::unordered_map<std::string, bool> spritesChanged;
 
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();

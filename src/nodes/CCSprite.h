@@ -12,22 +12,24 @@ class $modify(MyCCSprite, CCSprite) {
     }
 
     bool initWithSpriteFrameName(const char *pszSpriteFrameName) {
-        if (Utils::spriteExistsInPacks(pszSpriteFrameName)) {
+        if (Utils::spriteExistsInPacks(pszSpriteFrameName) && !UIModding::get()->spritesChanged[pszSpriteFrameName]) {
 
             CCSprite* spr = CCSprite::create(pszSpriteFrameName);
             auto spriteFrame = CCSpriteFrame::createWithTexture(spr->getTexture(), spr->getTextureRect());
             CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, pszSpriteFrameName);
+            UIModding::get()->spritesChanged[pszSpriteFrameName] = true;
         }
 
         return CCSprite::initWithSpriteFrameName(pszSpriteFrameName);
     }
 
     static CCSprite* createWithSpriteFrameName(const char *pszSpriteFrameName) {
-        if (Utils::spriteExistsInPacks(pszSpriteFrameName)) {
+        if (Utils::spriteExistsInPacks(pszSpriteFrameName) && !UIModding::get()->spritesChanged[pszSpriteFrameName]) {
 
             CCSprite* spr = CCSprite::create(pszSpriteFrameName);
             auto spriteFrame = CCSpriteFrame::createWithTexture(spr->getTexture(), spr->getTextureRect());
             CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, pszSpriteFrameName);
+            UIModding::get()->spritesChanged[pszSpriteFrameName] = true;
         }
 
         return CCSprite::createWithSpriteFrameName(pszSpriteFrameName);
