@@ -1,3 +1,6 @@
+## 1.8.3
+- Fix loading individual sprites from init
+
 ## 1.8.2
 - Fix some layouting issues
 - Fix duplicated node modifications for certain layers
