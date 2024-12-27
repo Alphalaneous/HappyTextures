@@ -12,9 +12,11 @@ FakeNodeLayer<T> Callbacks::createUBDummyLayer() {
 
 void Callbacks::generateAll() {
     if (m_generated) return;
+    m_ignoreUICheck = true;
     generateMenuLayerCallbacks();
     generateCreatorLayerCallbacks();
     generateGarageCallbacks();
+    m_ignoreUICheck = false;
     m_generated = true;
 }
 

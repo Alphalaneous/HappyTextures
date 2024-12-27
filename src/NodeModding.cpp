@@ -3,6 +3,7 @@
 #include "UIModding.h"
 #include "Utils.h"
 #include "Macros.h"
+#include "Callbacks.h"
 
 using namespace geode::prelude;
 
@@ -13,7 +14,7 @@ class $modify(MyCCObject, CCObject) {
     }
 
     CCObject* autorelease() {
-        if (!UIModding::get()->finishedLoad || !UIModding::get()->doModify) 
+        if (!UIModding::get()->finishedLoad || !UIModding::get()->doModify || Callbacks::get()->m_ignoreUICheck) 
             return CCObject::autorelease();
         
         if (CCNode* node = typeinfo_cast<CCNode*>(this)) {

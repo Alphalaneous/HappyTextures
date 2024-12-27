@@ -1,3 +1,9 @@
+## 1.8.2
+- Fix some layouting issues
+- Fix duplicated node modifications for certain layers
+- Fix individual sprites not working if only some qualities are present
+- Fix applied packs not updating (uses a new Texture Loader API, make sure Texture Loader is up to date if you experience this issue!)
+
 ## 1.8.1
 - Fix crash on non-windows
 - Change individual sprite changing logic

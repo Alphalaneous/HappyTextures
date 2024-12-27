@@ -97,7 +97,7 @@ void UIModding::recursiveModify(CCNode* node, matjson::Value elements) {
     }
 
     for (CCNode* node : CCArrayExt<CCNode*>(children)) {
-
+        
         std::string id = node->getID();
 
         if (elements.contains("_pack-name") && elements["_pack-name"].isString()) {
@@ -1121,6 +1121,15 @@ void UIModding::updateLayout(CCNode* node, matjson::Value attributes) {
                 if (CCNode* parent = node->getParent()) parent->updateLayout();
             }
         }
+        if (update.isString()) {
+            std::string updateStr = update.asString().unwrapOr("self");
+            if (updateStr == "self") {
+                node->updateLayout();
+            }
+            else if (updateStr == "parent") {
+                if (CCNode* parent = node->getParent()) parent->updateLayout();
+            }
+        }
     }
 }
 
@@ -1250,7 +1259,6 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
             nodeAttributes["_pack-name"] = nodeObject["_pack-name"];
             
             nodesFor(setDisablePages);
-            nodesFor(setLayout);
             nodesFor(setScale);
             nodesFor(setRotation);
             nodesFor(setSkew);
@@ -1272,6 +1280,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
             nodesFor(setBlending);
             nodesFor(setShow);
             nodesFor(removeChild);
+            nodesFor(setLayout);
             nodesFor(updateLayout);
             nodesFor(runScrollToTop);
             nodesFor(setLocked);
@@ -1521,7 +1530,6 @@ void UIModding::doUICheck(CCNode* node) {
     std::string nodeID = node->getID();
     std::replace(nodeID.begin(), nodeID.end(), '/', '$');
     std::string path = "ui/" + nodeID + ".json";
-    
 	
     unsigned long fileSize = 0;
     unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    

@@ -4,6 +4,7 @@
 #include <Geode/modify/CCScene.hpp>
 #include "../UIModding.h"
 #include "../Macros.h"
+#include "../Callbacks.h"
 
 using namespace geode::prelude;
 
@@ -32,7 +33,7 @@ class $modify(MyCCScene, CCScene) {
            
             for (CCNode* node : CCArrayExt<CCNode*>(this->getChildren())) {
                 idx++;
-                if (node->getID() == "MenuLayer") continue;
+                if (node->getID() == "MenuLayer" || Callbacks::get()->m_ignoreUICheck) continue;
                 if (idx > m_fields->m_currentCount) {
                     UIModding::get()->doUICheck(node);
                 }

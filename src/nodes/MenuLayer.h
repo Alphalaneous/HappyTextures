@@ -44,6 +44,8 @@ class $modify(MyMenuLayer, MenuLayer) {
     }
 
     bool init() {
+        if (Callbacks::get()->m_ignoreUICheck) return MenuLayer::init();
+
         UIModding::get()->finishedLoad = true;
         if (!MenuLayer::init()) return false;
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");

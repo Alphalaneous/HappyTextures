@@ -4,6 +4,7 @@
 #include "UIModding.h"
 #include <random>
 #include "Macros.h"
+#include "TextureLoader.hpp"
 
 using namespace geode::prelude;
 
@@ -143,7 +144,7 @@ namespace Utils {
     }
 
     static std::string getHookPrioLatest(const std::string& name) {
-        int minPriority = INT_MAX - 1;
+        int minPriority = 0;
         const Mod* currentMod = Mod::get();
         std::string latestModID = currentMod->getID();
 
@@ -183,14 +184,22 @@ namespace Utils {
 
         Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
-            for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
-                if (value.isObject() && value.contains("path") && value["path"].isString()) {
-                    std::string path = value["path"].asString().unwrapOr("");
-                    if (utils::string::endsWith(path, ".zip")) {
-                        std::filesystem::path pathFs{path};
-                        path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
+            if (textureLoader->getVersion() >= VersionInfo{1, 7, 0}) {
+                for(geode::texture_loader::Pack pack : geode::texture_loader::getAppliedPacks()) {
+                    UIModding::get()->activePackCache.push_back(pack.resourcesPath.string() + "/");
+                }
+            }
+            else {
+                log::info("Using old pack method. Update Texture Loader!");
+                for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
+                    if (value.isObject() && value.contains("path") && value["path"].isString()) {
+                        std::string path = value["path"].asString().unwrapOr("");
+                        if (utils::string::endsWith(path, ".zip")) {
+                            std::filesystem::path pathFs{path};
+                            path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
+                        }
+                        UIModding::get()->activePackCache.push_back(path + "/");
                     }
-                    UIModding::get()->activePackCache.push_back(path + "/");
                 }
             }
         }
@@ -198,21 +207,38 @@ namespace Utils {
         return UIModding::get()->activePackCache;
     }
 
+    static std::string qualityToNormal(std::string str) {
+        std::vector<std::string> fileParts = utils::string::split(str, ".");
+
+        std::string suffix = fileParts[fileParts.size()-1];
+        std::string prefix = str.substr(0, str.size() - suffix.size() - 1);
+
+        if (utils::string::endsWith(prefix, "-uhd")) {
+            prefix = prefix.substr(0, prefix.size() - 4);
+        }
+        else if (utils::string::endsWith(prefix, "-hd")) {
+            prefix = prefix.substr(0, prefix.size() - 3);
+        }
+
+        return fmt::format("{}.{}", prefix, suffix);
+    }
+
     static void reloadFileNames() {
         UIModding::get()->filenameCache.clear();
         for (std::string packPath : Utils::getActivePacks()) {
+
             for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
                 if (entry.is_regular_file()) {
                     std::string pathStr = entry.path().string();
                     std::string subStr = pathStr.substr(packPath.size());
-                    UIModding::get()->filenameCache[utils::string::replace(subStr, "\\", "/")] = true;
+                    UIModding::get()->filenameCache[qualityToNormal(utils::string::replace(subStr, "\\", "/"))] = true;
                 }
             }
         }
     }
 
     static bool spriteExistsInPacks(std::string fileName) {
-        return UIModding::get()->filenameCache[fileName];
+        return UIModding::get()->filenameCache[qualityToNormal(fileName)];
     }
 
     static CCNode* getChildByTypeName(CCNode* node, int index, std::string name) {
