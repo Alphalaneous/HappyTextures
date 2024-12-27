@@ -8,6 +8,7 @@ class $modify(MyCCSprite, CCSprite) {
 
     static void onModify(auto& self) {
         (void) self.setHookPriority("cocos2d::CCSprite::initWithSpriteFrameName", Priority::VeryEarly);
+        (void) self.setHookPriority("cocos2d::CCSprite::createWithSpriteFrameName", Priority::VeryEarly);
     }
 
     bool initWithSpriteFrameName(const char *pszSpriteFrameName) {
@@ -19,5 +20,16 @@ class $modify(MyCCSprite, CCSprite) {
         }
 
         return CCSprite::initWithSpriteFrameName(pszSpriteFrameName);
+    }
+
+    static CCSprite* createWithSpriteFrameName(const char *pszSpriteFrameName) {
+        if (Utils::spriteExistsInPacks(pszSpriteFrameName)) {
+
+            CCSprite* spr = CCSprite::create(pszSpriteFrameName);
+            auto spriteFrame = CCSpriteFrame::createWithTexture(spr->getTexture(), spr->getTextureRect());
+            CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, pszSpriteFrameName);
+        }
+
+        return CCSprite::createWithSpriteFrameName(pszSpriteFrameName);
     }
 };

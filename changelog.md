@@ -1,3 +1,6 @@
+## 1.8.4
+- Actually fix loading individual sprites from init
+
 ## 1.8.3
 - Fix loading individual sprites from init
 
