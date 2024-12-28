@@ -10,8 +10,8 @@ class Config {
     bool m_batchNodesEnabled = true;
 
     void loadPackJsons() {
-        for (std::string packPath : Utils::getActivePacks()) {
-            std::filesystem::path json = std::filesystem::path{packPath} / "pack.json";
+        for (std::filesystem::path packPath : Utils::getActivePacks()) {
+            std::filesystem::path json = packPath / "pack.json";
             if (!std::filesystem::exists(json)) continue;
 
             std::ifstream inputFile(json);

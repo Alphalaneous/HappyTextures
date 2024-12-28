@@ -20,6 +20,7 @@ class $modify(MyLoadingLayer, LoadingLayer) {
         UIModding::get()->uiCache.clear();
         UIModding::get()->colorCache.clear();
         UIModding::get()->spritesChanged.clear();
+        UIModding::get()->frameToNameMap.clear();
         
         queueInMainThread([] {
             Utils::clearActivePackCache();

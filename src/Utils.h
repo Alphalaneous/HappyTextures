@@ -4,7 +4,7 @@
 #include "UIModding.h"
 #include <random>
 #include "Macros.h"
-#include "TextureLoader.hpp"
+#include <geode.texture-loader/include/TextureLoader.hpp>
 
 using namespace geode::prelude;
 
@@ -119,8 +119,6 @@ namespace Utils {
     #endif
     }
 
-    
-
     static void setColorIfExists(CCRGBAProtocol* node, std::string colorId) {
         if (!node) return;
         std::optional<ColorData> dataOpt = UIModding::get()->getColors(colorId);
@@ -138,6 +136,17 @@ namespace Utils {
             }
             for (auto [key, obj] : CCDictionaryExt<std::string, CCTexture2D*>(CCTextureCache::sharedTextureCache()->m_pTextures)) {
                 if (obj == texture) return key;
+            }
+        }
+        return "";
+    }
+
+    static std::string getSpriteName(CCSpriteFrame* spriteFrame) {
+        if (UIModding::get()->frameToNameMap.contains(spriteFrame)) return UIModding::get()->frameToNameMap[spriteFrame];
+        for (auto [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
+            if (spriteFrame == frame) {
+                UIModding::get()->frameToNameMap[spriteFrame] = key;
+                return key;
             }
         }
         return "";
@@ -178,27 +187,28 @@ namespace Utils {
         UIModding::get()->activePackCache.clear();
     }
 
-    static std::vector<std::string> getActivePacks() {
+    static std::vector<std::filesystem::path> getActivePacks() {
 
         if (!UIModding::get()->activePackCache.empty()) return UIModding::get()->activePackCache;
 
         Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
             if (textureLoader->getVersion() >= VersionInfo{1, 7, 0}) {
-                for(geode::texture_loader::Pack pack : geode::texture_loader::getAppliedPacks()) {
-                    UIModding::get()->activePackCache.push_back(pack.resourcesPath.string() + "/");
+                for (geode::texture_loader::Pack pack : geode::texture_loader::getAppliedPacks()) {
+                    UIModding::get()->activePackCache.push_back(pack.resourcesPath);
                 }
             }
             else {
                 log::info("Using old pack method. Update Texture Loader!");
                 for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
                     if (value.isObject() && value.contains("path") && value["path"].isString()) {
-                        std::string path = value["path"].asString().unwrapOr("");
-                        if (utils::string::endsWith(path, ".zip")) {
+                        std::filesystem::path path = std::filesystem::path{utils::string::replace(value["path"].asString().unwrapOr(""), "\\", "/")};
+                        if (path.extension().string() == ".zip") {
                             std::filesystem::path pathFs{path};
-                            path = (textureLoader->getSaveDir() / "unzipped" / pathFs.filename()).string();
+                            path = textureLoader->getSaveDir() / "unzipped" / pathFs.filename();
                         }
-                        UIModding::get()->activePackCache.push_back(path + "/");
+                        if (!std::filesystem::is_directory(path)) continue;
+                        UIModding::get()->activePackCache.push_back(path);
                     }
                 }
             }
@@ -209,7 +219,7 @@ namespace Utils {
 
     static std::string qualityToNormal(std::string str) {
         std::vector<std::string> fileParts = utils::string::split(str, ".");
-
+        if (fileParts.size() < 1) return str;
         std::string suffix = fileParts[fileParts.size()-1];
         std::string prefix = str.substr(0, str.size() - suffix.size() - 1);
 
@@ -225,12 +235,13 @@ namespace Utils {
 
     static void reloadFileNames() {
         UIModding::get()->filenameCache.clear();
-        for (std::string packPath : Utils::getActivePacks()) {
-
+        for (std::filesystem::path packPath : Utils::getActivePacks()) {
+            if (!std::filesystem::is_directory(packPath)) continue;
             for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
                 if (entry.is_regular_file()) {
                     std::string pathStr = entry.path().string();
-                    std::string subStr = pathStr.substr(packPath.size());
+                    std::string subStr = pathStr.substr(packPath.string().size() + 1);
+                    log::info("subStr: {}", subStr);
                     UIModding::get()->filenameCache[qualityToNormal(utils::string::replace(subStr, "\\", "/"))] = true;
                 }
             }

@@ -914,16 +914,15 @@ std::vector<std::string> generateValidSprites(std::string path, matjson::Value s
     std::vector<std::string> validSprites;
 
     if (!path.empty()) {
-        std::vector<std::string> packs = Utils::getActivePacks();
-        for (std::string packPath : packs) {
-            std::string sprPath = fmt::format("{}{}", packPath, path);
-            if (std::filesystem::is_directory(sprPath)) {
-                for (const auto& entry : std::filesystem::directory_iterator(sprPath)) {
-                    std::string textureName = utils::string::split(entry.path().filename().string(), ".").at(0);
-                    if (!utils::string::endsWith(textureName, "-hd") && !utils::string::endsWith(textureName, "-uhd")) {
-                        std::string sprName = fmt::format("{}\\{}", path, entry.path().filename().string());
-                        sprites.push_back(sprName);
-                    }
+        std::vector<std::filesystem::path> packs = Utils::getActivePacks();
+        for (std::filesystem::path packPath : packs) {
+            std::filesystem::path sprPath = packPath / path;
+            if (!std::filesystem::is_directory(sprPath)) continue;
+            for (const auto& entry : std::filesystem::directory_iterator(sprPath)) {
+                std::string textureName = utils::string::split(entry.path().filename().string(), ".").at(0);
+                if (!utils::string::endsWith(textureName, "-hd") && !utils::string::endsWith(textureName, "-uhd")) {
+                    std::string sprName = fmt::format("{}\\{}", path, entry.path().filename().string());
+                    sprites.push_back(sprName);
                 }
             }
         }
@@ -1574,10 +1573,9 @@ void UIModding::startFileListeners() {
         fw->stop();
     }
     listeners.clear();
-    std::vector<std::string> packs = Utils::getActivePacks();
-    for (std::string path : packs) {
-
-        std::string uiPath = fmt::format("{}{}", path, "ui\\");
+    std::vector<std::filesystem::path> packs = Utils::getActivePacks();
+    for (std::filesystem::path path : packs) {
+        std::filesystem::path uiPath = path / "ui";
 
         FileWatcher* fw = new FileWatcher(uiPath, std::chrono::milliseconds(500));
         listeners.push_back(fw);
@@ -1624,9 +1622,9 @@ AxisAlignment UIModding::getAxisAlignment(std::string name) {
 }
 
 void UIModding::loadNodeFiles() {
-    std::vector<std::string> packs = Utils::getActivePacks();
-    for (std::string path : packs) {
-        std::filesystem::path nodePath = std::filesystem::path{utils::string::replace(fmt::format("{}{}", path, "ui/nodes/"), "\\", "/")}.lexically_normal().make_preferred();
+    std::vector<std::filesystem::path> packs = Utils::getActivePacks();
+    for (std::filesystem::path path : packs) {
+        std::filesystem::path nodePath = path / "ui" / "nodes";
         if (std::filesystem::is_directory(nodePath)) {
             for (const auto& entry : std::filesystem::directory_iterator(nodePath)) {
 

@@ -19,11 +19,10 @@ enum class FileStatus {created, modified, erased};
 class FileWatcher {
 public:
 
-    FileWatcher(std::string pathToWatch, std::chrono::duration<int, std::milli> delay) : m_pathToWatch(pathToWatch), m_delay{delay} {
+    FileWatcher(std::filesystem::path pathToWatch, std::chrono::duration<int, std::milli> delay) : m_pathToWatch(pathToWatch), m_delay{delay} {
 
         if (std::filesystem::is_directory(pathToWatch)) {
-            auto path = std::filesystem::path{utils::string::replace(pathToWatch, "\\", "/")}.lexically_normal().make_preferred();
-            for (auto& file : std::filesystem::recursive_directory_iterator(path)) {
+            for (auto& file : std::filesystem::recursive_directory_iterator(pathToWatch)) {
                 m_paths[file.path()] = std::filesystem::last_write_time(file);
             }
         }
@@ -67,7 +66,7 @@ public:
 private:
     std::unordered_map<std::filesystem::path, std::filesystem::file_time_type> m_paths;
     std::chrono::duration<int, std::milli> m_delay;
-    std::string m_pathToWatch = "";
+    std::filesystem::path m_pathToWatch = "";
     bool m_running = true;
 
     bool contains(const std::filesystem::path &key) {

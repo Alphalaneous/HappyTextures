@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include "FileWatcher.h"
+
 using namespace geode::prelude;
 
 struct ColorData {
@@ -18,9 +19,10 @@ public:
     std::map<std::string, matjson::Value> uiCache;
     std::map<std::string, ColorData> colorCache;
     std::map<std::string, std::string> randomSprites;
-    std::vector<std::string> activePackCache;
+    std::vector<std::filesystem::path> activePackCache;
     std::unordered_map<std::string, bool> filenameCache;
     std::unordered_map<std::string, bool> spritesChanged;
+    std::unordered_map<CCSpriteFrame*, std::string> frameToNameMap;
 
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();
@@ -66,7 +68,7 @@ public:
     void loadNodeFiles();
     void doUICheck(CCNode* node);
     void doUICheckForType(std::string name, CCNode* node);
-    std::vector<std::string> getActivePacks();
+    std::vector<std::filesystem::path> getActivePacks();
     void startFileListeners();
     AxisAlignment getAxisAlignment(std::string name);
     std::optional<ColorData> getColors(std::string name);

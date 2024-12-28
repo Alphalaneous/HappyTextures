@@ -1,3 +1,8 @@
+## 1.8.5
+- Cleanup filesystem code
+- Fix a crash when there is an invalid path (hopefully)
+- Fix an issue with CCSpriteWithHue. Do note that changing the wraith textures is still broken and has inconsistent behavior
+
 ## 1.8.4
 - Actually fix loading individual sprites from init
 
