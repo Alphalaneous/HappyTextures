@@ -21,8 +21,7 @@ public:
     std::map<std::string, std::string> randomSprites;
     std::vector<std::filesystem::path> activePackCache;
     std::unordered_map<std::string, bool> filenameCache;
-    std::unordered_map<std::string, bool> spritesChanged;
-    std::unordered_map<CCSpriteFrame*, std::string> frameToNameMap;
+    std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
 
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();

@@ -142,10 +142,13 @@ namespace Utils {
     }
 
     static std::string getSpriteName(CCSpriteFrame* spriteFrame) {
-        if (UIModding::get()->frameToNameMap.contains(spriteFrame)) return UIModding::get()->frameToNameMap[spriteFrame];
+        if (UIModding::get()->textureToNameMap.contains(spriteFrame->getTexture())) {
+            return UIModding::get()->textureToNameMap[spriteFrame->getTexture()];
+        }
+
         for (auto [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
-            if (spriteFrame == frame) {
-                UIModding::get()->frameToNameMap[spriteFrame] = key;
+            if (spriteFrame->getTexture() == frame->getTexture() && frame->getRect() == spriteFrame->getRect()) {
+                UIModding::get()->textureToNameMap[spriteFrame->getTexture()] = key;
                 return key;
             }
         }
@@ -241,7 +244,6 @@ namespace Utils {
                 if (entry.is_regular_file()) {
                     std::string pathStr = entry.path().string();
                     std::string subStr = pathStr.substr(packPath.string().size() + 1);
-                    log::info("subStr: {}", subStr);
                     UIModding::get()->filenameCache[qualityToNormal(utils::string::replace(subStr, "\\", "/"))] = true;
                 }
             }
