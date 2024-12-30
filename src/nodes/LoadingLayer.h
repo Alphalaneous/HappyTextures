@@ -9,6 +9,11 @@ using namespace geode::prelude;
 
 class $modify(MyLoadingLayer, LoadingLayer) {
     
+    bool init(bool p0) {
+        Utils::clearCaches();
+        return LoadingLayer::init(p0);
+    }
+
     void loadAssets() {
 
         if (m_loadStep > 0) {
@@ -17,12 +22,8 @@ class $modify(MyLoadingLayer, LoadingLayer) {
         }
 
         UIModding::get()->finishedLoad = false;
-        UIModding::get()->uiCache.clear();
-        UIModding::get()->colorCache.clear();
-        UIModding::get()->textureToNameMap.clear();
         
         queueInMainThread([] {
-            Utils::clearActivePackCache();
             Utils::reloadFileNames();
             UIModding::get()->loadNodeFiles();
             Config::get()->loadPackJsons();

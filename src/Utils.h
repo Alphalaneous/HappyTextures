@@ -186,8 +186,12 @@ namespace Utils {
         return dist(gen);
     }
 
-    static void clearActivePackCache() {
+    static void clearCaches() {
         UIModding::get()->activePackCache.clear();
+        UIModding::get()->uiCache.clear();
+        UIModding::get()->colorCache.clear();
+        UIModding::get()->filenameCache.clear();
+        UIModding::get()->textureToNameMap.clear();
     }
 
     static std::vector<std::filesystem::path> getActivePacks() {
@@ -237,7 +241,6 @@ namespace Utils {
     }
 
     static void reloadFileNames() {
-        UIModding::get()->filenameCache.clear();
         for (std::filesystem::path packPath : Utils::getActivePacks()) {
             if (!std::filesystem::is_directory(packPath)) continue;
             for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {

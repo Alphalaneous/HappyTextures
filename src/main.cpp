@@ -26,4 +26,5 @@
 #include "nodes/CCNode.h"
 #include "nodes/CCSprite.h"
 #include "nodes/CCSpriteBatchNode.h"
+#include "nodes/CCDirector.h"
 #include "BackgroundColors.h"

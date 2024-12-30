@@ -1,3 +1,7 @@
+## 1.8.6
+- Added "after-transition" object for layers in a scene, allowing for you to only make changes after the transition finishes (see wiki for more details)
+- Fixed cache failing to be reset, resulting in missing textures when a pack is unapplied
+
 ## 1.8.5
 - Cleanup filesystem code
 - Fix a crash when there is an invalid path (hopefully)

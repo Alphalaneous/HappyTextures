@@ -55,7 +55,8 @@ class $modify(MyMenuLayer, MenuLayer) {
             if (Mod::get()->getSettingValue<bool>("hot-reload")) {
                 UIModding::get()->startFileListeners();
             }
-            UIModding::get()->doUICheck(this);
+            UIModding::get()->doUICheck(this, UIModding::get()->initialScene);
+            UIModding::get()->initialScene = false;
         }
         return true;
     }

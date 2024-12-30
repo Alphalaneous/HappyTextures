@@ -1524,7 +1524,7 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
     }
 }
 
-void UIModding::doUICheck(CCNode* node) {
+void UIModding::doUICheck(CCNode* node, bool afterTransition) {
 
     std::string nodeID = node->getID();
     std::replace(nodeID.begin(), nodeID.end(), '/', '$');
@@ -1552,8 +1552,14 @@ void UIModding::doUICheck(CCNode* node) {
                     name = fullPath.parent_path().parent_path().parent_path().filename().string();
                     name = utils::string::toLower(name);
                 }
-                std::replace( name.begin(), name.end(), ' ', '-');
+                std::replace(name.begin(), name.end(), ' ', '-');
                 
+                if (afterTransition) {
+                    if (expandedValue.contains("after-transition") && expandedValue["after-transition"].isObject()) {
+                        expandedValue = expandedValue["after-transition"];
+                    }
+                }
+
                 expandedValue["_pack-name"] = name.substr(0, name.find_last_of("."));;
 
                 handleModifications(node, expandedValue);

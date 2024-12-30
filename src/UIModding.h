@@ -27,6 +27,7 @@ public:
     Ref<CCArray> removalQueue = CCArray::create();
     bool doModify;
     bool finishedLoad;
+    bool initialScene = true;
 
     void recursiveModify(CCNode* node, matjson::Value elements);
     void setVisible(CCNode* node, matjson::Value attributes);
@@ -65,7 +66,7 @@ public:
     unsigned int stringToBlendingMode(std::string value);
     void handleModifications(CCNode* node, matjson::Value nodeObject);
     void loadNodeFiles();
-    void doUICheck(CCNode* node);
+    void doUICheck(CCNode* node, bool afterTransition = false);
     void doUICheckForType(std::string name, CCNode* node);
     std::vector<std::filesystem::path> getActivePacks();
     void startFileListeners();
