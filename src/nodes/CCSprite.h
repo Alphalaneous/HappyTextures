@@ -31,25 +31,30 @@ class $modify(MyCCSprite, CCSprite) {
         (void) self.setHookPriority("cocos2d::CCSprite::initWithSpriteFrameName", Priority::VeryEarly);
         (void) self.setHookPriority("cocos2d::CCSprite::createWithSpriteFrameName", Priority::VeryEarly);
     }
-
+    
     bool initWithSpriteFrameName(const char *pszSpriteFrameName) {
-        if (Utils::spriteExistsInPacks(pszSpriteFrameName)) {
-
-            CCSprite* spr = CCSprite::create(pszSpriteFrameName);
+        std::string copy = pszSpriteFrameName;
+        
+        if (Utils::spriteExistsInPacks(copy)) {
+            CCSprite* spr = CCSprite::create(copy.c_str());
             auto spriteFrame = CCSpriteFrame::createWithTexture(spr->getTexture(), spr->getTextureRect());
-            CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, pszSpriteFrameName);
+            CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, copy.c_str());
         }
-        return CCSprite::initWithSpriteFrameName(pszSpriteFrameName);
+
+        return CCSprite::initWithSpriteFrameName(copy.c_str());
     }
+    
 
     static CCSprite* createWithSpriteFrameName(const char *pszSpriteFrameName) {
-        if (Utils::spriteExistsInPacks(pszSpriteFrameName)) {
+        std::string copy = pszSpriteFrameName;
 
-            CCSprite* spr = CCSprite::create(pszSpriteFrameName);
+        if (Utils::spriteExistsInPacks(copy)) {
+
+            CCSprite* spr = CCSprite::create(copy.c_str());
             auto spriteFrame = CCSpriteFrame::createWithTexture(spr->getTexture(), spr->getTextureRect());
-            CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, pszSpriteFrameName);
+            CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, copy.c_str());
         }
 
-        return CCSprite::createWithSpriteFrameName(pszSpriteFrameName);
+        return CCSprite::createWithSpriteFrameName(copy.c_str());
     }
 };

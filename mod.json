@@ -5,7 +5,7 @@
         "android": "2.2074",
         "mac": "2.2074"
     },
-    "version": "v1.8.7",
+    "version": "v1.8.8",
     "id": "alphalaneous.happy_textures",
     "name": "Happy Textures :3",
     "developer": "Alphalaneous",
@@ -58,7 +58,7 @@
         },
         "ui-modifications": {
             "name": "Allow UI Modifications",
-            "description": "Allow Tetxure Packs to edit the game's interface.",
+            "description": "Allow Texture Packs to edit the game's interface.",
             "type": "bool",
             "default": true
         },

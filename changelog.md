@@ -1,3 +1,6 @@
+## 1.8.8
+- Implement a fix for another mod's mistake :P
+
 ## 1.8.7
 - Fix a very teeny bug that may break MenuLayer changes
 
