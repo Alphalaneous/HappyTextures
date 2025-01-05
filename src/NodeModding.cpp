@@ -7,25 +7,65 @@
 
 using namespace geode::prelude;
 
-class $modify(MyCCObject, CCObject) {
+class CCAutoreleasePoolHack : public CCObject {
+public:
+    CCArray* m_pManagedObjectArray;
+};
 
-    static void onModify(auto& self) {
-        HOOK_LATEST("cocos2d::CCObject::autorelease");
+class CCPoolManagerHack {
+public:
+    CCArray* m_pReleasePoolStack;    
+    CCAutoreleasePool* m_pCurReleasePool;
+};
+
+class NodeModding : public CCObject {
+public:
+    static NodeModding* create() {
+        auto ret = new NodeModding();
+        ret->autorelease();
+        return ret;
     }
 
-    CCObject* autorelease() {
-        if (!UIModding::get()->finishedLoad || !UIModding::get()->doModify || Callbacks::get()->m_ignoreUICheck) 
-            return CCObject::autorelease();
-        
-        if (CCNode* node = typeinfo_cast<CCNode*>(this)) {
-            node->retain();
-            std::string className = Utils::getNodeName(this);
-            queueInMainThread([=] {
-                UIModding::get()->doUICheckForType(className, node);
-                node->release();
-            });
+    static NodeModding* get() {
+        static NodeModding* instance = nullptr;
+        if (!instance) {
+            instance = NodeModding::create();
         }
-        
-        return CCObject::autorelease();
+        return instance;
+    }
+
+    void handleCurrentNode(CCNode* node) {
+        std::string className = Utils::getNodeName(node);
+        UIModding::get()->doUICheckForType(className, node);
+    }
+
+    void handleArray(CCArray* array) {
+        auto scene = CCDirector::sharedDirector()->getRunningScene();
+
+        if (scene && UIModding::get()->doModify && UIModding::get()->finishedLoad && !Callbacks::get()->m_ignoreUICheck) {
+            
+            for (auto object : CCArrayExt<CCObject*>(array)) {
+                if (auto node = typeinfo_cast<CCNode*>(object)) {
+                    handleCurrentNode(node);
+                }
+            }
+        }
+    }
+};
+
+#include <Geode/modify/CCPoolManager.hpp>
+
+class $modify(CCPoolManager) {
+    void pop() {
+        auto poolManager = reinterpret_cast<CCPoolManagerHack*>(this);
+
+        if (!poolManager || !poolManager->m_pCurReleasePool) return;
+        auto pool = reinterpret_cast<CCAutoreleasePoolHack*>(poolManager->m_pCurReleasePool);
+
+        if (!pool->m_pManagedObjectArray) return;
+
+        NodeModding::get()->handleArray(pool->m_pManagedObjectArray);
+
+        return CCPoolManager::pop();
     }
 };
