@@ -52,6 +52,6 @@ public:
 
 $execute {
     Loader::get()->queueInMainThread([]{
-        CCScheduler::get()->scheduleUpdateForTarget(SceneHandler::create(), 0, false);
+        CCScheduler::get()->scheduleUpdateForTarget(SceneHandler::create(), INT_MAX, false);
     });
 }
