@@ -59,12 +59,13 @@ class $modify(CCPoolManager) {
     void pop() {
         auto poolManager = reinterpret_cast<CCPoolManagerHack*>(this);
 
-        if (!poolManager || !poolManager->m_pCurReleasePool) return;
-        auto pool = reinterpret_cast<CCAutoreleasePoolHack*>(poolManager->m_pCurReleasePool);
+        if (poolManager && poolManager->m_pCurReleasePool) {
+            auto pool = reinterpret_cast<CCAutoreleasePoolHack*>(poolManager->m_pCurReleasePool);
 
-        if (!pool->m_pManagedObjectArray) return;
-
-        NodeModding::get()->handleArray(pool->m_pManagedObjectArray);
+            if (pool->m_pManagedObjectArray) {
+                NodeModding::get()->handleArray(pool->m_pManagedObjectArray);
+            }
+        }
 
         return CCPoolManager::pop();
     }
