@@ -27,4 +27,5 @@
 #include "nodes/CCSprite.h"
 #include "nodes/CCSpriteBatchNode.h"
 #include "nodes/CCDirector.h"
+#include "nodes/LevelBrowserLayer.h"
 #include "BackgroundColors.h"

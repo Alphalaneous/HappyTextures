@@ -1244,6 +1244,30 @@ void UIModding::setContentSize(CCNode* node, matjson::Value attributes) {
     }
 }
 
+void UIModding::evaluateIf(CCNode* node, matjson::Value ifArray) {
+    if (!node) return;
+
+    if (ifArray.isArray()) {
+        for (matjson::Value v : ifArray.asArray().unwrap()) {
+            if (v.contains("statement")) {
+                if (v["statement"].isString()) {
+                    std::string statement = v["statement"].asString().unwrapOrDefault();
+                    auto vars = LabelValues::getValueMap("");
+                    auto nodeVars = LabelValues::getNodeMap(node);
+                    vars.insert(nodeVars.begin(), nodeVars.end());
+
+                    auto result = rift::evaluate(statement, vars);
+                    bool evaluated = result.unwrapOr("false").toBoolean();
+
+                    if (evaluated) {
+                        handleModifications(node, v);
+                    }
+                }
+            }
+        }
+    }
+}
+
 void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
 
     if (DataNode* data = typeinfo_cast<DataNode*>(node)){
@@ -1251,6 +1275,13 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
     }
 
     if (!node) return;
+
+    if (nodeObject.contains("if")) {
+        matjson::Value ifArray = nodeObject["if"];
+        if (ifArray.isArray()) {
+            evaluateIf(node, ifArray);
+        }
+    }
 
     if (nodeObject.contains("attributes")) {
         matjson::Value nodeAttributes = nodeObject["attributes"];
@@ -1312,6 +1343,17 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject) {
             if (CCNode* parent = node->getParent()) {
                 handleModifications(parent, parentVal);
             }
+        }
+    }
+    if (nodeObject.contains("root")) {
+        matjson::Value parentVal = nodeObject["root"];
+        if (parentVal.isObject()) {
+            parentVal["_pack-name"] = nodeObject["_pack-name"];
+            CCNode* parentResult = node;
+            while (parentResult->getParent()) {
+                parentResult = parentResult->getParent();
+            }
+            handleModifications(parentResult, parentVal);
         }
     }
 
@@ -1542,6 +1584,13 @@ void UIModding::doUICheck(CCNode* node, bool afterTransition) {
 
             matjson::Value expandedValue = value.unwrap();
             if (expandedValue.isObject()) {
+                if (afterTransition) {
+                    if (expandedValue.contains("after-transition") && expandedValue["after-transition"].isObject()) {
+                        expandedValue = expandedValue["after-transition"];
+                    }
+                    else return;
+                }
+                
                 std::string fullPathStr = CCFileUtils::sharedFileUtils()->fullPathForFilename(path.c_str(), false);
 
                 std::filesystem::path fullPath(fullPathStr);
@@ -1554,11 +1603,7 @@ void UIModding::doUICheck(CCNode* node, bool afterTransition) {
                 }
                 std::replace(name.begin(), name.end(), ' ', '-');
                 
-                if (afterTransition) {
-                    if (expandedValue.contains("after-transition") && expandedValue["after-transition"].isObject()) {
-                        expandedValue = expandedValue["after-transition"];
-                    }
-                }
+                
 
                 expandedValue["_pack-name"] = name.substr(0, name.find_last_of("."));;
 

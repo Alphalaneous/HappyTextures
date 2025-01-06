@@ -130,6 +130,7 @@ namespace Utils {
     }
 
     static std::string getSpriteName(CCSprite* sprite) {
+        
         if (auto texture = sprite->getTexture()) {
             for (auto [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
                 if (frame->getTexture() == texture && frame->getRect() == sprite->getTextureRect()) return key;

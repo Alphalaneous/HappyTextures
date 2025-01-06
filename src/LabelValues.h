@@ -3,6 +3,8 @@
 #include <Geode/Geode.hpp>
 #include <rift.hpp>
 #include "Macros.h"
+#include "nodes/LevelBrowserLayer.h"
+
 
 using namespace geode::prelude;
 
@@ -256,7 +258,90 @@ namespace LabelValues {
         return LABEL("level_length_value", "null");
     }
 
-    static std::unordered_map<std::string, rift::Value> getValueMap(std::string original) {
+    static std::pair<std::string, rift::Value> getLevelSearchType() {
+        LevelBrowserLayer* levelBrowserLayer = MyLevelBrowserLayer::get();
+        if (levelBrowserLayer) {
+            return LABEL("level_search_type", (int)levelBrowserLayer->m_searchObject->m_searchType);
+        }
+        return LABEL("level_search_type", "null");
+    }
+
+    static std::pair<std::string, rift::Value> getLevelSearchMode() {
+        LevelBrowserLayer* levelBrowserLayer = MyLevelBrowserLayer::get();
+        if (levelBrowserLayer) {
+            return LABEL("level_search_mode", (int)levelBrowserLayer->m_searchObject->m_searchMode);
+        }
+        return LABEL("level_search_mode", "null");
+    }
+
+    static std::pair<std::string, rift::Value> getPlayLayerPercent() {
+        PlayLayer* playLayer = PlayLayer::get();
+        if (playLayer) {
+            return LABEL("playlayer_percent", playLayer->getCurrentPercent());
+        }
+        return LABEL("playlayer_percent", "null");
+    }
+
+    static std::pair<std::string, rift::Value> getPlayLayerPlatformer() {
+        PlayLayer* playLayer = PlayLayer::get();
+        if (playLayer) {
+            return LABEL("playlayer_is_platformer", playLayer->m_isPlatformer);
+        }
+        return LABEL("playlayer_is_platformer", "null");
+    }
+
+    static std::unordered_map<std::string, rift::Value> getNodeMap(CCNode* node) {
+
+        std::string font = "";
+        std::string text = "";
+        if (CCLabelBMFont* textNode = typeinfo_cast<CCLabelBMFont*>(node)) {
+            font = textNode->getFntFile();
+            text = textNode->getString();
+        }
+        std::string sprite = "";
+        if (CCSprite* spriteNode = typeinfo_cast<CCSprite*>(node)) {
+            sprite = Utils::getSpriteName(spriteNode);
+        }
+
+        ccColor3B color = {0, 0, 0};
+        short opacity = 0;
+        if (CCNodeRGBA* nodeRGBA = typeinfo_cast<CCNodeRGBA*>(node)) {
+            color = nodeRGBA->getColor();
+            opacity = nodeRGBA->getOpacity();
+        }
+
+        CCSize winSize = CCDirector::get()->getWinSize();
+
+        return {
+            LABEL("node_position_x", node->getPosition().x),
+            LABEL("node_position_y", node->getPosition().y),
+            LABEL("node_scale", node->getScale()),
+            LABEL("node_scale_x", node->getScaleX()),
+            LABEL("node_scale_y", node->getScaleY()),
+            LABEL("node_anchor_x", node->getAnchorPoint().x),
+            LABEL("node_anchor_y", node->getAnchorPoint().y),
+            LABEL("node_ignore_anchor_pos", node->isIgnoreAnchorPointForPosition()),
+            LABEL("node_content_size_width", node->getContentSize().width),
+            LABEL("node_content_size_height", node->getContentSize().height),
+            LABEL("node_visibility", node->isVisible()),
+            LABEL("node_rotation", node->getRotation()),
+            LABEL("node_rotation_x", node->getRotationX()),
+            LABEL("node_rotation_y", node->getRotationY()),
+            LABEL("node_skew_x", node->getSkewX()),
+            LABEL("node_skew_y", node->getSkewY()),
+            LABEL("node_z_order", node->getZOrder()),
+            LABEL("node_parent_id", node->getParent() ? node->getParent()->getID() : ""),
+            LABEL("node_font", font),
+            LABEL("node_text", text),
+            LABEL("node_sprite", sprite),
+            LABEL("node_color", "#" + geode::cocos::cc3bToHexString(color)),
+            LABEL("node_opacity", opacity),
+            LABEL("window_size_width", winSize.width),
+            LABEL("window_size_height", winSize.height),
+        };
+    }
+
+    static std::unordered_map<std::string, rift::Value> getValueMap(std::string original = "") {
         return {
             getUsername(),
             getGameVersion(),
@@ -305,7 +390,11 @@ namespace LabelValues {
             getLevelJumps(),
             getLevelPassword(),
             getLevelStars(),
-            getLevelLengthValue()
+            getLevelLengthValue(),
+            getLevelSearchType(),
+            getLevelSearchMode(),
+            getPlayLayerPlatformer(),
+            getPlayLayerPercent()
         };
     }
 };

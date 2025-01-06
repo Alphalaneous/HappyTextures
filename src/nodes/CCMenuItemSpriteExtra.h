@@ -82,7 +82,6 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
 
     void selected() {
-        
         SAFE_RUN(
             if (!m_fields->overrideOnClick) {
                 CCMenuItemSpriteExtra::selected();
@@ -92,7 +91,6 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
 
     void unselected() {
-
         SAFE_RUN(
             if (!m_fields->overrideOnRelease) {
                 CCMenuItemSpriteExtra::unselected();
@@ -102,7 +100,6 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
 
     void activate() {
-
         SAFE_RUN(
             if (!m_fields->overrideOnActivate) {
                 CCMenuItemSpriteExtra::activate();

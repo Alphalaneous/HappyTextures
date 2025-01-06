@@ -35,14 +35,19 @@ public:
             if (m_handledNodes.find(node) != m_handledNodes.end()) continue;
             m_handledNodes.insert(node);
 
+            if (node->getUserObject("checked"_spr)) continue;
             if (node->getID() == "MenuLayer") continue; // hardcoded for now
 
             UIModding::get()->doUICheck(node);
+            node->setUserObject("checked"_spr, CCBool::create(true));
         }
     }
 
     void update(float dt) {
         auto scene = CCDirector::sharedDirector()->getRunningScene();
+        if (CCTransitionScene* trans = typeinfo_cast<CCTransitionScene*>(scene)) {
+            scene = public_cast(trans, m_pInScene);
+        }
 
         if (scene && UIModding::get()->doModify) {
             this->checkForUpdates(scene);

@@ -1,3 +1,9 @@
+## 1.9.0
+- Conditionals (If statements) (See Wiki)
+- Root node shortcut (See Wiki)
+- More variables (See Wiki)
+- Updated Rift
+
 ## 1.8.8
 - Implement a fix for another mod's mistake :P
 

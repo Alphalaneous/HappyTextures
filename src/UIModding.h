@@ -22,6 +22,7 @@ public:
     std::vector<std::filesystem::path> activePackCache;
     std::unordered_map<std::string, bool> filenameCache;
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
+    LevelBrowserLayer* levelBrowserLayer;
 
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();
@@ -73,6 +74,7 @@ public:
     AxisAlignment getAxisAlignment(std::string name);
     std::optional<ColorData> getColors(std::string name);
     void updateColors(CCNode* node, std::string name);
+    void evaluateIf(CCNode* node, matjson::Value ifArray);
 
     static UIModding* get() {
 

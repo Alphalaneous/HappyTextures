@@ -25,24 +25,39 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
         bool m_isLimited = false;
         SEL_SCHEDULE m_schedule;
         bool m_isHappyTexturesModified;
+        std::unique_ptr<rift::Script> m_riftScript;
+        bool m_compiled = false;
     };
     
-    static std::string riftString(MyCCLabelBMFont* self, std::string input) {
-        if (self->m_fields->m_isHappyTexturesModified) {
-            rift::Result<rift::Script*> scriptRes = rift::compile(std::string_view(input));
-            if (!scriptRes.isError()) {
-                rift::Script* script = scriptRes.unwrap();
-                auto vars = LabelValues::getValueMap(self->getString());
-                std::string newNewString = script->run(vars);
-                delete script;
-                return newNewString;
+    std::string riftString(std::string input) {
+        auto fields = m_fields.self();
+
+        if (fields->m_isHappyTexturesModified) {
+            if (!fields->m_compiled) {
+                auto compiled = rift::compile(std::string_view(input));
+                if (compiled) {
+                    fields->m_riftScript = std::move(compiled.unwrap());
+                }
+                fields->m_compiled = true;
+            }
+            if (fields->m_riftScript) {
+                auto vars = LabelValues::getValueMap(getString());
+                auto res = fields->m_riftScript->run(vars);
+                if (res) {
+                    std::string newNewString = res.unwrap();
+                    return newNewString;
+                }
             }
         }
         return input;
     }
 
     void setString(const char *newString, bool needUpdateLabel) {
-        CCLabelBMFont::setString(riftString(this, newString).c_str(), needUpdateLabel);
+        auto fields = m_fields.self();
+        if (std::string_view(newString) != std::string_view(getString())) {
+            fields->m_compiled = false;
+        }
+        CCLabelBMFont::setString(riftString(newString).c_str(), needUpdateLabel);
     }
 
     void setHappyTexturesModified(bool refresh = false) {
