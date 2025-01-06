@@ -8,37 +8,50 @@
 
 using namespace geode::prelude;
 
-class $modify(MyCCScene, CCScene) {
-
-    static void onModify(auto& self) {
-        HOOK_LATEST("cocos2d::CCScene::create");
-    }
-
-    struct Fields {
-        int m_currentCount = 0;
-        bool m_isMenuLayer = false;
-    };
-
-    static CCScene* create() {
-        auto ret = CCScene::create();
-        if (UIModding::get()->doModify) {
-            ret->schedule(schedule_selector(MyCCScene::checkForUpdates));
-        }
+class SceneHandler : public CCObject {
+public:
+    static SceneHandler* create() {
+        auto ret = new SceneHandler();
+        ret->autorelease();
         return ret;
     }
 
-    void checkForUpdates(float dt) {
-        if (this->getChildrenCount() != m_fields->m_currentCount && (this->getChildrenCount() != 1 || m_fields->m_currentCount == 0)) {
-            int idx = 0;
-           
-            for (CCNode* node : CCArrayExt<CCNode*>(this->getChildren())) {
-                idx++;
-                if (node->getID() == "MenuLayer" || Callbacks::get()->m_ignoreUICheck) continue;
-                if (idx > m_fields->m_currentCount) {
-                    UIModding::get()->doUICheck(node);
-                }
-            }
+    CCScene* m_currentScene = nullptr;
+
+    // IMPORTANT: might contain dangling pointers, 
+    // do not use for anything other than checking
+    std::unordered_set<CCNode*> m_handledNodes; 
+
+    void checkForUpdates(CCScene* scene) {
+        if (Callbacks::get()->m_ignoreUICheck) return;
+
+        if (scene != m_currentScene) {
+            // we're in a new scene, clear the handled nodes
+            m_handledNodes.clear();
+            m_currentScene = scene;
         }
-        m_fields->m_currentCount = this->getChildrenCount();
+
+        for (auto node : CCArrayExt<CCNode*>(scene->getChildren())) {
+            if (m_handledNodes.find(node) != m_handledNodes.end()) continue;
+            m_handledNodes.insert(node);
+
+            if (node->getID() == "MenuLayer") continue; // hardcoded for now
+
+            UIModding::get()->doUICheck(node);
+        }
+    }
+
+    void update(float dt) {
+        auto scene = CCDirector::sharedDirector()->getRunningScene();
+
+        if (scene && UIModding::get()->doModify) {
+            this->checkForUpdates(scene);
+        }
     }
 };
+
+$execute {
+    Loader::get()->queueInMainThread([]{
+        CCScheduler::get()->scheduleUpdateForTarget(SceneHandler::create(), INT_MAX, false);
+    });
+}
