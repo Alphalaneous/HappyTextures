@@ -9,12 +9,6 @@ using namespace geode::prelude;
 
 class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 
-    static void onModify(auto& self) {
-        HOOK_LATEST("CCMenuItemSpriteExtra::selected");
-        HOOK_LATEST("CCMenuItemSpriteExtra::unselected");
-        HOOK_LATEST("CCMenuItemSpriteExtra::activate");
-    }
-
     struct Fields {
         std::vector<matjson::Value> onClick;
         std::vector<matjson::Value> onRelease;
@@ -31,6 +25,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         ccColor3B originalColor;
         unsigned char originalOpacity;
     };
+
     void setOnClick(matjson::Value onClick) {
         m_fields->onClick.push_back(onClick);
         if (onClick.contains("override")) {
@@ -40,6 +35,7 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
             }
         }
     }
+
     void setOnRelease(matjson::Value onRelease) {
         m_fields->onRelease.push_back(onRelease);
         if (onRelease.contains("override")) {
@@ -58,10 +54,12 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
             }
         }
     }
+
     void setOnHover(matjson::Value onHover) {
         m_fields->hasHover = true;
         m_fields->onHover.push_back(onHover);
     }
+    
     void setOnExit(matjson::Value onExit) {
         m_fields->hasExit = true;
         m_fields->onExit.push_back(onExit);

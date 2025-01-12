@@ -1603,8 +1603,6 @@ void UIModding::doUICheck(CCNode* node, bool afterTransition) {
                 }
                 std::replace(name.begin(), name.end(), ' ', '-');
                 
-                
-
                 expandedValue["_pack-name"] = name.substr(0, name.find_last_of("."));;
 
                 handleModifications(node, expandedValue);

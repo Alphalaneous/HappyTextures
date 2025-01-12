@@ -19,14 +19,15 @@ namespace Utils {
 		button->setContentSize(size);
 	}
 
-    template <typename T>
-    static T getLayer() {
-        if (CCScene* scene = CCDirector::get()->m_pRunningScene) {
-            for (CCNode* node : CCArrayExt<CCNode*>(scene->getChildren())) {
-                if (T layer = typeinfo_cast<T>(node)) {
-                    return layer;
-                }
-            }
+    template <typename Layer>
+    static Layer getLayer() {
+
+        auto scene = CCDirector::sharedDirector()->getRunningScene();
+        if (CCTransitionScene* trans = typeinfo_cast<CCTransitionScene*>(scene)) {
+            scene = public_cast(trans, m_pInScene);
+        }
+        if (scene) {
+            return scene->getChildByType<Layer>(0);
         }
         return nullptr;
     }
@@ -193,6 +194,16 @@ namespace Utils {
         UIModding::get()->colorCache.clear();
         UIModding::get()->filenameCache.clear();
         UIModding::get()->textureToNameMap.clear();
+    }
+
+    static std::optional<geode::texture_loader::Pack> getPackByID(std::string id) {
+        for (geode::texture_loader::Pack pack : geode::texture_loader::getAppliedPacks()) {
+            if (id == pack.id) return pack;
+        }
+        for (geode::texture_loader::Pack pack : geode::texture_loader::getAvailablePacks()) {
+            if (id == pack.id) return pack;
+        }
+        return std::nullopt;
     }
 
     static std::vector<std::filesystem::path> getActivePacks() {

@@ -1,3 +1,10 @@
+## 1.9.1
+- Fix a crash with labels
+- Revamp Texture Loader pack nodes
+- Add Friend Requests cells to the default cell color modifications
+- Use geode::Popup for alerts
+- General code cleanup
+
 ## 1.9.0
 - Conditionals (If statements) (See Wiki)
 - Root node shortcut (See Wiki)

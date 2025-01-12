@@ -22,7 +22,6 @@ public:
     std::vector<std::filesystem::path> activePackCache;
     std::unordered_map<std::string, bool> filenameCache;
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
-    LevelBrowserLayer* levelBrowserLayer;
 
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();

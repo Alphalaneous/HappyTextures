@@ -1,8 +1,15 @@
 #pragma once
 
-#include "AlertDelegate.h"
+#include <Geode/Geode.hpp>
 
-class CustomAlert : public AlertDelegate {
-    public:
-        static CustomAlert* create(float width, float height, std::string texture, std::string title);
+using namespace geode::prelude;
+
+class CustomAlert : public geode::Popup<> {
+
+protected:
+    bool setup() override;
+    bool init(float width, float height, std::string texture, std::string title);
+
+public:
+    static CustomAlert* create(float width, float height, std::string texture, std::string title);
 };

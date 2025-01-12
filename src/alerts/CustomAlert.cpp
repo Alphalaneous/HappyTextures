@@ -1,5 +1,6 @@
 #include <Geode/Geode.hpp>
 #include "CustomAlert.h"
+#include "../nodes/CCLabelBMFont.h"
 
 CustomAlert* CustomAlert::create(float width, float height, std::string texture, std::string title) {
     auto pRet = new CustomAlert();
@@ -7,6 +8,19 @@ CustomAlert* CustomAlert::create(float width, float height, std::string texture,
         pRet->autorelease();
         return pRet;
     }
-    CC_SAFE_DELETE(pRet);
+    delete pRet;
     return nullptr;
 };
+
+bool CustomAlert::init(float width, float height, std::string texture, std::string title){
+  
+    if (!Popup<>::initAnchored(width, height, texture.c_str())) return false;
+
+    setTitle(title);
+
+    return true;
+}
+
+bool CustomAlert::setup(){
+    return true;
+}

@@ -3,8 +3,6 @@
 #include <Geode/Geode.hpp>
 #include <rift.hpp>
 #include "Macros.h"
-#include "nodes/LevelBrowserLayer.h"
-
 
 using namespace geode::prelude;
 
@@ -259,7 +257,7 @@ namespace LabelValues {
     }
 
     static std::pair<std::string, rift::Value> getLevelSearchType() {
-        LevelBrowserLayer* levelBrowserLayer = MyLevelBrowserLayer::get();
+        LevelBrowserLayer* levelBrowserLayer = Utils::getLayer<LevelBrowserLayer*>();
         if (levelBrowserLayer) {
             return LABEL("level_search_type", (int)levelBrowserLayer->m_searchObject->m_searchType);
         }
@@ -267,7 +265,7 @@ namespace LabelValues {
     }
 
     static std::pair<std::string, rift::Value> getLevelSearchMode() {
-        LevelBrowserLayer* levelBrowserLayer = MyLevelBrowserLayer::get();
+        LevelBrowserLayer* levelBrowserLayer = Utils::getLayer<LevelBrowserLayer*>();
         if (levelBrowserLayer) {
             return LABEL("level_search_mode", (int)levelBrowserLayer->m_searchObject->m_searchMode);
         }

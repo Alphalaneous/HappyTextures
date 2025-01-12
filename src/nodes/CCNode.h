@@ -8,7 +8,6 @@
 
 using namespace geode::prelude;
 
-
 class $modify(MyCCNode, CCNode) {
 
     struct Fields {
@@ -23,7 +22,6 @@ class $modify(MyCCNode, CCNode) {
         }
     }
 
-
     void setAttributesLocked(matjson::Value lockedAttributes) {
         if (!m_fields->m_locked) {
             m_fields->m_lockedAttributes = lockedAttributes;
@@ -33,9 +31,7 @@ class $modify(MyCCNode, CCNode) {
         }
     }
 
-
     void lockAttributes(float dt) {
         UIModding::get()->handleModifications(this, m_fields->m_lockedAttributes);
     }
-
 };

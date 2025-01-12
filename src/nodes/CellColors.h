@@ -10,6 +10,7 @@
 #include <Geode/modify/GJMessageCell.hpp>
 #include <Geode/modify/GJUserCell.hpp>
 #include <Geode/modify/GJLevelScoreCell.hpp>
+#include <Geode/modify/GJRequestCell.hpp>
 #include "../Macros.h"
 
 using namespace geode::prelude;
@@ -23,3 +24,4 @@ setCellColors(StatsCell, loadFromObject, StatsObject);
 setCellColors(GJMessageCell, loadFromMessage, GJUserMessage);
 setCellColors(MapPackCell, loadFromMapPack, GJMapPack);
 setCellColors(GJLevelScoreCell, loadFromScore, GJUserScore);
+setCellColors(GJRequestCell, loadFromScore, GJUserScore);
