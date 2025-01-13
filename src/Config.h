@@ -8,7 +8,6 @@ class Config {
     protected:
     static Config* instance;
     public:
-    bool m_batchNodesEnabled = true;
     std::unordered_map<std::string, std::vector<matjson::Value>> m_packSettings;
 
     std::optional<matjson::Value> loadIntoJson(geode::texture_loader::Pack pack) {
@@ -58,7 +57,7 @@ class Config {
     }
 
     void loadConfig(geode::texture_loader::Pack pack, matjson::Value config) {
-        if (m_batchNodesEnabled) m_batchNodesEnabled = config["batch-nodes"].asBool().unwrapOr(true);
+        
         loadSettings(pack, config);
     }
 

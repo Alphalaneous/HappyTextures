@@ -1,3 +1,7 @@
+## 1.9.2
+- Fix a memory leak when setting a font file on a CCLabelBMFont
+- Remove batch node hack :P
+
 ## 1.9.1
 - Fix a crash with labels
 - Revamp Texture Loader pack nodes

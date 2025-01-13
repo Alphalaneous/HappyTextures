@@ -661,8 +661,7 @@ void UIModding::setFont(CCNode* node, matjson::Value attributes) {
                 if (utils::string::endsWith(font, ".fnt")) {
                     MyCCLabelBMFont* myTextObject = static_cast<MyCCLabelBMFont*>(textObject);
                     
-                    CCLabelBMFont* dummyTextObject = CCLabelBMFont::create("", font.c_str());
-                    if (dummyTextObject) {
+                    if (FNTConfigLoadFile(font.c_str())) {
                         textObject->setFntFile(font.c_str());
 
                         if (myTextObject->m_fields->m_isLimited) {
@@ -1008,9 +1007,7 @@ void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
                                 CCSprite* spr = Utils::getValidSprite(texture.c_str());
                                 if (!spr) return;
 
-                                CCLabelBMFont* fnt = CCLabelBMFont::create("", font.c_str());
-
-                                if (spr && fnt) {
+                                if (FNTConfigLoadFile(font.c_str())) {
                                     auto buttonSprite = ButtonSprite::create(caption.c_str(), width, absolute, font.c_str(), texture.c_str(), height, scale);
                                     buttonNode->setNormalImage(buttonSprite);
                                     Utils::updateSprite(buttonNode);

@@ -94,16 +94,15 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
     }
 
     void checkParent(float dt) {
-        
-        if (auto parent = this->getParent()) {
+        if (auto parent = getParent()) {
             if (typeinfo_cast<LabelGameObject*>(parent)) {
-                if (strcmp(this->getFntFile(), "bigFont.fnt") == 0) {
-                    ccBlendFunc blendFunc = this->getBlendFunc();
-                    this->setFntFile("bigFont.fnt"_spr);
-                    this->setBlendFunc(blendFunc);
+                if (std::string_view(getFntFile()) == "bigFont.fnt") {
+                    ccBlendFunc blendFunc = getBlendFunc();
+                    setFntFile("bigFont.fnt"_spr);
+                    setBlendFunc(blendFunc);
                 }
             }
-            this->unschedule(m_fields->m_schedule);
+            unschedule(m_fields->m_schedule);
         }
     }
 };
