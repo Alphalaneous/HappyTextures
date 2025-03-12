@@ -28,13 +28,29 @@ CCMenuItemSpriteExtra* Callbacks::getDummyButton() {
     return m_dummyButton;
 }
 
+struct MenuLayerCallbacks : public CCNode {
+
+    void onPlay(CCObject* obj) {
+        CCDirector::get()->pushScene(CCTransitionFade::create(0.5, LevelSelectLayer::scene(0)));
+    }
+
+    void onCreator(CCObject* obj) {
+        CCDirector::get()->pushScene(CCTransitionFade::create(0.5, CreatorLayer::scene()));    
+    }
+
+    void onGarage(CCObject* obj) {
+        CCDirector::get()->pushScene(CCTransitionFade::create(0.5, GJGarageLayer::scene()));
+    }
+
+};
+
 void Callbacks::generateMenuLayerCallbacks() {
     CREATE_NORMAL(MenuLayer);
-    REGISTER_CALLBACK(MenuLayer, onPlay);
+    m_callbacks["MenuLayer"]["onPlay"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onPlay));
+    m_callbacks["MenuLayer"]["onGarage"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onGarage));
+    m_callbacks["MenuLayer"]["onCreator"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onCreator));
     REGISTER_CALLBACK(MenuLayer, onAchievements);
-    REGISTER_CALLBACK(MenuLayer, onCreator);
     REGISTER_CALLBACK(MenuLayer, onDaily);
-    REGISTER_CALLBACK(MenuLayer, onGarage);
     REGISTER_CALLBACK(MenuLayer, onMoreGames);
     REGISTER_CALLBACK(MenuLayer, onMyProfile);
     REGISTER_CALLBACK(MenuLayer, onOptions);

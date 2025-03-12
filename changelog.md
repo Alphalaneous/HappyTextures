@@ -1,3 +1,7 @@
+## 1.9.3
+**NOTICE! Modifying nodes by ID will soon be depreciated. Once the next GD update comes out, I will be removing that feature in favor of modiifying nodes by their class name. This is the name BEFORE the one in quotes in DevTools. For example `ui/cvolton.betterinfo$ExtendedLevelInfo.json` will become `ui/ExtendedLevelInfo.json` and anything in the nodes folder will no longer work and should be placed in the UI folder.**
+- Fixed crash when pressing space on main menu for mac
+
 ## 1.9.2
 - Fix a memory leak when setting a font file on a CCLabelBMFont
 - Remove batch node hack :P

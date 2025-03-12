@@ -1,11 +1,11 @@
 {
-    "geode": "4.1.1",
+    "geode": "4.2.1",
     "gd": {
         "win": "2.2074",
         "android": "2.2074",
         "mac": "2.2074"
     },
-    "version": "v1.9.2",
+    "version": "v1.9.3",
     "id": "alphalaneous.happy_textures",
     "name": "Happy Textures :3",
     "developer": "Alphalaneous",

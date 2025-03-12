@@ -1572,12 +1572,18 @@ void UIModding::doUICheck(CCNode* node, bool afterTransition) {
     unsigned long fileSize = 0;
     unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);    
 
+    /*if (!buffer || fileSize == 0) {
+        path = "ui/nodes/" + nodeID + ".json";
+        buffer = CCFileUtils::sharedFileUtils()->getFileData(path.c_str(), "rb", &fileSize);
+    }*/
+
     if (buffer && fileSize != 0) {
 
         std::string data = std::string(reinterpret_cast<char*>(buffer), fileSize);
         geode::Result<matjson::Value, matjson::ParseError> value = matjson::parse(data);
 
         if (value.isOk()) {
+            log::warn("Modifying by ID with Happy Textures will soon be unsupported!");
 
             matjson::Value expandedValue = value.unwrap();
             if (expandedValue.isObject()) {
