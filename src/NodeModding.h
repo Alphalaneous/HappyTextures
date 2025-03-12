@@ -45,28 +45,16 @@ public:
     void handleCurrentNode(CCNode* node) {
         std::string className = Utils::getNodeName(node);
         if (m_nodesToModify.contains(className)) {
+            std::pair<std::function<void(CCNode*)>, bool> nodeToModify = m_nodesToModify[className];
             if (!node->getUserObject("node_modified"_spr)) {
-                if (!m_nodesToModify[className].second) {
-                    m_nodesToModify[className].first(node);
+                if (!nodeToModify.second) {
+                    nodeToModify.first(node);
                 }
                 node->setUserObject("node_modified"_spr, CCBool::create(true));
             }
         }
         if (UIModding::get()->finishedLoad) {
             UIModding::get()->doUICheckForType(className, node);
-        }
-    }
-
-    void handleArray(CCArray* array) {
-        auto scene = CCDirector::sharedDirector()->getRunningScene();
-
-        if (scene && UIModding::get()->doModify && !Callbacks::get()->m_ignoreUICheck) {
-            
-            for (auto object : CCArrayExt<CCObject*>(array)) {
-                if (auto node = typeinfo_cast<CCNode*>(object)) {
-                    handleCurrentNode(node);
-                }
-            }
         }
     }
 };
@@ -87,25 +75,8 @@ class $modify(CCObject) {
                     node->setUserObject("node_modified"_spr, CCBool::create(true));
                 }
             }
+            NodeModding::get()->handleCurrentNode(node);
         }
         return CCObject::autorelease();
-    }
-};
-
-#include <Geode/modify/CCPoolManager.hpp>
-
-class $modify(CCPoolManager) {
-    void pop() {
-        auto poolManager = reinterpret_cast<CCPoolManagerHack*>(this);
-
-        if (poolManager && poolManager->m_pCurReleasePool) {
-            auto pool = reinterpret_cast<CCAutoreleasePoolHack*>(poolManager->m_pCurReleasePool);
-
-            if (pool->m_pManagedObjectArray) {
-                NodeModding::get()->handleArray(pool->m_pManagedObjectArray);
-            }
-        }
-
-        return CCPoolManager::pop();
     }
 };

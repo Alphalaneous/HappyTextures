@@ -1,5 +1,6 @@
 ## 1.9.4
 - Fix a bug with sprite frames not being able to be set
+- Fix some load delay
 
 ## 1.9.3
 **NOTICE! Modifying nodes by ID will soon be depreciated. Once the next GD update comes out, I will be removing that feature in favor of modiifying nodes by their class name. This is the name BEFORE the one in quotes in DevTools. For example `ui/cvolton.betterinfo$ExtendedLevelInfo.json` will become `ui/ExtendedLevelInfo.json` and anything in the nodes folder will no longer work and should be placed in the UI folder.**

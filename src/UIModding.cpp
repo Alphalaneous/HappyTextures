@@ -944,7 +944,7 @@ std::vector<std::string> generateValidSprites(std::string path, matjson::Value s
 void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
     if (attributes.contains("sprite")) {
         matjson::Value sprite = attributes["sprite"];
-        CCSprite* spr;
+        CCSprite* spr = nullptr;
         std::string spriteName;
         if (sprite.isObject()) {
             matjson::Value randomObject = sprite["random"];
@@ -964,14 +964,14 @@ void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
                 }
                 spriteName = randomSprites[id];
             }
-            spr = Utils::getValidSprite(spriteName.c_str());
-            if (!spr) spr = Utils::getValidSpriteFrame(spriteName.c_str());
+            spr = Utils::getValidSpriteFrame(spriteName.c_str());
+            if (!spr) spr = Utils::getValidSprite(spriteName.c_str());
             if (!spr) return;
         }
         if (sprite.isString()) {
             spriteName = sprite.asString().unwrapOr("");
-            spr = Utils::getValidSprite(spriteName.c_str());
-            if (!spr) spr = Utils::getValidSpriteFrame(spriteName.c_str());
+            spr = Utils::getValidSpriteFrame(spriteName.c_str());
+            if (!spr) spr = Utils::getValidSprite(spriteName.c_str());
             if (!spr) return;
         }
 
