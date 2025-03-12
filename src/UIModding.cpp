@@ -965,11 +965,13 @@ void UIModding::setSprite(CCNode* node, matjson::Value attributes) {
                 spriteName = randomSprites[id];
             }
             spr = Utils::getValidSprite(spriteName.c_str());
+            if (!spr) spr = Utils::getValidSpriteFrame(spriteName.c_str());
             if (!spr) return;
         }
         if (sprite.isString()) {
             spriteName = sprite.asString().unwrapOr("");
             spr = Utils::getValidSprite(spriteName.c_str());
+            if (!spr) spr = Utils::getValidSpriteFrame(spriteName.c_str());
             if (!spr) return;
         }
 
