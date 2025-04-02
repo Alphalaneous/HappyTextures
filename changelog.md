@@ -1,3 +1,6 @@
+## 1.9.5
+- iOS support
+
 ## 1.9.4
 - Fix a bug with sprite frames not being able to be set
 - Fix some load delay
