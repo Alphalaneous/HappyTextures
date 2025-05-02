@@ -32,7 +32,7 @@ $execute {
     NodeModding::get()->addNodeToModify("PackNode", [](CCNode* node) {
         
         PackNode* packNode = static_cast<PackNode*>(node);
-        if (packNode->getChildByID("author-text")) return;
+        if (packNode->getChildByID("pack-logo")) return;
 
         CCSprite* settingsSprite = CCSprite::createWithSpriteFrameName("GJ_optionsBtn_001.png");
         settingsSprite->setScale(0.4f);
