@@ -496,7 +496,7 @@ void UIModding::playSound(CCNode* node, matjson::Value attributes) {
 
             FMODAudioEngine::sharedEngine()->m_backgroundMusicChannel->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_globalChannel->setPaused(false);
-            FMODAudioEngine::sharedEngine()->m_channelGroup2->setPaused(false);
+            //FMODAudioEngine::sharedEngine()->m_channelGroup2->setPaused(false);
             FMODAudioEngine::sharedEngine()->m_system->update();
             std::string soundPath = getSound(sound);
             if (!soundPath.empty()) {
