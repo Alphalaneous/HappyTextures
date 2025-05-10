@@ -1,3 +1,7 @@
+## 1.9.8
+- Add basic support for SimpleAxisLayout
+- Fix setDisplayFrame not using changed textures
+
 ## 1.9.7
 - Fix 2
 

@@ -30,8 +30,20 @@ class $modify(MyCCSprite, CCSprite) {
     static void onModify(auto& self) {
         (void) self.setHookPriority("cocos2d::CCSprite::initWithSpriteFrameName", Priority::VeryEarly);
         (void) self.setHookPriority("cocos2d::CCSprite::createWithSpriteFrameName", Priority::VeryEarly);
+        (void) self.setHookPriority("cocos2d::CCSprite::setDisplayFrame", Priority::VeryEarly);
     }
     
+    void setDisplayFrame(CCSpriteFrame *pNewFrame) {
+        std::string frameName = Utils::getSpriteName(pNewFrame);
+        if (Utils::spriteExistsInPacks(frameName)) {
+            CCSprite* spr = CCSprite::create(frameName.c_str());
+            auto spriteFrame = CCSpriteFrame::createWithTexture(spr->getTexture(), spr->getTextureRect());
+            CCSpriteFrameCache::get()->addSpriteFrame(spriteFrame, frameName.c_str());
+            return CCSprite::setDisplayFrame(spriteFrame);
+        }
+        CCSprite::setDisplayFrame(pNewFrame);
+    }
+
     bool initWithSpriteFrameName(const char *pszSpriteFrameName) {
         std::string copy = pszSpriteFrameName;
         
@@ -44,7 +56,6 @@ class $modify(MyCCSprite, CCSprite) {
         return CCSprite::initWithSpriteFrameName(copy.c_str());
     }
     
-
     static CCSprite* createWithSpriteFrameName(const char *pszSpriteFrameName) {
         std::string copy = pszSpriteFrameName;
 

@@ -6,24 +6,19 @@
         "mac": "2.2074",
         "ios": "2.2074"
     },
-    "version": "v1.9.7",
+    "version": "v1.9.8",
     "id": "alphalaneous.happy_textures",
     "name": "Happy Textures :3",
     "developer": "Alphalaneous",
     "description": "Texture Packs on a whole new level!",
     "early-load": true,
-    "dependencies": [
-        {
-            "id": "geode.node-ids",
-            "version": ">=v1.15.0",
-            "importance": "required"
-        },
-        {
-            "id": "geode.texture-loader",
-            "version": ">=v1.7.0",
-            "importance": "suggested"
+    "dependencies": {
+        "geode.node-ids": ">=v1.15.0",
+        "geode.texture-loader": {
+            "importance": "suggested",
+            "version": ">=v1.7.0"
         }
-    ],
+    },
     "resources": {
         "files": [
             "resources/*"

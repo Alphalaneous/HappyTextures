@@ -361,32 +361,40 @@ void UIModding::setLayout(CCNode* node, matjson::Value attributes) {
 
         matjson::Value layoutValue = attributes["layout"];
         if (layoutValue.isObject()) {
-            AxisLayout* layout;
+            Layout* layout;
 
             if (node->getLayout()) {
-                layout = typeinfo_cast<AxisLayout*>(node->getLayout());
-                if (layoutValue.contains("remove")) {
-                    matjson::Value removeValue = layoutValue["remove"];
-                    if (removeValue.isBool()) {
-                        node->setLayout(nullptr);
+                if (auto layout = typeinfo_cast<AxisLayout*>(node->getLayout())) {
+                    if (layoutValue.contains("remove")) {
+                        matjson::Value removeValue = layoutValue["remove"];
+                        if (removeValue.isBool()) {
+                            node->setLayout(nullptr);
+                        }
+                    }
+                }
+                if (auto layout = typeinfo_cast<SimpleAxisLayout*>(node->getLayout())) {
+                    if (layoutValue.contains("remove")) {
+                        matjson::Value removeValue = layoutValue["remove"];
+                        if (removeValue.isBool()) {
+                            node->setLayout(nullptr);
+                        }
                     }
                 }
             }
             else {
-                layout = AxisLayout::create();
+                layout = SimpleAxisLayout::create(Axis::Row);
                 node->setLayout(layout);
             }
-            if (layout) {
-
+            if (auto simpleAxisLayout = typeinfo_cast<SimpleAxisLayout*>(layout)) {
                 if (layoutValue.contains("axis")) {
                     matjson::Value axisValue = layoutValue["axis"];
                     if (axisValue.isString()) {
                         std::string axis = axisValue.asString().unwrapOr("");
                         if (axis == "row") {
-                            layout->setAxis(Axis::Row);
+                            simpleAxisLayout->setAxis(Axis::Row);
                         }
                         else if (axis == "column") {
-                            layout->setAxis(Axis::Column);
+                            simpleAxisLayout->setAxis(Axis::Column);
                         }
                     }
                 }
@@ -394,49 +402,108 @@ void UIModding::setLayout(CCNode* node, matjson::Value attributes) {
                     matjson::Value flipAxisValue = layoutValue["flip-axis"];
                     if (flipAxisValue.isBool()) {
                         bool flipAxis = flipAxisValue.asBool().unwrapOr(false);
-                        layout->setAxisReverse(flipAxis);
+                        simpleAxisLayout->setMainAxisDirection(AxisDirection::RightToLeft);
                     }
                 }
                 if (layoutValue.contains("ignore-invisible")) {
                     matjson::Value ignoreInvisibleValue = layoutValue["ignore-invisible"];
                     if (ignoreInvisibleValue.isBool()) {
                         bool ignoreInvisible = ignoreInvisibleValue.asBool().unwrapOr(false);
-                        layout->ignoreInvisibleChildren(ignoreInvisible);
+                        simpleAxisLayout->ignoreInvisibleChildren(ignoreInvisible);
                     }
                 }
                 if (layoutValue.contains("flip-cross-axis")) {
                     matjson::Value flipCrossAxisValue = layoutValue["flip-cross-axis"];
                     if (flipCrossAxisValue.isBool()) {
                         bool flipCrossAxis = flipCrossAxisValue.asBool().unwrapOr(false);
-                        layout->setCrossAxisReverse(flipCrossAxis);
-                    }
-                }
-                if (layoutValue.contains("auto-scale")) {
-                    matjson::Value autoScaleValue = layoutValue["auto-scale"];
-                    if (autoScaleValue.isBool()) {
-                        bool autoScale = autoScaleValue.asBool().unwrapOr(false);
-                        layout->setAutoScale(autoScale);
-                    }
-                }
-                if (layoutValue.contains("grow-cross-axis")) {
-                    matjson::Value growCrossAxisValue = layoutValue["grow-cross-axis"];
-                    if (growCrossAxisValue.isBool()) {
-                        bool growCrossAxis = growCrossAxisValue.asBool().unwrapOr(false);
-                        layout->setGrowCrossAxis(growCrossAxis);
-                    }
-                }
-                if (layoutValue.contains("allow-cross-axis-overflow")) {
-                    matjson::Value allowCrossAxisOverflowValue = layoutValue["allow-cross-axis-overflow"];
-                    if (allowCrossAxisOverflowValue.isBool()) {
-                        bool allowCrossAxisOverflow = allowCrossAxisOverflowValue.asBool().unwrapOr(false);
-                        layout->setCrossAxisOverflow(allowCrossAxisOverflow);
+                        simpleAxisLayout->setCrossAxisDirection(AxisDirection::RightToLeft);
                     }
                 }
                 if (layoutValue.contains("gap")) {
                     matjson::Value gapValue = layoutValue["gap"];
                     if (gapValue.isNumber()) {
                         float gap = gapValue.asDouble().unwrapOr(0);
-                        layout->setGap(gap);
+                        simpleAxisLayout->setGap(gap);
+                    }
+                }
+                if (layoutValue.contains("axis-alignment")) {
+                    matjson::Value axisAlignmentValue = layoutValue["axis-alignment"];
+                    if (axisAlignmentValue.isString()) {
+                        std::string axisAlignmentStr = axisAlignmentValue.asString().unwrapOr("");
+                        MainAxisAlignment axisAlignment = getSimpleMainAxisAlignment(axisAlignmentStr);
+                        simpleAxisLayout->setMainAxisAlignment(axisAlignment);
+                    }
+                }
+                if (layoutValue.contains("cross-axis-alignment")) {
+                    matjson::Value crossAxisAlignmentValue = layoutValue["cross-axis-alignment"];
+                    if (crossAxisAlignmentValue.isString()) {
+                        std::string crossAxisAlignmentStr = crossAxisAlignmentValue.asString().unwrapOr("");
+                        CrossAxisAlignment axisAlignment = getSimpleCrossAxisAlignment(crossAxisAlignmentStr);
+                        simpleAxisLayout->setCrossAxisAlignment(axisAlignment);
+                    }
+                }
+            }
+            if (auto axisLayout = typeinfo_cast<AxisLayout*>(layout)) {
+
+                if (layoutValue.contains("axis")) {
+                    matjson::Value axisValue = layoutValue["axis"];
+                    if (axisValue.isString()) {
+                        std::string axis = axisValue.asString().unwrapOr("");
+                        if (axis == "row") {
+                            axisLayout->setAxis(Axis::Row);
+                        }
+                        else if (axis == "column") {
+                            axisLayout->setAxis(Axis::Column);
+                        }
+                    }
+                }
+                if (layoutValue.contains("flip-axis")) {
+                    matjson::Value flipAxisValue = layoutValue["flip-axis"];
+                    if (flipAxisValue.isBool()) {
+                        bool flipAxis = flipAxisValue.asBool().unwrapOr(false);
+                        axisLayout->setAxisReverse(flipAxis);
+                    }
+                }
+                if (layoutValue.contains("ignore-invisible")) {
+                    matjson::Value ignoreInvisibleValue = layoutValue["ignore-invisible"];
+                    if (ignoreInvisibleValue.isBool()) {
+                        bool ignoreInvisible = ignoreInvisibleValue.asBool().unwrapOr(false);
+                        axisLayout->ignoreInvisibleChildren(ignoreInvisible);
+                    }
+                }
+                if (layoutValue.contains("flip-cross-axis")) {
+                    matjson::Value flipCrossAxisValue = layoutValue["flip-cross-axis"];
+                    if (flipCrossAxisValue.isBool()) {
+                        bool flipCrossAxis = flipCrossAxisValue.asBool().unwrapOr(false);
+                        axisLayout->setCrossAxisReverse(flipCrossAxis);
+                    }
+                }
+                if (layoutValue.contains("auto-scale")) {
+                    matjson::Value autoScaleValue = layoutValue["auto-scale"];
+                    if (autoScaleValue.isBool()) {
+                        bool autoScale = autoScaleValue.asBool().unwrapOr(false);
+                        axisLayout->setAutoScale(autoScale);
+                    }
+                }
+                if (layoutValue.contains("grow-cross-axis")) {
+                    matjson::Value growCrossAxisValue = layoutValue["grow-cross-axis"];
+                    if (growCrossAxisValue.isBool()) {
+                        bool growCrossAxis = growCrossAxisValue.asBool().unwrapOr(false);
+                        axisLayout->setGrowCrossAxis(growCrossAxis);
+                    }
+                }
+                if (layoutValue.contains("allow-cross-axis-overflow")) {
+                    matjson::Value allowCrossAxisOverflowValue = layoutValue["allow-cross-axis-overflow"];
+                    if (allowCrossAxisOverflowValue.isBool()) {
+                        bool allowCrossAxisOverflow = allowCrossAxisOverflowValue.asBool().unwrapOr(false);
+                        axisLayout->setCrossAxisOverflow(allowCrossAxisOverflow);
+                    }
+                }
+                if (layoutValue.contains("gap")) {
+                    matjson::Value gapValue = layoutValue["gap"];
+                    if (gapValue.isNumber()) {
+                        float gap = gapValue.asDouble().unwrapOr(0);
+                        axisLayout->setGap(gap);
                     }
                 }
                 if (layoutValue.contains("axis-alignment")) {
@@ -444,7 +511,7 @@ void UIModding::setLayout(CCNode* node, matjson::Value attributes) {
                     if (axisAlignmentValue.isString()) {
                         std::string axisAlignmentStr = axisAlignmentValue.asString().unwrapOr("");
                         AxisAlignment axisAlignment = getAxisAlignment(axisAlignmentStr);
-                        layout->setAxisAlignment(axisAlignment);
+                        axisLayout->setAxisAlignment(axisAlignment);
                     }
                 }
                 if (layoutValue.contains("cross-axis-alignment")) {
@@ -452,7 +519,7 @@ void UIModding::setLayout(CCNode* node, matjson::Value attributes) {
                     if (crossAxisAlignmentValue.isString()) {
                         std::string crossAxisAlignmentStr = crossAxisAlignmentValue.asString().unwrapOr("");
                         AxisAlignment axisAlignment = getAxisAlignment(crossAxisAlignmentStr);
-                        layout->setCrossAxisAlignment(axisAlignment);
+                        axisLayout->setCrossAxisAlignment(axisAlignment);
                     }
                 }
                 if (layoutValue.contains("cross-axis-line-alignment")) {
@@ -460,7 +527,7 @@ void UIModding::setLayout(CCNode* node, matjson::Value attributes) {
                     if (crossAxisLineAlignmentValue.isString()) {
                         std::string crossAxisLineAlignmentStr = crossAxisLineAlignmentValue.asString().unwrapOr("");
                         AxisAlignment axisAlignment = getAxisAlignment(crossAxisLineAlignmentStr);
-                        layout->setCrossAxisLineAlignment(axisAlignment);
+                        axisLayout->setCrossAxisLineAlignment(axisAlignment);
                     }
                 }
             }
@@ -1671,6 +1738,43 @@ AxisAlignment UIModding::getAxisAlignment(std::string name) {
     }
     if (name == "between") {
         axisAlignment = AxisAlignment::Between;
+    }
+    return axisAlignment;
+}
+
+MainAxisAlignment UIModding::getSimpleMainAxisAlignment(std::string name) {
+    MainAxisAlignment axisAlignment = MainAxisAlignment::Start;
+    if (name == "start") {
+        axisAlignment = MainAxisAlignment::Start;
+    }
+    if (name == "center") {
+        axisAlignment = MainAxisAlignment::Center;
+    }
+    if (name == "end") {
+        axisAlignment = MainAxisAlignment::End;
+    }
+    if (name == "even") {
+        axisAlignment = MainAxisAlignment::Even;
+    }
+    if (name == "between") {
+        axisAlignment = MainAxisAlignment::Between;
+    }
+    if (name == "around") {
+        axisAlignment = MainAxisAlignment::Around;
+    }
+    return axisAlignment;
+}
+
+CrossAxisAlignment UIModding::getSimpleCrossAxisAlignment(std::string name) {
+    CrossAxisAlignment axisAlignment = CrossAxisAlignment::Start;
+    if (name == "start") {
+        axisAlignment = CrossAxisAlignment::Start;
+    }
+    if (name == "center") {
+        axisAlignment = CrossAxisAlignment::Center;
+    }
+    if (name == "end") {
+        axisAlignment = CrossAxisAlignment::End;
     }
     return axisAlignment;
 }

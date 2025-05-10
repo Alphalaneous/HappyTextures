@@ -71,6 +71,8 @@ public:
     std::vector<std::filesystem::path> getActivePacks();
     void startFileListeners();
     AxisAlignment getAxisAlignment(std::string name);
+    MainAxisAlignment getSimpleMainAxisAlignment(std::string name);
+    CrossAxisAlignment getSimpleCrossAxisAlignment(std::string name);
     std::optional<ColorData> getColors(std::string name);
     void updateColors(CCNode* node, std::string name);
     void evaluateIf(CCNode* node, matjson::Value ifArray);
