@@ -1,6 +1,6 @@
 
 #define HOOK_LATEST(method) queueInMainThread([&self] {\
-    (void) self.setHookPriorityAfterPost(method, Utils::getHookPrioLatest(method));\
+    (void) self.setHookPriority(method, INT_MIN + 1);\
 });
 
 #define public_cast(value, member) [](auto* v) { \
@@ -32,22 +32,10 @@ if (name == #easingTypeName) {\
     easingType = CCEase##easingTypeName::create(action);\
 }
 
-#define nodesFor(methodName) if(node) UIModding::get()->methodName(node, nodeAttributes)
+#define nodesFor(methodName) if(node) UIModding::get()->methodName(node, attributes)
 
-#define actionForName2(name, x, y, param2) if(type == #name){ \
-            if (!isNumber) { \
-                actionToDo = CC##name::create(duration, x, y); \
-            } \
-            else { \
-                actionToDo = CC##name::create(duration, param2); \
-            } \
-        }
-
-#define actionForName(name, params) if(type == #name){ \
-            if (!isNumber) { \
-                actionToDo = CC##name::create params; \
-            } \
-        }
+#define actionCase(name, ...) \
+        else if (type == #name) { actionToDo = CC##name::create(__VA_ARGS__); }
 
 
 #define setSpriteVar(varName, jsonName, type, unwrap)\
@@ -70,7 +58,7 @@ if (infoVal.contains(#jsonName)) {\
 if (eventVal.contains(#type)) {\
     matjson::Value eventType = eventVal[#type];\
     if (eventType.isObject()) {\
-        eventType["_pack-name"] = nodeObject["_pack-name"];\
+        eventType["_pack-name"] = eventVal["_pack-name"];\
         button->set##method(eventType);\
     }\
 }

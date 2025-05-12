@@ -11,33 +11,39 @@ using namespace geode::prelude;
 namespace Utils {
 
     static void updateSprite(CCMenuItemSpriteExtra* button) {
+        auto* sprite = button->getNormalImage();
+        if (!sprite) return;
 
-		auto sprite = button->getNormalImage();
-		auto size = sprite->getScaledContentSize();
-		sprite->setPosition(size / 2);
-		sprite->setAnchorPoint({ .5f, .5f });
-		button->setContentSize(size);
-	}
-
-    template <typename Layer>
-    static Layer getLayer() {
-
-        auto scene = CCDirector::sharedDirector()->getRunningScene();
-        if (CCTransitionScene* trans = typeinfo_cast<CCTransitionScene*>(scene)) {
-            scene = public_cast(trans, m_pInScene);
-        }
-        if (scene) {
-            return scene->getChildByType<Layer>(0);
-        }
-        return nullptr;
+        const auto& size = sprite->getScaledContentSize();
+        sprite->setPosition(size / 2);
+        sprite->setAnchorPoint({0.5f, 0.5f});
+        button->setContentSize(size);
     }
 
-    static int getValidStat(std::string key) {
-        std::string val = GameStatsManager::sharedState()->m_playerStats->valueForKey(key)->m_sString;
+    template <typename Layer, typename = std::enable_if_t<std::is_pointer_v<Layer>>>
+    static Layer getLayer() {
+        auto* scene = CCDirector::sharedDirector()->getRunningScene();
+        if (!scene) return nullptr;
 
-        if (val.empty()) val = "0";
-        Result<int> result = geode::utils::numFromString<int>(val);
-        if (result.isOk()) return result.unwrap();
+        if (auto* trans = typeinfo_cast<CCTransitionScene*>(scene)) {
+            scene = public_cast(trans, m_pInScene);
+            if (!scene) return nullptr;
+        }
+
+        return scene->getChildByType<Layer>(0);
+    }
+
+    static int getValidStat(const std::string& key) {
+        const auto* statValue = GameStatsManager::sharedState()->m_playerStats->valueForKey(key);
+        if (!statValue) return -1;
+
+        const std::string& val = statValue->m_sString;
+        if (val.empty()) return 0;
+
+        if (auto result = geode::utils::numFromString<int>(val); result.isOk()) {
+            return result.unwrap();
+        }
+
         return -1;
     }
 
@@ -53,28 +59,15 @@ namespace Utils {
     }
 
     static bool hasNode(CCNode* child, CCNode* node) {
-        CCNode* parent = child;
-        while (true) {
-            if (parent) {
-                if (parent == node) {
-                    return true;
-                }
-                parent = parent->getParent();
+        for (CCNode* current = child; current != nullptr; current = current->getParent()) {
+            if (current == node) {
+                return true;
             }
-            else break;
         }
         return false;
     }
-    
-    static std::string strReplace(std::string subject, std::string search, std::string replace) {
-        size_t pos = 0;
-        while ((pos = subject.find(search, pos)) != std::string::npos) {
-            subject.replace(pos, search.length(), replace);
-            pos += replace.length();
-        }
-        return subject;
-    }
 
+    
     //fix texture loader fallback
 
     static CCSprite* getValidSprite(const char* sprName) {
@@ -95,12 +88,16 @@ namespace Utils {
         return spr;
     }
 
-    static std::string nameForClass(std::string className) {
-        std::vector<std::string> strSplit = utils::string::split(className, " ");
-        std::string part0 = strSplit[strSplit.size()-1];
-        std::vector<std::string> strColonSplit = utils::string::split(part0, "::");
-        std::string part1 = strColonSplit[strColonSplit.size()-1];
-        return part1;
+    static std::string nameForClass(const std::string& className) {
+        size_t lastSpace = className.rfind(' ');
+        size_t start = (lastSpace == std::string::npos) ? 0 : lastSpace + 1;
+
+        size_t lastColon = className.rfind("::");
+        size_t nameStart = (lastColon != std::string::npos && lastColon >= start)
+            ? lastColon + 2
+            : start;
+
+        return className.substr(nameStart);
     }
 
     static std::string getNodeName(CCObject* node) {
@@ -120,11 +117,11 @@ namespace Utils {
     #endif
     }
 
-    static void setColorIfExists(CCRGBAProtocol* node, std::string colorId) {
+    static void setColorIfExists(CCRGBAProtocol* node, const std::string& colorId) {
         if (!node) return;
-        std::optional<ColorData> dataOpt = UIModding::get()->getColors(colorId);
-        if (dataOpt.has_value()) {
-            ColorData data = dataOpt.value();
+
+        if (const auto dataOpt = UIModding::get()->getColors(colorId)) {
+            const ColorData& data = *dataOpt;
             node->setColor(data.color);
             node->setOpacity(data.alpha);
         }
@@ -143,39 +140,6 @@ namespace Utils {
         return "";
     }
 
-    static std::string getSpriteName(CCSpriteFrame* spriteFrame) {
-        if (UIModding::get()->textureToNameMap.contains(spriteFrame->getTexture())) {
-            return UIModding::get()->textureToNameMap[spriteFrame->getTexture()];
-        }
-
-        for (auto [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
-            if (spriteFrame->getTexture() == frame->getTexture() && frame->getRect() == spriteFrame->getRect()) {
-                UIModding::get()->textureToNameMap[spriteFrame->getTexture()] = key;
-                return key;
-            }
-        }
-        return "";
-    }
-
-    static std::string getHookPrioLatest(const std::string& name) {
-        int minPriority = 0;
-        const Mod* currentMod = Mod::get();
-        std::string latestModID = currentMod->getID();
-
-        for (const auto* mod : Loader::get()->getAllMods()) {
-            if (mod == currentMod) continue;
-
-            for (const auto* hook : mod->getHooks()) {
-                if (hook->getDisplayName() == name && hook->getPriority() < minPriority) {
-                    minPriority = hook->getPriority();
-                    latestModID = mod->getID();
-                }
-            }
-        }
-
-        return latestModID;
-    }
-
     static int getRandomNumber(int lower, int upper) {
         if (lower > upper) {
             std::swap(lower, upper);
@@ -189,118 +153,111 @@ namespace Utils {
     }
 
     static void clearCaches() {
-        UIModding::get()->activePackCache.clear();
         UIModding::get()->uiCache.clear();
         UIModding::get()->colorCache.clear();
         UIModding::get()->filenameCache.clear();
         UIModding::get()->textureToNameMap.clear();
     }
 
-    static std::optional<geode::texture_loader::Pack> getPackByID(std::string id) {
-        for (geode::texture_loader::Pack pack : geode::texture_loader::getAppliedPacks()) {
-            if (id == pack.id) return pack;
+    static std::optional<geode::texture_loader::Pack> getPackByID(const std::string& id) {
+        for (const auto& pack : geode::texture_loader::getAppliedPacks()) {
+            if (pack.id == id) return pack;
         }
-        for (geode::texture_loader::Pack pack : geode::texture_loader::getAvailablePacks()) {
-            if (id == pack.id) return pack;
+        for (const auto& pack : geode::texture_loader::getAvailablePacks()) {
+            if (pack.id == id) return pack;
         }
         return std::nullopt;
     }
 
-    static std::vector<std::filesystem::path> getActivePacks() {
+    static const std::vector<std::filesystem::path>& getActivePacks() {
+        auto& modding = *UIModding::get();
+        auto& cache = modding.activePackCache;
 
-        if (!UIModding::get()->activePackCache.empty()) return UIModding::get()->activePackCache;
+        if (!cache.empty()) return cache;
 
-        Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
-        if (textureLoader) {
-            if (textureLoader->getVersion() >= VersionInfo{1, 7, 0}) {
-                for (geode::texture_loader::Pack pack : geode::texture_loader::getAppliedPacks()) {
-                    UIModding::get()->activePackCache.push_back(pack.resourcesPath);
-                }
-            }
-            else {
-                log::info("Using old pack method. Update Texture Loader!");
-                for (matjson::Value value : textureLoader->getSavedValue<std::vector<matjson::Value>>("applied")) {
-                    if (value.isObject() && value.contains("path") && value["path"].isString()) {
-                        std::filesystem::path path = std::filesystem::path{utils::string::replace(value["path"].asString().unwrapOr(""), "\\", "/")};
-                        if (path.extension().string() == ".zip") {
-                            std::filesystem::path pathFs{path};
-                            path = textureLoader->getSaveDir() / "unzipped" / pathFs.filename();
-                        }
-                        if (!std::filesystem::is_directory(path)) continue;
-                        UIModding::get()->activePackCache.push_back(path);
-                    }
-                }
+        if (Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader")) {
+            for (const auto& pack : geode::texture_loader::getAppliedPacks()) {
+                cache.push_back(pack.resourcesPath);
             }
         }
 
-        return UIModding::get()->activePackCache;
+        return cache;
     }
 
-    static std::string qualityToNormal(std::string str) {
-        std::vector<std::string> fileParts = utils::string::split(str, ".");
-        if (fileParts.size() < 1) return str;
-        std::string suffix = fileParts[fileParts.size()-1];
-        std::string prefix = str.substr(0, str.size() - suffix.size() - 1);
+    static void qualityToNormal(std::string& str) {
+        size_t dotPos = str.rfind('.');
+        if (dotPos == std::string::npos || dotPos == 0 || dotPos == str.size() - 1)
+            return;
 
-        if (utils::string::endsWith(prefix, "-uhd")) {
-            prefix = prefix.substr(0, prefix.size() - 4);
-        }
-        else if (utils::string::endsWith(prefix, "-hd")) {
-            prefix = prefix.substr(0, prefix.size() - 3);
+        size_t prefixEnd = dotPos;
+
+        if (str.compare(prefixEnd - 4, 4, "-uhd") == 0) {
+            prefixEnd -= 4;
+        } else if (str.compare(prefixEnd - 3, 3, "-hd") == 0) {
+            prefixEnd -= 3;
         }
 
-        return fmt::format("{}.{}", prefix, suffix);
+        if (prefixEnd < dotPos) {
+            str.erase(prefixEnd, dotPos - prefixEnd);
+            dotPos = prefixEnd;
+        }
     }
 
     static void reloadFileNames() {
-        for (std::filesystem::path packPath : Utils::getActivePacks()) {
+        auto& filenameCache = UIModding::get()->filenameCache;
+
+        for (const auto& packPath : Utils::getActivePacks()) {
             if (!std::filesystem::is_directory(packPath)) continue;
+
+            const auto packStr = packPath.string();
+            const size_t baseLen = packStr.length() + 1;
+
             for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
-                if (entry.is_regular_file()) {
-                    std::string pathStr = entry.path().string();
-                    std::string subStr = pathStr.substr(packPath.string().size() + 1);
-                    UIModding::get()->filenameCache[qualityToNormal(utils::string::replace(subStr, "\\", "/"))] = true;
-                }
+                if (!entry.is_regular_file()) continue;
+
+                const std::string fullPath = entry.path().string();
+                if (fullPath.length() <= baseLen) continue;
+
+                std::string subStr = fullPath.substr(baseLen);
+                qualityToNormal(subStr);
+
+                geode::utils::string::replaceIP(subStr, "\\", "/");
+                filenameCache[std::move(subStr)] = true;
             }
         }
     }
 
-    static bool spriteExistsInPacks(std::string fileName) {
-        return UIModding::get()->filenameCache[qualityToNormal(fileName)];
+    static bool spriteExistsInPacks(const std::string& fileName) {
+        return UIModding::get()->filenameCache[fileName];
     }
 
-    static CCNode* getChildByTypeName(CCNode* node, int index, std::string name) {
-        size_t indexCounter = 0;
-
+    static CCNode* getChildByTypeName(CCNode* node, int index, const std::string& name) {
         if (!node || node->getChildrenCount() == 0) return nullptr;
-        // start from end for negative index
-        if (index < 0) {
-            index = -index - 1;
-            for (size_t i = node->getChildrenCount() - 1; i >= 0; i--) {
-                CCNode* idxNode = static_cast<CCNode*>(node->getChildren()->objectAtIndex(i));
-                std::string className = getNodeName(idxNode);
-                if (className == name) {
-                    if (indexCounter == index) {
-                        return idxNode;
-                    }
-                    ++indexCounter;
-                }
-                if (i == 0) break;
-            }
+
+        size_t indexCounter = 0;
+        const size_t childrenCount = node->getChildrenCount();
+
+        bool isNegativeIndex = (index < 0);
+        if (isNegativeIndex) {
+            index = -index - 1; 
         }
-        else {
-            for (size_t i = 0; i < node->getChildrenCount(); i++) {
-                CCNode* idxNode = static_cast<CCNode*>(node->getChildren()->objectAtIndex(i));
-                std::string className = getNodeName(idxNode);
-                if (className == name) {
-                    if (indexCounter == index) {
-                        return idxNode;
-                    }
-                    ++indexCounter;
+
+        for (size_t i = (isNegativeIndex ? childrenCount - 1 : 0); 
+            isNegativeIndex ? i >= 0 : i < childrenCount; 
+            isNegativeIndex ? --i : ++i) {
+
+            CCNode* idxNode = static_cast<CCNode*>(node->getChildren()->objectAtIndex(i));
+            if (getNodeName(idxNode) == name) {
+                if (indexCounter == index) {
+                    return idxNode;
                 }
+                ++indexCounter;
             }
+
+            if (isNegativeIndex && i == 0) break;
         }
 
         return nullptr;
     }
+
 }

@@ -18,6 +18,7 @@ class $modify(MyMenuLayer, MenuLayer) {
 
         UIModding::get()->finishedLoad = true;
         if (!MenuLayer::init()) return false;
+
         UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
         Callbacks::get()->generateAll();
 
@@ -25,12 +26,8 @@ class $modify(MyMenuLayer, MenuLayer) {
             if (Mod::get()->getSettingValue<bool>("hot-reload")) {
                 UIModding::get()->startFileListeners();
             }
-            if (UIModding::get()->initialScene) {
-                UIModding::get()->doUICheck(this, true);
-            }
-            UIModding::get()->doUICheck(this);
-            UIModding::get()->initialScene = false;
         }
+
         return true;
     }
 };

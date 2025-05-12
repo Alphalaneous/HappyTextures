@@ -12,9 +12,6 @@ class $modify(MyCCDirector, CCDirector) {
 
     void willSwitchToScene(CCScene* scene) {
         CCDirector::willSwitchToScene(scene);
-
-        for (CCNode* node : CCArrayExt<CCNode*>(scene->getChildren())) {
-            UIModding::get()->doUICheck(node, true);
-        }
+        UIModding::get()->reloadChildren(scene, true);
     }
 };

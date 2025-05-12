@@ -12,7 +12,7 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer) {
         HOOK_LATEST("GJDropDownLayer::showLayer");
     }
 
-    void showLayer(bool p0) {
+    void showLayer(bool instant) {
         
         if (UIModding::get()->doModify) {
             setVisible(true);
@@ -20,7 +20,7 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer) {
             CCScene* currentScene = CCDirector::get()->getRunningScene();
             currentScene->addChild(this);
 
-            if (p0) {
+            if (instant) {
                 m_mainLayer->setPosition(m_endPosition);
                 setOpacity(125);
             }
@@ -34,10 +34,9 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer) {
                 CCFadeTo* fadeTo = CCFadeTo::create(0.5, 125);
                 runAction(fadeTo);
             }
-            UIModding::get()->doUICheck(this);
         }
         else {
-            GJDropDownLayer::showLayer(p0);
+            GJDropDownLayer::showLayer(instant);
         }
     }
 };

@@ -2,7 +2,6 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
-#include "CCScene.h"
 #include "../Macros.h"
 
 using namespace geode::prelude;

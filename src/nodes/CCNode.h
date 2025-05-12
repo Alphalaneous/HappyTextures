@@ -11,27 +11,23 @@ using namespace geode::prelude;
 class $modify(MyCCNode, CCNode) {
 
     struct Fields {
-        matjson::Value m_lockedAttributes;
-        bool m_locked;
+        matjson::Value m_attributes;
+        bool m_modified = false;
     };
 
-    void cleanup() {
-        CCNode::cleanup();
-        if (m_fields->m_locked) {
-            schedule(schedule_selector(MyCCNode::lockAttributes));
-        }
+    void setAttributes(const matjson::Value& attributes) {
+        m_fields->m_attributes = attributes;
     }
 
-    void setAttributesLocked(matjson::Value lockedAttributes) {
-        if (!m_fields->m_locked) {
-            m_fields->m_lockedAttributes = lockedAttributes;
-            m_fields->m_locked = true;
-
-            schedule(schedule_selector(MyCCNode::lockAttributes));
-        }
+    matjson::Value getAttributes() {
+        return m_fields->m_attributes;
     }
 
-    void lockAttributes(float dt) {
-        UIModding::get()->handleModifications(this, m_fields->m_lockedAttributes);
+    bool isModified() {
+        return m_fields->m_modified;
+    }
+
+    void setModified() {
+        m_fields->m_modified = true;
     }
 };

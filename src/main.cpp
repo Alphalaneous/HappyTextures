@@ -4,7 +4,6 @@
 #include "nodes/CCMenu.h"
 #include "nodes/CCMenuItemSpriteExtra.h"
 #include "nodes/CCScale9Sprite.h"
-#include "nodes/CCScene.h"
 #include "nodes/CommentCell.h"
 #include "nodes/EditLevelLayer.h"
 #include "nodes/GJCommentListLayer.h"
@@ -28,4 +27,3 @@
 #include "nodes/CCDirector.h"
 #include "NodeModding.h"
 #include "BackgroundColors.h"
-#include "texture-loader/PackNode.h"

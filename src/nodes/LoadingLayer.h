@@ -9,26 +9,24 @@ using namespace geode::prelude;
 
 class $modify(MyLoadingLayer, LoadingLayer) {
     
-    bool init(bool p0) {
-        Utils::clearCaches();
-        return LoadingLayer::init(p0);
+    static void onModify(auto& self) {
+        (void) self.setHookPriorityPost("LoadingLayer::loadAssets", Priority::Late);
     }
 
+    struct Fields {
+        bool m_loaded = false;
+    };
+
     void loadAssets() {
-
-        if (m_loadStep > 0) {
-            LoadingLayer::loadAssets();
-            return;
-        }
-
-        UIModding::get()->finishedLoad = false;
-        
-        queueInMainThread([] {
+        LoadingLayer::loadAssets();
+        auto& loaded = m_fields.self()->m_loaded;
+        if (!loaded) {
+            UIModding::get()->activePackCache.clear();
+            Utils::clearCaches();
             Utils::reloadFileNames();
             UIModding::get()->loadNodeFiles();
             Config::get()->loadPackJsons();
-        });
-        
-        LoadingLayer::loadAssets();
+            loaded = true;
+        }
     }
 };
