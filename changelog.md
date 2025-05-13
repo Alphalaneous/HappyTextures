@@ -1,3 +1,6 @@
+## 1.9.9
+- Fix sprite crash
+
 ## 1.9.8
 - Add basic support for SimpleAxisLayout
 - Fix setDisplayFrame not using changed textures
