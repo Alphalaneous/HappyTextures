@@ -21,7 +21,6 @@ class $modify(MyLoadingLayer, LoadingLayer) {
         LoadingLayer::loadAssets();
         auto& loaded = m_fields.self()->m_loaded;
         if (!loaded) {
-            UIModding::get()->activePackCache.clear();
             Utils::clearCaches();
             Utils::reloadFileNames();
             UIModding::get()->loadNodeFiles();

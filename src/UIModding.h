@@ -19,7 +19,6 @@ public:
     std::map<std::string, matjson::Value> uiCache;
     std::map<std::string, ColorData> colorCache;
     std::map<std::string, std::string> randomSprites;
-    std::vector<std::filesystem::path> activePackCache;
     std::unordered_map<std::string, bool> filenameCache;
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
 
@@ -27,6 +26,7 @@ public:
     Ref<CCArray> removalQueue = CCArray::create();
     bool doModify;
     bool finishedLoad;
+    bool skipCheck;
 
     void recursiveModify(CCNode* node, const matjson::Value& elements);
     void setVisible(CCNode* node, const matjson::Value& attributes);
@@ -69,9 +69,9 @@ public:
     void handleParent(CCNode* node, const matjson::Value& parentVal);
     void handleRoot(CCNode* node, const matjson::Value& rootVal);
     void handleChildren(CCNode* node, matjson::Value& childrenVal);
-    void handleNewChildren(CCNode* node, matjson::Value& newChildrenVal);
+    void handleNewChildren(CCNode* node, matjson::Value& newChildrenVal, const std::string& packName);
     void handleAllChildren(CCNode* node, const matjson::Value& allChildrenVal);
-    void handleChildByIndex(CCNode* node, matjson::Value& indexChildrenVal);
+    void handleChildByIndex(CCNode* node, matjson::Value& indexChildrenVal, const std::string& packName);
     void handleModifications(CCNode* node, matjson::Value nodeObject, bool transition = false);
 
     void modifyChildByIndex(CCNode* node, const matjson::Value& value);

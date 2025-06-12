@@ -77,9 +77,6 @@ std::optional<ColorData> UIModding::getColors(const std::string& name) {
 
 void UIModding::recursiveModify(CCNode* node, const matjson::Value& elements) {
     auto* children = node->getChildren();
-    if (auto* pageChildren = typeinfo_cast<CCArray*>(node->getUserObject("alphalaneous.pages_api/page-children"))) {
-        children = pageChildren;
-    }
 
     std::string prefix;
     if (elements.contains("_pack-name") && elements["_pack-name"].isString()) {
@@ -90,8 +87,9 @@ void UIModding::recursiveModify(CCNode* node, const matjson::Value& elements) {
         std::string id = prefix.empty() ? child->getID() : geode::utils::string::replace(child->getID(), prefix, "");
 
         if (elements.contains(id)) {
-            const auto& nodeValue = elements[id];
+            auto nodeValue = elements[id];
             if (nodeValue.isObject()) {
+                nodeValue["_pack-name"] = elements["_pack-name"].asString().unwrapOr("missing");
                 handleModifications(child, nodeValue);
             }
         }
@@ -805,31 +803,31 @@ std::vector<std::string> generateValidSprites(const std::string& path, const mat
     std::vector<std::string> validSprites;
 
     if (!path.empty()) {
-        auto packs = Utils::getActivePacks();
-        for (const auto& packPath : packs) {
-            std::filesystem::path sprPath = packPath / path;
+        for (const auto& pack : Utils::getActivePacks()) {
+            std::filesystem::path sprPath = pack.resourcesPath / path;
             if (!std::filesystem::is_directory(sprPath)) continue;
 
             for (const auto& entry : std::filesystem::directory_iterator(sprPath)) {
-                std::string textureName = entry.path().filename().stem().string();
-                if (!utils::string::endsWith(textureName, "-hd") && !utils::string::endsWith(textureName, "-uhd")) {
-                    std::string sprName = fmt::format("{}\\{}", path, entry.path().filename().string());
-                    if (Utils::getValidSprite(sprName.c_str())) {
-                        validSprites.push_back(sprName);
-                    }
-                }
+                const auto& file = entry.path();
+                const std::string name = file.filename().stem().string();
+
+                if (utils::string::endsWith(name, "-hd") || utils::string::endsWith(name, "-uhd"))
+                    continue;
+
+                const std::string sprName = fmt::format("{}\\{}", path, file.filename().string());
+                if (Utils::getValidSprite(sprName.c_str()))
+                    validSprites.push_back(sprName);
             }
         }
     }
 
     if (spriteList.isArray()) {
         for (const auto& v : spriteList.asArray().unwrap()) {
-            if (v.isString()) {
-                std::string spriteName = v.asString().unwrapOr("");
-                if (Utils::getValidSprite(spriteName.c_str())) {
-                    validSprites.push_back(spriteName);
-                }
-            }
+            if (!v.isString()) continue;
+
+            const std::string& spriteName = v.asString().unwrap();
+            if (Utils::getValidSprite(spriteName.c_str()))
+                validSprites.push_back(spriteName);
         }
     }
 
@@ -1130,6 +1128,8 @@ void UIModding::evaluateIf(CCNode* node, const matjson::Value& ifArray) {
 
 void UIModding::handleAttributes(CCNode* node, const matjson::Value& attributes) {
     nodesFor(setDisablePages);
+    nodesFor(setSprite);
+    nodesFor(setSpriteFrame);
     nodesFor(setScale);
     nodesFor(setRotation);
     nodesFor(setSkew);
@@ -1139,8 +1139,6 @@ void UIModding::handleAttributes(CCNode* node, const matjson::Value& attributes)
     nodesFor(setIgnoreAnchorPos);
     nodesFor(setColor);
     nodesFor(setOpacity);
-    nodesFor(setSprite);
-    nodesFor(setSpriteFrame);
     nodesFor(setPosition);
     nodesFor(setText);
     nodesFor(setScaleMult);
@@ -1190,25 +1188,23 @@ void UIModding::handleChildren(CCNode* node, matjson::Value& childrenVal) {
         recursiveModify(node, childrenVal["node"]);
     }
     if (childrenVal.contains("index") && childrenVal["index"].isArray()) {
-        childrenVal["index"]["_pack-name"] = childrenVal["_pack-name"];
-        handleChildByIndex(node, childrenVal["index"]);
+        handleChildByIndex(node, childrenVal["index"], childrenVal["_pack-name"].asString().unwrapOr("missing"));
     }
     if (childrenVal.contains("all") && childrenVal["all"].isObject()) {
         childrenVal["all"]["_pack-name"] = childrenVal["_pack-name"];
         handleAllChildren(node, childrenVal["all"]);
     }
     if (childrenVal.contains("new") && childrenVal["new"].isArray()) {
-        childrenVal["new"]["_pack-name"] = childrenVal["_pack-name"];
-        handleNewChildren(node, childrenVal["new"]);
+        handleNewChildren(node, childrenVal["new"], childrenVal["_pack-name"].asString().unwrapOr("missing"));
     }
 }
 
-void UIModding::handleNewChildren(CCNode* node, matjson::Value& newChildrenVal) {
+void UIModding::handleNewChildren(CCNode* node, matjson::Value& newChildrenVal, const std::string& packName) {
     geode::Result<std::vector<matjson::Value>&> nodeChildrenArray = newChildrenVal.asArray();
     if (nodeChildrenArray.isOk()) {
         for (matjson::Value& value : nodeChildrenArray.unwrap()) {
             if (value.isObject()) {
-                value["_pack-name"] = newChildrenVal["_pack-name"];
+                value["_pack-name"] = packName;
                 createAndModifyNewChild(node, value);
             }
         }
@@ -1222,12 +1218,12 @@ void UIModding::handleAllChildren(CCNode* node, const matjson::Value& allChildre
     }
 }
 
-void UIModding::handleChildByIndex(CCNode* node, matjson::Value& indexChildrenVal) {
+void UIModding::handleChildByIndex(CCNode* node, matjson::Value& indexChildrenVal, const std::string& packName) {
     geode::Result<std::vector<matjson::Value>&> nodeChildrenArray = indexChildrenVal.asArray();
     if (nodeChildrenArray.isOk()) {
         for (matjson::Value value : nodeChildrenArray.unwrap()) {
             if (value.isObject()) {
-                value["_pack-name"] = indexChildrenVal["_pack-name"];
+                value["_pack-name"] = packName;
                 modifyChildByIndex(node, value);
             }
         }
@@ -1349,7 +1345,6 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                     node->removeChildByID(fullID);
                     node->addChild(newNode);
                 }
-
                 handleModifications(newNode, newChildVal);
             }
         }
@@ -1361,8 +1356,6 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject, boo
     if (DataNode* data = typeinfo_cast<DataNode*>(node)){
         node = data->m_data;
     }
-
-    const std::string& className = Utils::getNodeName(node);
 
     if (!node) return;
 
@@ -1428,8 +1421,8 @@ void UIModding::startFileListeners() {
     listeners.clear();
 
     const auto& packs = Utils::getActivePacks();
-    for (const auto& path : packs) {
-        std::filesystem::path uiPath = path / "ui";
+    for (const auto& pack : packs) {
+        std::filesystem::path uiPath = pack.resourcesPath / "ui";
 
         auto fw = new FileWatcher(uiPath, std::chrono::milliseconds(500));
 
@@ -1502,8 +1495,9 @@ CrossAxisAlignment UIModding::getSimpleCrossAxisAlignment(const std::string& nam
 void UIModding::loadNodeFiles() {
     const auto& packs = Utils::getActivePacks();
     
-    for (const auto& packPath : packs) {
-        std::filesystem::path nodePath = packPath / "ui";
+    for (const auto& pack : packs) {
+        auto path = pack.resourcesPath;
+        std::filesystem::path nodePath = path / "ui";
         
         if (std::filesystem::is_directory(nodePath)) {
             for (const auto& entry : std::filesystem::directory_iterator(nodePath)) {
@@ -1522,7 +1516,12 @@ void UIModding::loadNodeFiles() {
 
                     geode::Result<matjson::Value, matjson::ParseError> result = matjson::parse(data);
                     if (result.isOk()) {
-                        uiCache[type] = result.unwrap();
+                        matjson::Value obj = result.unwrap();
+                        std::string id = pack.id;
+                        if (id.empty()) id = pack.name;
+                        obj["_pack-name"] = id;
+                        obj["after-transition"]["_pack-name"] = id;
+                        uiCache[type] = obj;
                     } else {
                         uiCache[type] = matjson::Value(nullptr);
                     }
@@ -1539,7 +1538,7 @@ void UIModding::loadNodeFiles() {
 static bool g_firstMenuLayer = true;
 
 void UIModding::doUICheckForType(const std::string& type, CCNode* node) {
-    
+    if (skipCheck) return;
     auto it = uiCache.find(type);
     if (it != uiCache.end() && !it->second.isNull()) {
         handleModifications(node, it->second);

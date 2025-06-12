@@ -79,30 +79,24 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
 
     void selected() {
-        SAFE_RUN(
-            if (!m_fields->overrideOnClick) {
-                CCMenuItemSpriteExtra::selected();
-            }
-            modifyForEach(m_fields->onClick);
-        )
+        if (!m_fields->overrideOnClick) {
+            CCMenuItemSpriteExtra::selected();
+        }
+        modifyForEach(m_fields->onClick);
     }
 
     void unselected() {
-        SAFE_RUN(
-            if (!m_fields->overrideOnRelease) {
-                CCMenuItemSpriteExtra::unselected();
-            }
-            modifyForEach(m_fields->onRelease);
-        )
+        if (!m_fields->overrideOnRelease) {
+            CCMenuItemSpriteExtra::unselected();
+        }
+        modifyForEach(m_fields->onRelease);
     }
 
     void activate() {
-        SAFE_RUN(
-            if (!m_fields->overrideOnActivate) {
-                CCMenuItemSpriteExtra::activate();
-            }
-            modifyForEach(m_fields->onActivate);
-        )
+        if (!m_fields->overrideOnActivate) {
+            CCMenuItemSpriteExtra::activate();
+        }
+        modifyForEach(m_fields->onActivate);
     }
 
     void checkTouch(bool hasLayerOnTop) {

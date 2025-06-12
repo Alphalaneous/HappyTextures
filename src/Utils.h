@@ -169,19 +169,12 @@ namespace Utils {
         return std::nullopt;
     }
 
-    static const std::vector<std::filesystem::path>& getActivePacks() {
-        auto& modding = *UIModding::get();
-        auto& cache = modding.activePackCache;
-
-        if (!cache.empty()) return cache;
-
+    static const std::vector<texture_loader::Pack> getActivePacks() {
         if (Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader")) {
-            for (const auto& pack : geode::texture_loader::getAppliedPacks()) {
-                cache.push_back(pack.resourcesPath);
-            }
+            return geode::texture_loader::getAppliedPacks();
         }
 
-        return cache;
+        return {};
     }
 
     static void qualityToNormal(std::string& str) {
@@ -206,13 +199,14 @@ namespace Utils {
     static void reloadFileNames() {
         auto& filenameCache = UIModding::get()->filenameCache;
 
-        for (const auto& packPath : Utils::getActivePacks()) {
-            if (!std::filesystem::is_directory(packPath)) continue;
+        for (const auto& pack : Utils::getActivePacks()) {
+            auto path = pack.resourcesPath;
+            if (!std::filesystem::is_directory(path)) continue;
 
-            const auto packStr = packPath.string();
+            const auto packStr = path.string();
             const size_t baseLen = packStr.length() + 1;
 
-            for (const auto& entry : std::filesystem::recursive_directory_iterator(packPath)) {
+            for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
                 if (!entry.is_regular_file()) continue;
 
                 const std::string fullPath = entry.path().string();

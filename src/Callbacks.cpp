@@ -1,22 +1,16 @@
 #include "Callbacks.h"
 #include "Macros.h"
+#include "UIModding.h"
 
 Callbacks* Callbacks::instance = nullptr;
 
-//do cursed UB stuff, currently unused but may be useful in the future
-
-template <typename T>
-FakeNodeLayer<T> Callbacks::createUBDummyLayer() {
-    return FakeNodeLayer<T>();
-}
-
 void Callbacks::generateAll() {
     if (m_generated) return;
-    m_ignoreUICheck = true;
+    UIModding::get()->skipCheck = true;
     generateMenuLayerCallbacks();
     generateCreatorLayerCallbacks();
     generateGarageCallbacks();
-    m_ignoreUICheck = false;
+    UIModding::get()->skipCheck = false;
     m_generated = true;
 }
 
