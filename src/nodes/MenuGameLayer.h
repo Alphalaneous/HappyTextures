@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/MenuGameLayer.hpp>
 #include "../Macros.h"
+#include "../UIModding.h"
 
 using namespace geode::prelude;
 

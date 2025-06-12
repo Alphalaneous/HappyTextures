@@ -4,6 +4,7 @@
 #include <Geode/modify/MenuLayer.hpp>
 #include "../Callbacks.h"
 #include "../Macros.h"
+#include "../UIModding.h"
 
 using namespace geode::prelude;
 
