@@ -6,6 +6,7 @@
 #include <Geode/modify/LevelBrowserLayer.hpp>
 #include "UIModding.hpp"
 #include "Macros.hpp"
+#include "Utils.hpp"
 
 using namespace geode::prelude;
 

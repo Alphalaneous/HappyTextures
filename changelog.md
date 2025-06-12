@@ -1,3 +1,20 @@
+## 2.0.0
+- Code cleanup
+- Multi pack UI modding (TODO)
+- Rewrite mod to be more efficient
+- Remove old ID based modding
+- Improve reliability
+- Bug fixes
+  - Pack IDs for custom nodes work once again
+  - No longer double activates transitions
+  - Hot reload fixes
+
+## 1.9.10
+- Bug fixes
+
+## 1.9.9
+- Fix sprite crash
+
 ## 1.9.8
 - Add basic support for SimpleAxisLayout
 - Fix setDisplayFrame not using changed textures
