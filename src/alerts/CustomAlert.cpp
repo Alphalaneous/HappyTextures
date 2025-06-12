@@ -1,6 +1,6 @@
 #include <Geode/Geode.hpp>
-#include "CustomAlert.h"
-#include "../nodes/CCLabelBMFont.h"
+#include "CustomAlert.hpp"
+#include "../nodes/CCLabelBMFont.hpp"
 
 CustomAlert* CustomAlert::create(float width, float height, std::string texture, std::string title) {
     auto pRet = new CustomAlert();

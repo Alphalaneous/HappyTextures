@@ -1,17 +1,17 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
-#include "FileWatcher.h"
-#include "Utils.h"
-#include "nodes/CCLabelBMFont.h"
-#include "nodes/CCMenuItemSpriteExtra.h"
-#include "nodes/FLAlertLayer.h"
-#include "nodes/CCNode.h"
-#include "UIModding.h"
-#include "DataNode.h"
-#include "alerts/CustomAlert.h"
-#include "Callbacks.h"
-#include "Macros.h"
-#include "Config.h"
+#include "FileWatcher.hpp"
+#include "Utils.hpp"
+#include "nodes/CCLabelBMFont.hpp"
+#include "nodes/CCMenuItemSpriteExtra.hpp"
+#include "nodes/FLAlertLayer.hpp"
+#include "nodes/CCNode.hpp"
+#include "UIModding.hpp"
+#include "DataNode.hpp"
+#include "alerts/CustomAlert.hpp"
+#include "Callbacks.hpp"
+#include "Macros.hpp"
+#include "Config.hpp"
 
 using namespace geode::prelude;
 

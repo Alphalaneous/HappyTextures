@@ -1,6 +1,6 @@
-#include "Callbacks.h"
-#include "Macros.h"
-#include "UIModding.h"
+#include "Callbacks.hpp"
+#include "Macros.hpp"
+#include "UIModding.hpp"
 
 Callbacks* Callbacks::instance = nullptr;
 
