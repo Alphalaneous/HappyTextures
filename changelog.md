@@ -1,3 +1,19 @@
+## 2.0.0
+**NOTICE! Modifying nodes by ID is removed. You must now modify them by their class name instead.**
+- Code cleanup
+- Multi pack UI modding (packs can now modify other packs based on priority in Texture Loader)
+- Rewrite mod to be more efficient
+- Remove old ID based modding
+- Improve reliability
+- Scheduling Updates
+- Bug fixes
+  - Pack IDs for custom nodes work once again
+  - No longer double activates transitions
+  - Hot reload fixes
+
+## 1.9.10
+- Bug fixes
+
 ## 1.9.9
 - Fix sprite crash
 
@@ -19,7 +35,7 @@
 - Fix some load delay
 
 ## 1.9.3
-**NOTICE! Modifying nodes by ID will soon be depreciated. Once the next GD update comes out, I will be removing that feature in favor of modiifying nodes by their class name. This is the name BEFORE the one in quotes in DevTools. For example `ui/cvolton.betterinfo$ExtendedLevelInfo.json` will become `ui/ExtendedLevelInfo.json` and anything in the nodes folder will no longer work and should be placed in the UI folder.**
+**NOTICE! Modifying nodes by ID will soon be depreciated. Once the next GD update comes out, I will be removing that feature in favor of modifying nodes by their class name. This is the name BEFORE the one in quotes in DevTools. For example `ui/cvolton.betterinfo$ExtendedLevelInfo.json` will become `ui/ExtendedLevelInfo.json` and anything in the nodes folder will no longer work and should be placed in the UI folder.**
 - Fixed crash when pressing space on main menu for mac
 
 ## 1.9.2
