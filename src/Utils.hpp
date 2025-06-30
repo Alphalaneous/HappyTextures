@@ -174,15 +174,14 @@ namespace Utils {
 
         size_t prefixEnd = dotPos;
 
-        if (str.compare(prefixEnd - 4, 4, "-uhd") == 0) {
+        if (prefixEnd >= 4 && str.compare(prefixEnd - 4, 4, "-uhd") == 0) {
             prefixEnd -= 4;
-        } else if (str.compare(prefixEnd - 3, 3, "-hd") == 0) {
+        } else if (prefixEnd >= 3 && str.compare(prefixEnd - 3, 3, "-hd") == 0) {
             prefixEnd -= 3;
         }
 
         if (prefixEnd < dotPos) {
             str.erase(prefixEnd, dotPos - prefixEnd);
-            dotPos = prefixEnd;
         }
     }
 

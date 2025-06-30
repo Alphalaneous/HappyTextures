@@ -1,3 +1,7 @@
+## 2.0.1
+- Fix a crash when a texture name was too short
+- Update UI at end of frame rather than start
+
 ## 2.0.0
 **NOTICE! Modifying nodes by ID is removed. You must now modify them by their class name instead.**
 - Code cleanup
