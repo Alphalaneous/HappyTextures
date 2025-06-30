@@ -11,6 +11,7 @@
 #include <Geode/modify/GJUserCell.hpp>
 #include <Geode/modify/GJLevelScoreCell.hpp>
 #include <Geode/modify/GJRequestCell.hpp>
+#include "../UIModding.hpp"
 #include "../Macros.hpp"
 
 using namespace geode::prelude;

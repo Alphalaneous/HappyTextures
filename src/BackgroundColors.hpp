@@ -10,7 +10,7 @@
 
 using namespace geode::prelude;
 
-void setBackground(CCNode* node) {
+inline void setBackground(CCNode* node) {
     if (UIModding::get()->doModify) {
         if (CCSprite* bg = typeinfo_cast<CCSprite*>(node->getChildByIDRecursive("background"))) {
             if (bg->getColor() == ccColor3B{0, 102, 255}) {

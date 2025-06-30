@@ -3,17 +3,18 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include "../Macros.hpp"
+#include "../UIModding.hpp"
 
 using namespace geode::prelude;
 
 class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
 
     struct Fields {
-        std::vector<matjson::Value> onClick;
-        std::vector<matjson::Value> onRelease;
-        std::vector<matjson::Value> onActivate;
-        std::vector<matjson::Value> onHover;
-        std::vector<matjson::Value> onExit;
+        std::vector<matjson::Value> onClick = {};
+        std::vector<matjson::Value> onRelease = {};
+        std::vector<matjson::Value> onActivate = {};
+        std::vector<matjson::Value> onHover = {};
+        std::vector<matjson::Value> onExit = {};
         bool overrideOnClick = false;
         bool overrideOnRelease = false;
         bool overrideOnActivate = false;
@@ -64,8 +65,8 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         m_fields->onExit.push_back(onExit);
     }
 
-    void modifyForEach(std::vector<matjson::Value> values) {
-        for (matjson::Value value : values) {
+    void modifyForEach(const std::vector<matjson::Value>& values) {
+        for (const matjson::Value& value : values) {
             UIModding::get()->handleModifications(this, value);
         }
     }
@@ -79,24 +80,24 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     }
 
     void selected() {
+        modifyForEach(m_fields->onClick);
         if (!m_fields->overrideOnClick) {
             CCMenuItemSpriteExtra::selected();
         }
-        modifyForEach(m_fields->onClick);
     }
 
     void unselected() {
+        modifyForEach(m_fields->onRelease);
         if (!m_fields->overrideOnRelease) {
             CCMenuItemSpriteExtra::unselected();
         }
-        modifyForEach(m_fields->onRelease);
     }
 
     void activate() {
+        modifyForEach(m_fields->onActivate);
         if (!m_fields->overrideOnActivate) {
             CCMenuItemSpriteExtra::activate();
         }
-        modifyForEach(m_fields->onActivate);
     }
 
     void checkTouch(bool hasLayerOnTop) {

@@ -253,24 +253,17 @@ void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
         Layout* layout;
 
         if (node->getLayout()) {
-            if (auto layout = typeinfo_cast<AxisLayout*>(node->getLayout())) {
-                if (layoutValue.contains("remove")) {
-                    matjson::Value removeValue = layoutValue["remove"];
-                    if (removeValue.isBool() && removeValue.asBool().unwrapOr(false)) {
-                        node->setLayout(nullptr);
-                    }
+            if (layoutValue.contains("remove")) {
+                matjson::Value removeValue = layoutValue["remove"];
+                if (removeValue.isBool() && removeValue.asBool().unwrapOr(false)) {
+                    node->setLayout(nullptr);
                 }
             }
-            if (auto layout = typeinfo_cast<SimpleAxisLayout*>(node->getLayout())) {
-                if (layoutValue.contains("remove")) {
-                    matjson::Value removeValue = layoutValue["remove"];
-                    if (removeValue.isBool() && removeValue.asBool().unwrapOr(false)) {
-                        node->setLayout(nullptr);
-                    }
-                }
+            else {
+                layout = node->getLayout();
             }
         } else {
-            layout = SimpleAxisLayout::create(Axis::Row);
+            layout = AxisLayout::create(Axis::Row);
             node->setLayout(layout);
         }
 
@@ -1168,6 +1161,10 @@ void UIModding::handleEvent(CCNode* node, const matjson::Value& eventVal) {
     }
 }
 
+void UIModding::handleSchedule(CCNode* node, const matjson::Value& scheduleVal) {
+    static_cast<MyCCNode*>(node)->scheduleAttribute(scheduleVal);
+}
+
 void UIModding::handleParent(CCNode* node, const matjson::Value& parentVal) {
     if (CCNode* parent = node->getParent()) {
         handleModifications(parent, parentVal);
@@ -1381,6 +1378,12 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject, boo
         handleAttributes(node, nodeAttributes);
     }
 
+    if (nodeObject.contains("schedule") && nodeObject["schedule"].isObject()) {
+        matjson::Value scheduleVal = nodeObject["schedule"];
+        scheduleVal["_pack-name"] = packName;
+        handleSchedule(node, scheduleVal);
+    }
+
     if (nodeObject.contains("event") && nodeObject["event"].isObject()) {
         matjson::Value eventVal = nodeObject["event"];
         eventVal["_pack-name"] = packName;
@@ -1408,9 +1411,28 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject, boo
 
 void UIModding::reloadChildren(CCNode* parentNode, bool transition) {
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
-    handleModifications(myParentNode, myParentNode->getAttributes(), transition);
+    for (const matjson::Value& value : myParentNode->getAttributes()) {
+        handleModifications(myParentNode, value, transition);
+    }
     for (auto* node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
         reloadChildren(node, transition);
+    }
+}
+
+void UIModding::refreshChildren(CCNode* parentNode) {
+    MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
+    doUICheckForType(Utils::getNodeName(parentNode), parentNode);
+    for (auto* node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
+        refreshChildren(node);
+    }
+}
+
+void UIModding::cleanChildren(CCNode* parentNode) {
+    MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
+    myParentNode->clearAttributes();
+    myParentNode->resetScheduledAttributes();
+    for (auto* node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
+        cleanChildren(node);
     }
 }
 
@@ -1435,14 +1457,15 @@ void UIModding::startFileListeners() {
                 }
 
                 Loader::get()->queueInMainThread([this]{
+                    CCScene* scene = CCDirector::get()->getRunningScene();
+
+                    cleanChildren(scene);
                     Utils::clearCaches();
                     Utils::reloadFileNames();
                     UIModding::get()->loadNodeFiles();
                     Config::get()->loadPackJsons();
 
-                    CCScene* scene = CCDirector::sharedDirector()->getRunningScene();
-                    reloadChildren(scene);
-                    reloadChildren(scene, true);
+                    refreshChildren(scene);
                 });
             });
         }).detach();
@@ -1502,34 +1525,27 @@ void UIModding::loadNodeFiles() {
         if (std::filesystem::is_directory(nodePath)) {
             for (const auto& entry : std::filesystem::directory_iterator(nodePath)) {
                 const std::string fileName = entry.path().filename().string();
-
                 std::vector<std::string> parts = utils::string::split(fileName, ".");
                 std::string type = parts.empty() ? "" : parts[0];
 
-                std::string filePath = "ui/" + fileName;
+                auto fileData = utils::file::readString(entry.path());
 
-                unsigned long fileSize = 0;
-                unsigned char* buffer = CCFileUtils::sharedFileUtils()->getFileData(filePath.c_str(), "rb", &fileSize);
-                
-                if (buffer && fileSize > 0) {
-                    std::string data(reinterpret_cast<char*>(buffer), fileSize);
-
-                    geode::Result<matjson::Value, matjson::ParseError> result = matjson::parse(data);
+                if (fileData.isOk()) {
+                    geode::Result<matjson::Value, matjson::ParseError> result = matjson::parse(fileData.unwrap());
                     if (result.isOk()) {
                         matjson::Value obj = result.unwrap();
                         std::string id = pack.id;
                         if (id.empty()) id = pack.name;
                         obj["_pack-name"] = id;
                         obj["after-transition"]["_pack-name"] = id;
-                        uiCache[type] = obj;
+                        uiCache[type].push_back(obj);
                     } else {
-                        uiCache[type] = matjson::Value(nullptr);
+                        uiCache[type].push_back(matjson::Value(nullptr));
                     }
-                } else {
-                    uiCache[type] = matjson::Value(nullptr);
                 }
-                
-                delete[] buffer;
+                else {
+                    uiCache[type].push_back(matjson::Value(nullptr));
+                }
             }
         }
     }
@@ -1539,11 +1555,12 @@ static bool g_firstMenuLayer = true;
 
 void UIModding::doUICheckForType(const std::string& type, CCNode* node) {
     if (skipCheck) return;
-    auto it = uiCache.find(type);
-    if (it != uiCache.end() && !it->second.isNull()) {
-        handleModifications(node, it->second);
+    const auto& vec = uiCache[type];
+    
+    for (auto it = vec.rbegin(); it != vec.rend(); ++it) {
+        handleModifications(node, *it);
         if (g_firstMenuLayer && type == "MenuLayer") {
-            handleModifications(node, it->second, true);
+            handleModifications(node, *it, true);
             g_firstMenuLayer = false;
         }
     }

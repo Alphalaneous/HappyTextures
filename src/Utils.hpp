@@ -34,17 +34,7 @@ namespace Utils {
     }
 
     static int getValidStat(const std::string& key) {
-        const auto* statValue = GameStatsManager::sharedState()->m_playerStats->valueForKey(key);
-        if (!statValue) return -1;
-
-        const std::string& val = statValue->m_sString;
-        if (val.empty()) return 0;
-
-        if (auto result = geode::utils::numFromString<int>(val); result.isOk()) {
-            return result.unwrap();
-        }
-
-        return -1;
+        return GameStatsManager::sharedState()->getStat(key.c_str());
     }
 
     static GJGameLevel* getLevel() {
@@ -130,10 +120,10 @@ namespace Utils {
     static std::string getSpriteName(CCSprite* sprite) {
         
         if (auto texture = sprite->getTexture()) {
-            for (auto [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
+            for (const auto& [key, frame] : CCDictionaryExt<std::string, CCSpriteFrame*>(CCSpriteFrameCache::sharedSpriteFrameCache()->m_pSpriteFrames)) {
                 if (frame->getTexture() == texture && frame->getRect() == sprite->getTextureRect()) return key;
             }
-            for (auto [key, obj] : CCDictionaryExt<std::string, CCTexture2D*>(CCTextureCache::sharedTextureCache()->m_pTextures)) {
+            for (const auto& [key, obj] : CCDictionaryExt<std::string, CCTexture2D*>(CCTextureCache::sharedTextureCache()->m_pTextures)) {
                 if (obj == texture) return key;
             }
         }

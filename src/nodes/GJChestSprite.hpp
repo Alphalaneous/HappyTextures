@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJChestSprite.hpp>
 #include "../Macros.hpp"
+#include "../UIModding.hpp"
 
 using namespace geode::prelude;
 

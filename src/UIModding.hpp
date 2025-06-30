@@ -16,7 +16,7 @@ class UIModding {
 protected:
     static UIModding* instance;
 public:
-    std::map<std::string, matjson::Value> uiCache;
+    std::map<std::string, std::vector<matjson::Value>> uiCache;
     std::map<std::string, ColorData> colorCache;
     std::map<std::string, std::string> randomSprites;
     std::unordered_map<std::string, bool> filenameCache;
@@ -69,6 +69,7 @@ public:
     void handleParent(CCNode* node, const matjson::Value& parentVal);
     void handleRoot(CCNode* node, const matjson::Value& rootVal);
     void handleChildren(CCNode* node, matjson::Value& childrenVal);
+    void handleSchedule(CCNode* node, const matjson::Value& scheduleVal);
     void handleNewChildren(CCNode* node, matjson::Value& newChildrenVal, const std::string& packName);
     void handleAllChildren(CCNode* node, const matjson::Value& allChildrenVal);
     void handleChildByIndex(CCNode* node, matjson::Value& indexChildrenVal, const std::string& packName);
@@ -76,7 +77,9 @@ public:
 
     void modifyChildByIndex(CCNode* node, const matjson::Value& value);
 
+    void cleanChildren(CCNode* parentNode);
     void reloadChildren(CCNode* parentNode, bool transition = false);
+    void refreshChildren(CCNode* parentNode);
     void createAndModifyNewChild(CCNode* node, const matjson::Value& newChildVal);
 
     void loadNodeFiles();

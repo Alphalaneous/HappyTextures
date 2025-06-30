@@ -4,6 +4,7 @@
 #include <Geode/modify/CommentCell.hpp>
 #include "../Utils.hpp"
 #include "../Macros.hpp"
+#include "../UIModding.hpp"
 
 using namespace geode::prelude;
 

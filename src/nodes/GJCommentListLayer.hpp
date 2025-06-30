@@ -4,6 +4,8 @@
 #include <Geode/modify/GJCommentListLayer.hpp>
 #include "CCScale9Sprite.hpp"
 #include "../Macros.hpp"
+#include "../UIModding.hpp"
+#include "../Utils.hpp"
 
 using namespace geode::prelude;
 

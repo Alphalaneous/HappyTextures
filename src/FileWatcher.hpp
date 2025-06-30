@@ -4,7 +4,6 @@
 #include <chrono>
 #include <thread>
 #include <unordered_map>
-#include <string>
 #include <functional>
 #include <Geode/Geode.hpp>
 #include "Macros.hpp"

@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCSpriteFrameCache.hpp>
+#include "../Utils.hpp"
 
 class $modify(MyCCSpriteFrameCache, CCSpriteFrameCache) {
     CCSpriteFrame* spriteFrameByName(const char *pszName) {

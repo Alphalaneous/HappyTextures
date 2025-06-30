@@ -12,13 +12,13 @@ public:
     CCNode* m_data;
 
     static DataNode* create(CCNode* data) {
-        auto node = new DataNode;
-        if (!node->init(data)) {
-            CC_SAFE_DELETE(node);
-            return nullptr;
+        auto node = new DataNode();
+        if (node->init(data)) {
+            node->autorelease();
+            return node;
         }
-        node->autorelease();
-        return node;
+        delete node;
+        return nullptr;
     }
 
     virtual bool init(CCNode* data) {

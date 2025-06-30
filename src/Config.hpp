@@ -27,20 +27,18 @@ class Config {
 
         Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
-            if (textureLoader->getVersion() >= VersionInfo{1, 7, 0}) {
-                for (geode::texture_loader::Pack pack : geode::texture_loader::getAppliedPacks()) {
-                    std::optional<matjson::Value> json = loadIntoJson(pack);
-                    if (json.has_value()) {
-                        matjson::Value jsonRes = json.value();
-                        loadConfig(pack, jsonRes["happy-textures"]);
-                    }
+            for (const geode::texture_loader::Pack& pack : geode::texture_loader::getAppliedPacks()) {
+                std::optional<matjson::Value> json = loadIntoJson(pack);
+                if (json.has_value()) {
+                    matjson::Value jsonRes = json.value();
+                    loadConfig(pack, jsonRes["happy-textures"]);
                 }
-                for (geode::texture_loader::Pack pack : geode::texture_loader::getAvailablePacks()) {
-                    std::optional<matjson::Value> json = loadIntoJson(pack);
-                    if (json.has_value()) {
-                        matjson::Value jsonRes = json.value();
-                        loadSettings(pack, jsonRes["happy-textures"]);
-                    }
+            }
+            for (const geode::texture_loader::Pack& pack : geode::texture_loader::getAvailablePacks()) {
+                std::optional<matjson::Value> json = loadIntoJson(pack);
+                if (json.has_value()) {
+                    matjson::Value jsonRes = json.value();
+                    loadSettings(pack, jsonRes["happy-textures"]);
                 }
             }
         }
