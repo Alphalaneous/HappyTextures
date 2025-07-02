@@ -10,27 +10,22 @@
 
 using namespace geode::prelude;
 
+// yoinked from geode but removed mutex cuz I will likely never use this in a thread and seems to crash proton/wine ??
 class LateQueue {
 protected:
     static LateQueue* instance;
 public:
     std::vector<std::function<void(void)>> m_mainThreadQueue;
-    mutable std::mutex m_mainThreadMutex;
 
     void queue(ScheduledFunction&& func) {
-        std::lock_guard<std::mutex> lock(m_mainThreadMutex);
         m_mainThreadQueue.push_back(std::forward<ScheduledFunction>(func));
     }
 
     void executeQueue() {
-        m_mainThreadMutex.lock();
-        auto queue = m_mainThreadQueue;
-        m_mainThreadQueue.clear();
-        m_mainThreadMutex.unlock();
-
-        for (auto const& func : queue) {
+        for (auto const& func : m_mainThreadQueue) {
             func();
         }
+        m_mainThreadQueue.clear();
     }
 
     static LateQueue* get() {

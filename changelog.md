@@ -1,3 +1,6 @@
+## 2.0.2
+- Bug fix
+
 ## 2.0.1
 - Fix a crash when a texture name was too short
 - Update UI at end of frame rather than start
