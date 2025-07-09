@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCObject.hpp>
 #include <Geode/modify/CCPoolManager.hpp>
+#include <Geode/modify/CCDictionary.hpp>
 #include "UIModding.hpp"
 #include "nodes/CCNode.hpp"
 #include "Utils.hpp"
@@ -36,6 +37,22 @@ public:
     }
 };
 LateQueue* LateQueue::instance = nullptr;
+
+class $modify(CCDictionary) {
+
+    // Cocos will call autorelease on a nullptr here for some reason, 
+    // it doesn't crash due to no member access but will crash with this 
+    // mod since I retain and release which access m_uReference 
+
+    static CCDictionary* createWithContentsOfFile(const char *pFileName) {
+        if (auto ret = CCDictionary::createWithContentsOfFileThreadSafe(pFileName)) {
+            ret->autorelease();
+            return ret;
+        }
+
+        return nullptr;
+    }
+};
 
 class $modify(CCObject) {
 
