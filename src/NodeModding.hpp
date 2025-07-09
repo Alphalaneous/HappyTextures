@@ -24,7 +24,7 @@ public:
 
     void executeQueue() {
         for (auto const& func : m_mainThreadQueue) {
-            func();
+            if (func) func();
         }
         m_mainThreadQueue.clear();
     }

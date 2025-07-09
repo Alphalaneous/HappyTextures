@@ -1,3 +1,6 @@
+## 2.0.4
+- Fix a crash
+
 ## 2.0.3
 - Fix a cocos bug
 
