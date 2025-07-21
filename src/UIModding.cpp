@@ -1285,7 +1285,7 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                             buttonText = attributesVal["button-text"].asString().unwrapOr("");
                         }
                         FLAlertLayer* alert = geode::createQuickPopup(title.c_str(), description, buttonText.c_str(), nullptr, nullptr, false, true);
-                        static_cast<MyFLAlertLayer*>(alert)->setRift();
+                        reinterpret_cast<MyFLAlertLayer*>(alert)->setRift();
                         DataNode* data = DataNode::create(alert);
                         newNode = data;
                     }

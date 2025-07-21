@@ -1,19 +1,16 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/InfoLayer.hpp>
 #include "../Macros.hpp"
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include "../UIModding.hpp"
+#include "../Utils.hpp"
 
 using namespace geode::prelude;
 
-class $modify(MyInfoLayer, InfoLayer) {
+class $nodeModify(MyInfoLayer, InfoLayer) {
 
-    static void onModify(auto& self) {
-        HOOK_LATEST("InfoLayer::init");
-    }
-
-    bool init(GJGameLevel* p0, GJUserScore* p1, GJLevelList* p2){
-        if (!InfoLayer::init(p0, p1, p2)) return false;
+    void modify(){
         if (UIModding::get()->doModify) {
             CCNode* theNode;
             for (CCNode* node : CCArrayExt<CCNode*>(this->getChildren())) {
@@ -27,6 +24,5 @@ class $modify(MyInfoLayer, InfoLayer) {
                 Utils::setColorIfExists(bg, "info-description-bg");
             }
         }
-        return true;
     }
 };

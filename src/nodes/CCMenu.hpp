@@ -1,11 +1,11 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/CCMenu.hpp>
 #include "CCMenuItemSpriteExtra.hpp"
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
 #include "../Macros.hpp"
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 
 using namespace geode::prelude;
 
@@ -13,11 +13,7 @@ class EventCCMenuItem;
 class KeybindsLayer : CCLayer{};
 class EventsPush : CCNode {};
 
-class $modify(EventCCMenu, CCMenu) {
-
-    static void onModify(auto& self) {
-        HOOK_LATEST("cocos2d::CCMenu::initWithArray");
-    }
+class $nodeModify(EventCCMenu, CCMenu) {
 
     struct Fields {
         bool hasLayerOnTop = true;
@@ -26,12 +22,10 @@ class $modify(EventCCMenu, CCMenu) {
         CCScene* currentScene = nullptr;
     };
 
-    bool initWithArray(CCArray* array) {
-        if (!CCMenu::initWithArray(array)) return false;
+    void modify() {
         if (UIModding::get()->doModify) {
-            schedule(schedule_selector(EventCCMenu::check), 1/15);
+            schedule(schedule_selector(EventCCMenu::check), 1/15.f);
         }
-        return true;
     }
 
     void checkTouch(CCNode* node, bool hasLayerOnTop) {

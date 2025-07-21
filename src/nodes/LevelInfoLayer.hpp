@@ -3,6 +3,8 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include "../Macros.hpp"
+#include "../UIModding.hpp"
+#include "../Utils.hpp"
 
 using namespace geode::prelude;
 

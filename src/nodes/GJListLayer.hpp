@@ -1,24 +1,21 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/GJListLayer.hpp>
 #include "../Macros.hpp"
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include "../UIModding.hpp"
+#include "../Utils.hpp"
 
 using namespace geode::prelude;
 
-class $modify(MyGJListLayer, GJListLayer) {
+class $nodeModify(MyGJListLayer, GJListLayer) {
 
-    static void onModify(auto& self) {
-        HOOK_LATEST("GJListLayer::create");
-    }
-
-	static GJListLayer* create(BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, int p5) {
-		auto ret = GJListLayer::create(p0, p1, p2, p3, p4, p5);
+	void modify() {
+		auto self = reinterpret_cast<GJListLayer*>(this);
 		if (UIModding::get()->doModify) {
-			if (ret->getColor() == ccColor3B{191,114,62}) {
-                Utils::setColorIfExists(ret, "list-layer-bg");
+			if (self->getColor() == ccColor3B{191,114,62}) {
+                Utils::setColorIfExists(self, "list-layer-bg");
 			}
 		}
-		return ret;
 	}
 };

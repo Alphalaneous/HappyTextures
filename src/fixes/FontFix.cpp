@@ -36,11 +36,9 @@ class $modify(CCSpriteBatchNode) {
 class $modify(CCLabelBMFont) {
     
     static CCLabelBMFont* createBatched(const char* str, const char* fntFile, CCArray* a, int a1) {
-
         bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
-
         if (doFix) {
-            if (strcmp(fntFile, "bigFont.fnt") == 0) {
+            if (std::string_view(fntFile) == "bigFont.fnt") {
                 fntFile = "bigFont.fnt"_spr;
             }
         }
@@ -52,10 +50,9 @@ class $modify(CCTextureCache) {
     CCTexture2D* addImage(const char* fileimage, bool p1) {
         CCTexture2D* ret = nullptr;
         bool didChange = false;
-        if (strcmp(fileimage, "bigFont.png") == 0) {
+        if (std::string_view(fileimage) == "bigFont.png") {
             bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
-
-            if (doFix && (PlayLayer::get() || LevelEditorLayer::get())) {
+            if (doFix && GJBaseGameLayer::get()) {
                 didChange = true;
                 ret = CCTextureCache::addImage("bigFont.png"_spr, p1);
             }

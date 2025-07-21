@@ -3,6 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJDropDownLayer.hpp>
 #include "../Macros.hpp"
+#include "../UIModding.hpp"
 
 using namespace geode::prelude;
 

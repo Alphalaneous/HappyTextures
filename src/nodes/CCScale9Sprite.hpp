@@ -36,9 +36,9 @@ class $modify(MyCCScale9Sprite, CCScale9Sprite) {
         bool doFix = Mod::get()->getSettingValue<bool>("ccscale9sprite-fix");
 
         if (doFix) {
-            if (this->*(&MyCCScale9Sprite::m_positionsAreDirty)) {
+            if (m_positionsAreDirty) {
                 updateSprites();
-                this->*(&MyCCScale9Sprite::m_positionsAreDirty) = false;
+                m_positionsAreDirty = false;
             }
             CCNode::visit();
         }

@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "Utils.hpp"
 #include <geode.texture-loader/include/TextureLoader.hpp>
 
 class Config {
@@ -25,7 +24,7 @@ class Config {
 
     void loadPackJsons() {
 
-        Mod* textureLoader = Loader::get()->getLoadedMod("geode.texture-loader");
+        geode::Mod* textureLoader = geode::Loader::get()->getLoadedMod("geode.texture-loader");
         if (textureLoader) {
             for (const geode::texture_loader::Pack& pack : geode::texture_loader::getAppliedPacks()) {
                 std::optional<matjson::Value> json = loadIntoJson(pack);
@@ -55,7 +54,6 @@ class Config {
     }
 
     void loadConfig(geode::texture_loader::Pack pack, matjson::Value config) {
-        
         loadSettings(pack, config);
     }
 

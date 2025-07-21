@@ -4,6 +4,7 @@
 #include <Geode/modify/TextArea.hpp>
 #include <rift.hpp>
 #include "../Macros.hpp"
+#include "../LabelValues.hpp"
 
 class $modify(MyTextArea, TextArea) {
 

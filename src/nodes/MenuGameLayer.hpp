@@ -1,19 +1,22 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/MenuGameLayer.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
+#include "../Utils.hpp"
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 
 using namespace geode::prelude;
 
-class $modify(MyMenuGameLayer, MenuGameLayer) {
+class $nodeModify(MyMenuGameLayer, MenuGameLayer) {
 
-    static void onModify(auto& self) {
-        HOOK_LATEST("MenuGameLayer::update");
+    void modify() {
+        MyMenuGameLayer::updateColors(0);
+        schedule(schedule_selector(MyMenuGameLayer::updateColors));
     }
 
     void updateGroundSprite(CCSprite* spr) {
+        if (!spr) return;
         std::optional<ColorData> dataOpt = UIModding::get()->getColors("main-menu-ground");
         if (dataOpt.has_value()) {
             for (CCNode* node : CCArrayExt<CCNode*>(spr->getChildren())) {
@@ -29,29 +32,14 @@ class $modify(MyMenuGameLayer, MenuGameLayer) {
         }
     }
 
-    void update(float p0) {
-        MenuGameLayer::update(p0);
-
+    void updateColors(float p0) {
         if (UIModding::get()->doModify) {
+            auto self = reinterpret_cast<MenuGameLayer*>(this);
 
-            CCSprite* bg = typeinfo_cast<CCSprite*>(getChildByID("background"));
-            GJGroundLayer* ground = typeinfo_cast<GJGroundLayer*>(getChildByID("ground"));
-
-            if (bg) {
-                Utils::setColorIfExists(bg, "main-menu-bg");
-            }
-            if (ground) {
-                if (CCSpriteBatchNode* groundSprites = typeinfo_cast<CCSpriteBatchNode*>(ground->getChildByID("ground-sprites"))) {
-                    if (CCSprite* groundSprite = groundSprites->getChildByType<CCSprite>(0)) {
-                        updateGroundSprite(groundSprite);
-                    }
-                }
-                if(CCSpriteBatchNode* groundSprites2 = typeinfo_cast<CCSpriteBatchNode*>(ground->getChildByID("ground-sprites-2"))) {
-                    if (CCSprite* groundSprite = groundSprites2->getChildByType<CCSprite>(0)) {
-                        updateGroundSprite(groundSprite);
-                    }
-                }
-            }
+            Utils::setColorIfExists(self->m_backgroundSprite, "main-menu-bg");
+        
+            updateGroundSprite(self->m_groundLayer->m_ground1Sprite);
+            updateGroundSprite(self->m_groundLayer->m_ground2Sprite);
         }
     }
 };

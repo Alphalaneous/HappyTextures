@@ -68,29 +68,17 @@ if (eventVal.contains(#type)) {                                                 
     }                                                                           \
 }
 
-#define setCellColors(class, method, paramType)                                 \
-struct My##class : geode::Modify<My##class, class> {                            \
-    static void onModify(auto& self) {                                          \
-        HOOK_LATEST(#class "::" #method);                                       \
-    }                                                                           \
-    struct Fields {                                                             \
-        ccColor3B m_lastBG;                                                     \
-    };                                                                          \
-    void method(paramType* p0) {                                                \
-        class::method(p0);                                                      \
+#define setCellColors(className)                                                \
+class $nodeModify(My##className, className) {                                   \
+    void modify() {                                                             \
         if (UIModding::get()->doModify) {                                       \
             checkBG(0);                                                         \
-            this->schedule(schedule_selector(My##class::checkBG));              \
+            this->schedule(schedule_selector(My##className::checkBG));          \
         }                                                                       \
     }                                                                           \
     void checkBG(float dt) {                                                    \
-        auto* child = this->getChildByType<CCLayerColor>(0);                    \
-        if (!child) return;                                                     \
-                                                                                \
-        auto color = child->getColor();                                         \
-        auto fields = m_fields.self();                                          \
-        if (fields->m_lastBG == color) return;                                  \
-        fields->m_lastBG = color;                                               \
+        auto self = reinterpret_cast<className*>(this);                         \
+        auto color = self->m_backgroundLayer->getColor();                       \
                                                                                 \
         struct ColorMap {                                                       \
             ccColor3B match;                                                    \
@@ -107,14 +95,14 @@ struct My##class : geode::Modify<My##class, class> {                            
             if (color == entry.match) {                                         \
                 if (auto dataOpt = UIModding::get()->getColors(entry.ID)) {     \
                     const auto& data = *dataOpt;                                \
-                    child->setColor(data.color);                                \
-                    child->setOpacity(data.alpha);                              \
+                    self->m_backgroundLayer->setColor(data.color);              \
+                    self->m_backgroundLayer->setOpacity(data.alpha);            \
                 }                                                               \
                 break;                                                          \
             }                                                                   \
         }                                                                       \
     }                                                                           \
-};
+}
 
 #define LABEL(name, value) {name, rift::Value::from(value)}
 

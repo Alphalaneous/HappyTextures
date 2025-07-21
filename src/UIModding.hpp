@@ -25,7 +25,6 @@ public:
     std::vector<FileWatcher*> listeners;
     Ref<CCArray> removalQueue = CCArray::create();
     bool doModify;
-    bool finishedLoad;
     bool skipCheck;
 
     void recursiveModify(CCNode* node, const matjson::Value& elements);

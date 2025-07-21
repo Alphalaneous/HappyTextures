@@ -4,7 +4,6 @@
 #include "nodes/CCMenu.hpp"
 #include "nodes/CCMenuItemSpriteExtra.hpp"
 #include "nodes/CCScale9Sprite.hpp"
-#include "nodes/CommentCell.hpp"
 #include "nodes/EditLevelLayer.hpp"
 #include "nodes/GJCommentListLayer.hpp"
 #include "nodes/GJDropDownLayer.hpp"
@@ -17,12 +16,15 @@
 #include "nodes/MenuLayer.hpp"
 #include "nodes/GJChestSprite.hpp"
 #include "nodes/LevelInfoLayer.hpp"
-#include "nodes/CustomMusicCell.hpp"
 #include "nodes/FLAlertLayer.hpp"
 #include "nodes/TextArea.hpp"
-#include "nodes/GJGarageLayer.hpp"
+#include "nodes/ShardsPage.hpp"
 #include "nodes/CCNode.hpp"
 #include "nodes/CCSprite.hpp"
 #include "nodes/CCDirector.hpp"
 #include "NodeModding.hpp"
 #include "BackgroundColors.hpp"
+
+$execute {
+    log::info("hook count: {}", Mod::get()->getHooks().size());
+}

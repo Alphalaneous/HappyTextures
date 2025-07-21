@@ -1,70 +1,76 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/GJCommentListLayer.hpp>
 #include "CCScale9Sprite.hpp"
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include "../LateQueue.hpp"
 
 using namespace geode::prelude;
 
-class $modify(MyGJCommentListLayer, GJCommentListLayer) {
+class $nodeModify(MyGJCommentListLayer, GJCommentListLayer) {
 
     struct Fields {
-        SEL_SCHEDULE parentSchedule;
         SEL_SCHEDULE revertSchedule;
         SEL_SCHEDULE posSchedule;
         bool hasBorder = false;
         CCPoint lastPos;
     };
 
-    static void onModify(auto& self) {
-        HOOK_LATEST("GJCommentListLayer::create");
-    }
+    void modify() {
+        auto self = reinterpret_cast<GJCommentListLayer*>(this);
 
-    static GJCommentListLayer* create(BoomListView* p0, char const* p1, cocos2d::ccColor4B p2, float p3, float p4, bool p5) {
-        auto ret = GJCommentListLayer::create(p0, p1, p2, p3, p4, p5);
-        
         if (UIModding::get()->doModify) {
-            if (ret->getColor() == ccColor3B{191,114,62}) {
-                Utils::setColorIfExists(ret, "comment-list-layer-bg");
+            if (self->getColor() == ccColor3B{191,114,62}) {
+                Utils::setColorIfExists(self, "comment-list-layer-bg");
             }
         }
 
         bool doFix = Mod::get()->getSettingValue<bool>("comment-border-fix");
 
         if (doFix) {
-            if (CCNode* node = ret->getChildByID("left-border")) {
+            bool brownBorder = true;
+            if (CCSprite* node = typeinfo_cast<CCSprite*>(getChildByID("left-border"))) {
+                brownBorder = Utils::getSpriteName(node) == "GJ_commentSide_001.png";
                 node->setVisible(false);
             }
-            if (CCNode* node = ret->getChildByID("right-border")) {
+            if (CCNode* node = getChildByID("right-border")) {
                 node->setVisible(false);
             }
-            if (CCNode* node = ret->getChildByID("top-border")) {
+            if (CCNode* node = getChildByID("top-border")) {
                 node->setVisible(false);
             }
-            if (CCNode* node = ret->getChildByID("bottom-border")) {
+            if (CCNode* node = getChildByID("bottom-border")) {
                 node->setVisible(false);
             }
         
-            MyGJCommentListLayer* myRet = static_cast<MyGJCommentListLayer*>(ret);
-            myRet->m_fields->parentSchedule = schedule_selector(MyGJCommentListLayer::checkForParent);
-            myRet->m_fields->posSchedule = schedule_selector(MyGJCommentListLayer::listenForPosition);
-            myRet->m_fields->revertSchedule = schedule_selector(MyGJCommentListLayer::listenForDisable);
-            myRet->schedule(myRet->m_fields->parentSchedule);
-            myRet->schedule(myRet->m_fields->posSchedule);
-            myRet->schedule(myRet->m_fields->revertSchedule);
+            auto fields = m_fields.self();
+
+            fields->posSchedule = schedule_selector(MyGJCommentListLayer::listenForPosition);
+            fields->revertSchedule = schedule_selector(MyGJCommentListLayer::listenForDisable);
+
+            LateQueue::get()->queue([this] {
+                if (!getUserObject("dont-correct-borders")){
+                    updateBordersWithParent(getParent());
+                }
+            });
+
+            schedule(fields->posSchedule);
+            schedule(fields->revertSchedule);
+
+            CCSize size = getContentSize();
     
-            CCPoint pos = {p3/2, p4/2};
+            CCPoint pos = {size.width/2, size.height/2};
 
             CCScale9Sprite* outlineSprite = CCScale9Sprite::create("commentBorder.png"_spr);
-            outlineSprite->setContentSize({p3 + 1.6f, p4 + 1.6f});
+            outlineSprite->setContentSize({size.width + 1.6f, size.height + 1.6f});
             outlineSprite->setPosition({pos.x, pos.y});
             outlineSprite->setZOrder(20);
             outlineSprite->setID("outline");
 
-            if (!p5) {
+            if (brownBorder) {
                 outlineSprite->setColor({130, 64, 32});
                 std::optional<ColorData> dataOpt = UIModding::get()->getColors("comment-list-outline-brown");
                 if (dataOpt.has_value()) {
@@ -81,9 +87,8 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
                 }
             }
             
-            myRet->addChild(outlineSprite);
+            addChild(outlineSprite);
         }
-        return ret;
     }
 
     void listenForDisable(float dt) {
@@ -94,7 +99,6 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 
     void revert(bool showBorders) {
         
-        unschedule(m_fields->parentSchedule);
         unschedule(m_fields->posSchedule);
 
         if (showBorders) {
@@ -131,13 +135,6 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
         }
     }
 
-    void checkForParent(float dt) {
-        if (CCNode* parent = getParent()) {
-            updateBordersWithParent(parent);
-            unschedule(m_fields->parentSchedule);
-        }
-    }
-
     void updateBordersWithParent(CCNode* parent) {
 
         if (CCNode* bg = parent->getChildByID("background")) {
@@ -165,17 +162,6 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
         }
     }
 
-    static cocos2d::extension::CCScale9Sprite* createScale9(const char* file, CCRect rect, CCRect capInsets) {
-		CCScale9Sprite* ret = new CCScale9Sprite;
-		if (ret->initWithFile(file, rect, capInsets)) {
-			ret->autorelease();
-			return ret;
-		}
-
-		delete ret;
-		return nullptr;
-	}
-
     void createMask(CCScale9Sprite* bg) {
 
         removeChildByID("special-border");
@@ -193,7 +179,7 @@ class $modify(MyGJCommentListLayer, GJCommentListLayer) {
 
         MyCCScale9Sprite* myBG = static_cast<MyCCScale9Sprite*>(bg);
 
-        CCScale9Sprite* newBG = createScale9(myBG->m_fields->textureName.c_str(), myBG->m_fields->rect, myBG->m_fields->capInsets);
+        CCScale9Sprite* newBG = CCScale9Sprite::create(myBG->m_fields->textureName.c_str(), myBG->m_fields->rect, myBG->m_fields->capInsets);
         newBG->setContentSize(myBG->getContentSize());
         newBG->setPosition(bg->getPosition());
 

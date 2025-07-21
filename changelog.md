@@ -1,3 +1,9 @@
+## 2.0.5
+- No more flicker on table cells
+- Reduce hooks (using Alpha's Geode Utils)
+- Performance Improvements
+- Code cleanup
+
 ## 2.0.4
 - Fix a crash
 

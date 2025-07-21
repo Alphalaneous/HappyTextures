@@ -7,6 +7,7 @@
 #include "UIModding.hpp"
 #include "Macros.hpp"
 #include "Utils.hpp"
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 
 using namespace geode::prelude;
 
@@ -32,28 +33,14 @@ class $modify(CCDirector) {
     }
 };
 
-class $modify(LeaderboardsLayer) {
-
-    static void onModify(auto& self) {
-        HOOK_LATEST("LeaderboardsLayer::init");
-    }
-
-    bool init(LeaderboardState p0) {
-        if (!LeaderboardsLayer::init(p0)) return false;
+class $nodeModify(LeaderboardsLayer) {
+    void modify() {
         setBackground(this);
-        return true;
     }
 };
 
-class $modify(LevelBrowserLayer) {
-
-    static void onModify(auto& self) {
-        HOOK_LATEST("LevelBrowserLayer::init");
-    }
-
-    bool init(GJSearchObject* p0) {
-        if (!LevelBrowserLayer::init(p0)) return false;
+class $nodeModify(LevelBrowserLayer) {
+    void modify() {
         setBackground(this);
-        return true;
     }
 };
