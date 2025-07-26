@@ -1421,7 +1421,7 @@ void UIModding::reloadChildren(CCNode* parentNode, bool transition) {
 
 void UIModding::refreshChildren(CCNode* parentNode) {
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
-    doUICheckForType(Utils::getNodeName(parentNode), parentNode);
+    doUICheckForType(AlphaUtils::Cocos::getClassName(parentNode, true), parentNode);
     for (auto* node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
         refreshChildren(node);
     }

@@ -36,7 +36,7 @@ class $modify(CCObject) {
         
         if (MyCCNode* node = static_cast<MyCCNode*>(typeinfo_cast<CCNode*>(this))) {
             if (!node->isModified()) {
-                const std::string& className = Utils::getNodeName(node);
+                const std::string& className = AlphaUtils::Cocos::getClassName(node, true);
                 node->retain();
                 LateQueue::get()->queue([modding, node, className] {
                     modding->doUICheckForType(className, node);
