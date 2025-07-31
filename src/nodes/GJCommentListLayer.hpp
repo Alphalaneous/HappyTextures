@@ -136,6 +136,7 @@ class $nodeModify(MyGJCommentListLayer, GJCommentListLayer) {
     }
 
     void updateBordersWithParent(CCNode* parent) {
+        if (!parent) return;
 
         if (CCNode* bg = parent->getChildByID("background")) {
             if (bg->getChildByType<CCLayerGradient>(0)) {

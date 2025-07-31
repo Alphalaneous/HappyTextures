@@ -1,3 +1,6 @@
+# 2.0.7
+- Fix a crash
+
 # 2.0.6
 - Quick fixes you'll never see as an end user
 - Still haven't fixed certain reported issues that require extensive testing, please be patient on those
