@@ -1250,7 +1250,7 @@ void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
 
     if (auto fit = scale["fit"]; fit.isObject()) {
         std::string fitRelative = fit["relative"].asString().unwrapOrDefault();
-        float scaleOffset = fit["relative"].asDouble().unwrapOr(1.f);
+        float scaleMultiplier = fit["multiplier"].asDouble().unwrapOr(1.f);
         CCSize targetSize = {-1, -1};
         CCSize screenSize = CCDirector::get()->getWinSize();
         CCSize parentSize = targetSize;
@@ -1276,11 +1276,11 @@ void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
             targetSize.height = parentSize.height;
         }
         if (fitRelative == "size") {
-            if (auto size = scale["size"]; fit.isObject()) {
-                if (auto widthVal = scale["width"]; widthVal.isNumber()) {
+            if (auto size = fit["size"]; fit.isObject()) {
+                if (auto widthVal = size["width"]; widthVal.isNumber()) {
                     targetSize.width = widthVal.asDouble().unwrapOr(-1.f);
                 }
-                if (auto heightVal = scale["height"]; heightVal.isNumber()) {
+                if (auto heightVal = size["height"]; heightVal.isNumber()) {
                     targetSize.height = heightVal.asDouble().unwrapOr(-1.f);
                 }
             }
@@ -1312,7 +1312,7 @@ void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
 
         if (largestSide != -1) {
             float scale = largestSide / largestContentSide;
-            node->setScale(scale);
+            node->setScale(scale * scaleMultiplier);
         }
         return;
     }
