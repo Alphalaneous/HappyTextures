@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "CCMenuItem.hpp"
+#include "CCMenuItemSpriteExtra.hpp"
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
 #include "../Macros.hpp"
@@ -80,7 +80,7 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
         for (auto child : CCArrayExt<CCNode*>(getChildren())) {
             auto realItem = typeinfo_cast<CCMenuItem*>(child);
             if (!realItem) continue;
-            if (EventCCMenuItem* button = static_cast<EventCCMenuItem*>(realItem)) {
+            if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
                 auto worldPos = button->convertToWorldSpaceAR(CCPointZero);
                 bool isValid = nodeIsVisible(button) && button->boundingBox().containsPoint(local) && isHoverable(button, worldPos);
                 button->checkTouch(!isValid);
@@ -89,7 +89,7 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
 #else
         auto self = reinterpret_cast<CCMenu*>(this);
         if (auto item = self->m_pSelectedItem) {
-            if (EventCCMenuItem* button = static_cast<EventCCMenuItem*>(item)) {
+            if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(item)) {
                 button->checkTouch(!item->isSelected());
             }
         }

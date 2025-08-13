@@ -3,7 +3,7 @@
 #include "FileWatcher.hpp"
 #include "Utils.hpp"
 #include "nodes/CCLabelBMFont.hpp"
-#include "nodes/CCMenuItem.hpp"
+#include "nodes/CCMenuItemSpriteExtra.hpp"
 #include "nodes/FLAlertLayer.hpp"
 #include "nodes/CCNode.hpp"
 #include "UIModding.hpp"
@@ -906,7 +906,7 @@ void UIModding::setColor(CCNode* node, const matjson::Value& attributes) {
         std::string colorStr = color.asString().unwrapOr("");
 
         if (colorStr == "reset") {
-            if (auto node1 = static_cast<EventCCMenuItem*>(node)) {
+            if (auto node1 = static_cast<EventCCMenuItemSpriteExtra*>(typeinfo_cast<CCMenuItemSpriteExtra*>(node))) {
                 auto originalColor = node1->m_fields->originalColor;
                 node1->setColor(originalColor);
                 if (auto buttonNode = node1->getChildByType<ButtonSprite>(0)) {
@@ -1187,7 +1187,7 @@ void UIModding::setOpacity(CCNode* node, const matjson::Value& attributes) {
     }
 
     if (opacity.isString() && opacity.asString().unwrapOr("") == "reset") {
-        if (auto node1 = static_cast<EventCCMenuItem*>(node)) {
+        if (auto node1 = static_cast<EventCCMenuItemSpriteExtra*>(typeinfo_cast<CCMenuItemSpriteExtra*>(node))) {
             auto original = node1->m_fields->originalOpacity;
             node1->setOpacity(original);
             if (auto node2 = node1->getChildByType<ButtonSprite>(0)) {
@@ -1444,7 +1444,7 @@ void UIModding::handleAttributes(CCNode* node, const matjson::Value& attributes)
 }
 
 void UIModding::handleEvent(CCNode* node, const matjson::Value& eventVal) {
-    if (EventCCMenuItem* button = static_cast<EventCCMenuItem*>(node)) {
+    if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(typeinfo_cast<CCMenuItemSpriteExtra*>(node))) {
         forEvent(on-click, OnClick);
         forEvent(on-release, OnRelease);
         forEvent(on-activate, OnActivate);

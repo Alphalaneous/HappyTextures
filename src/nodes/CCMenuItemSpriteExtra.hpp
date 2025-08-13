@@ -1,7 +1,6 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <Geode/modify/CCMenuItem.hpp>
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
@@ -9,18 +8,6 @@
 using namespace geode::prelude;
 
 class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
-    void selected() {
-        CCMenuItem::selected();
-        CCMenuItemSpriteExtra::selected();
-    }
-
-    void unselected() {
-        CCMenuItem::unselected();
-        CCMenuItemSpriteExtra::unselected();
-    }
-};
-
-class $modify(EventCCMenuItem, CCMenuItem) {
 
     struct Fields {
         std::vector<matjson::Value> onClick = {};
@@ -105,21 +92,21 @@ class $modify(EventCCMenuItem, CCMenuItem) {
     void selected() {
         modifyForEach(m_fields->onClick);
         if (!m_fields->overrideOnClick) {
-            CCMenuItem::selected();
+            CCMenuItemSpriteExtra::selected();
         }
     }
 
     void unselected() {
         modifyForEach(m_fields->onRelease);
         if (!m_fields->overrideOnRelease) {
-            CCMenuItem::unselected();
+            CCMenuItemSpriteExtra::unselected();
         }
     }
 
     void activate() {
         modifyForEach(m_fields->onActivate);
         if (!m_fields->overrideOnActivate) {
-            CCMenuItem::activate();
+            CCMenuItemSpriteExtra::activate();
         }
     }
 

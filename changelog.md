@@ -1,3 +1,6 @@
+# 2.0.11
+- Fix a crash when pressing buttons
+
 # 2.0.10
 - Actually fix a crash
 
