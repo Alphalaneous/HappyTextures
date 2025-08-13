@@ -1,3 +1,9 @@
+# 2.0.12
+- Fix sprites on new nodes.
+- Fix CCMenuItemSpriteExtra content size on new nodes.
+- Fix crash when using an invalid query for the query selector
+- Fix MenuLayer not refreshing on pack apply
+
 # 2.0.11
 - Fix a crash when pressing buttons
 

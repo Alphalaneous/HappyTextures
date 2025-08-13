@@ -15,6 +15,7 @@ class $modify(MyLoadingLayer, LoadingLayer) {
     }
 
     bool init(bool p1) {
+        UIModding::get()->firstMenuLayer = true;
         Utils::clearCaches();
         Utils::reloadFileNames();
         UIModding::get()->loadNodeFiles();

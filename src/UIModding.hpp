@@ -21,6 +21,7 @@ public:
     std::map<std::string, std::string> randomSprites;
     std::unordered_map<std::string, bool> filenameCache;
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
+    bool firstMenuLayer = true;
 
     std::vector<FileWatcher*> listeners;
     std::vector<Ref<CCNode>> removalQueue;
@@ -47,7 +48,6 @@ public:
     void setFont(CCNode* node, const matjson::Value& attributes);
     void setFlip(CCNode* node, const matjson::Value& attributes);
     void setBlending(CCNode* node, const matjson::Value& attributes);
-    void setSpriteFrame(CCNode* node, const matjson::Value& attributes);
     void setSprite(CCNode* node, const matjson::Value& attributes);
     void setOpacity(CCNode* node, const matjson::Value& attributes);
     void setShow(CCNode* node, const matjson::Value& attributes);

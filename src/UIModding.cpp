@@ -101,6 +101,7 @@ private:
 
 public:
     BFSNodeTreeCrawler(CCNode* target) {
+        if (!target) return;
         if (auto first = getChild(target, 0)) {
             m_explored.insert(first);
             m_queue.push(first);
@@ -1051,9 +1052,10 @@ std::vector<std::string> generateValidSprites(const std::string& path, const mat
 }
 
 void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
-    if (!attributes.contains("sprite")) return;
+    if (!attributes.contains("sprite") || !attributes.contains("sprite-frame")) return;
 
     matjson::Value sprite = attributes["sprite"];
+    if (attributes.contains("sprite-frame")) sprite = attributes["sprite-frame"];
     std::string spriteName;
     CCSprite* spr = nullptr;
 
@@ -1088,6 +1090,7 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
     if (auto spriteNode = typeinfo_cast<CCSprite*>(node)) {
         spriteNode->setTexture(spr->getTexture());
         spriteNode->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
+        spriteNode->setTextureAtlas(spr->getTextureAtlas());
     }
 
     if (auto buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
@@ -1130,35 +1133,11 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
         }
         else if (auto childSprite = node->getChildByType<CCSprite>(0)) {
             childSprite->setTexture(spr->getTexture());
+            childSprite->setTextureAtlas(spr->getTextureAtlas());
             childSprite->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
             childSprite->setContentSize(spr->getContentSize());
             buttonNode->setContentSize(spr->getContentSize());
             childSprite->setPosition(buttonNode->getContentSize() / 2);
-        }
-    }
-}
-
-void UIModding::setSpriteFrame(CCNode* node, const matjson::Value& attributes) {
-    if (!attributes.contains("sprite-frame")) return;
-
-    auto spriteName = attributes["sprite-frame"].asString().unwrapOr("");
-    if (spriteName.empty()) return;
-
-    auto spr = Utils::getValidSpriteFrame(spriteName.c_str());
-    if (!spr) return;
-
-    if (auto spriteNode = typeinfo_cast<CCSprite*>(node)) {
-        spriteNode->setTextureAtlas(spr->getTextureAtlas());
-        spriteNode->setTexture(spr->getTexture());
-        spriteNode->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
-    } else if (auto buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-        if (auto spriteNode = buttonNode->getChildByType<CCSprite>(0)) {
-            spriteNode->setTexture(spr->getTexture());
-            spriteNode->setTextureRect(spr->getTextureRect(), spr->isTextureRectRotated(), spr->getContentSize());
-            spriteNode->setTextureAtlas(spr->getTextureAtlas());
-            spriteNode->setContentSize(spr->getContentSize());
-            buttonNode->setContentSize(spr->getContentSize());
-            spriteNode->setPosition(buttonNode->getContentSize() / 2);
         }
     }
 }
@@ -1414,7 +1393,6 @@ void UIModding::evaluateIf(CCNode* node, const matjson::Value& ifArray) {
 void UIModding::handleAttributes(CCNode* node, const matjson::Value& attributes) {
     nodesFor(setDisablePages);
     nodesFor(setSprite);
-    nodesFor(setSpriteFrame);
     nodesFor(setScale);
     nodesFor(setRotation);
     nodesFor(setSkew);
@@ -1588,8 +1566,10 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
 
             if (type == "CCSprite") {
                 matjson::Value attributesVal = newChildVal["attributes"];
-                if (attributesVal.contains("sprite") && attributesVal["sprite"].isString()) {
-                    std::string spriteName = attributesVal["sprite"].asString().unwrapOr("");
+                std::string sprType = "sprite";
+                if (attributesVal.contains("sprite-frame")) sprType = "sprite-frame";
+                if ((attributesVal.contains(sprType) && attributesVal[sprType].isString())) {
+                    std::string spriteName = attributesVal[sprType].asString().unwrapOr("");
                     newNode = Utils::getValidSpriteFrame(spriteName.c_str());
                     if (!newNode) newNode = Utils::getValidSprite(spriteName.c_str());
                     if (!newNode) newNode = CCSprite::create();
@@ -1605,7 +1585,17 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
             } else if (type == "CCLayer") {
                 newNode = CCLayer::create();
             } else if (type == "CCMenuItemSpriteExtra") {
-                newNode = CCMenuItemSpriteExtra::create(CCSprite::create(), nullptr, nullptr, nullptr);
+                matjson::Value attributesVal = newChildVal["attributes"];
+                CCSprite* spr;
+                std::string sprType = "sprite";
+                if (attributesVal.contains("sprite-frame")) sprType = "sprite-frame";
+                if ((attributesVal.contains(sprType) && attributesVal[sprType].isString())) {
+                    std::string spriteName = attributesVal[sprType].asString().unwrapOr("");
+                    spr = Utils::getValidSpriteFrame(spriteName.c_str());
+                    if (!spr) spr = Utils::getValidSprite(spriteName.c_str());
+                    if (!spr) spr = CCSprite::create();
+                }
+                newNode = CCMenuItemSpriteExtra::create(spr, nullptr, nullptr, nullptr);
             } else if (type == "CCScale9Sprite") {
                 if (newChildVal.contains("attributes")) {
                     matjson::Value attributesVal = newChildVal["attributes"];
@@ -1901,18 +1891,15 @@ void UIModding::loadNodeFiles() {
     }
 }
 
-// for MenuLayer transition after load
-static bool g_firstMenuLayer = true;
-
 void UIModding::doUICheckForType(const std::string& type, CCNode* node) {
     if (skipCheck) return;
     const auto& vec = uiCache[type];
     
     for (auto it = vec.rbegin(); it != vec.rend(); ++it) {
         handleModifications(node, *it);
-        if (g_firstMenuLayer && type == "MenuLayer") {
+        if (UIModding::get()->firstMenuLayer && type == "MenuLayer") {
             handleModifications(node, *it, true);
-            g_firstMenuLayer = false;
+            UIModding::get()->firstMenuLayer = false;
         }
         for (const auto& [k, v] : moveQueue) {
             v();
