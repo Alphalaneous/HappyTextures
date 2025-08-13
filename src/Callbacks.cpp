@@ -49,6 +49,7 @@ void Callbacks::generateMenuLayerCallbacks() {
     REGISTER_CALLBACK(MenuLayer, onMyProfile);
     REGISTER_CALLBACK(MenuLayer, onOptions);
     REGISTER_CALLBACK(MenuLayer, onStats);
+    REGISTER_CALLBACK(MenuLayer, onQuit);
 }
 
 void Callbacks::generateCreatorLayerCallbacks() {

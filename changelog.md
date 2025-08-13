@@ -4,6 +4,7 @@
 - Add scaling size modes
 - Fixed a potential crash when other mods do stupid *** like deleting a node manually right after autoreleasing.
 - Fix LoadingLayer not being modified
+- Add MenuLayer::onQuit callback
 
 # 2.0.7
 - Fix a crash
