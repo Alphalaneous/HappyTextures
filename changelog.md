@@ -1,3 +1,6 @@
+# 2.0.10
+- Actually fix a crash
+
 # 2.0.9
 - Fix a crash
 

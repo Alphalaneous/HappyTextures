@@ -7,6 +7,7 @@
 #include "UIModding.hpp"
 #include "nodes/CCNode.hpp"
 #include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include <alphalaneous.alphas_geode_utils/include/Fields.h>
 #include "Utils.hpp"
 #include "Macros.hpp"
 #include "LateQueue.hpp"
@@ -29,7 +30,19 @@ class $modify(CCDictionary) {
     }
 };
 
-class $modify(CCObject) {
+static std::unordered_map<CCObject*, uintptr_t> s_nodeVTables;
+
+static bool checkNodeValidity(CCNode* node) {
+    auto ret = *(uintptr_t*)node == s_nodeVTables[node];
+    s_nodeVTables.erase(node);
+    return ret;
+}
+
+static void setNodeVTable(CCNode* node) {
+    s_nodeVTables[node] = *(uintptr_t*)node;
+}
+
+class $modify(HTCCObject, CCObject) {
 
     CCObject* autorelease() {
         auto modding = UIModding::get();
@@ -37,8 +50,10 @@ class $modify(CCObject) {
         
         if (MyCCNode* node = static_cast<MyCCNode*>(typeinfo_cast<CCNode*>(this))) {
             if (!node->isModified()) {
+                setNodeVTable(node);
                 node->retain();
                 LateQueue::get()->queue(node, [modding, node] {
+                    if (!checkNodeValidity(node)) return;
                     std::string className = AlphaUtils::Cocos::getClassName(node, true);
                     modding->doUICheckForType(className, node);
                     node->setModified();
@@ -55,10 +70,4 @@ class $modify(CCPoolManager) {
         LateQueue::get()->executeQueue();
         CCPoolManager::pop();
     }
-
-    void removeObject(CCObject* pObject) {
-        LateQueue::get()->remove(pObject);
-        CCPoolManager::removeObject(pObject);
-    }
-
 };
