@@ -1,3 +1,6 @@
+# 2.0.9
+- Fix a crash
+
 # 2.0.8
 - Rewrite hover logic (layering properly works now)
 - Add support for more sprite formats (GIF, JPEG XL, WebP, QOI) thanks to Prevter's ImagePlus.
