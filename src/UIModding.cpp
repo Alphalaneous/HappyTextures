@@ -3,7 +3,7 @@
 #include "FileWatcher.hpp"
 #include "Utils.hpp"
 #include "nodes/CCLabelBMFont.hpp"
-#include "nodes/CCMenuItemSpriteExtra.hpp"
+#include "nodes/CCMenuItem.hpp"
 #include "nodes/FLAlertLayer.hpp"
 #include "nodes/CCNode.hpp"
 #include "UIModding.hpp"
@@ -12,6 +12,8 @@
 #include "Callbacks.hpp"
 #include "Macros.hpp"
 #include "Config.hpp"
+#include "LateQueue.hpp"
+#include <queue>
 
 using namespace geode::prelude;
 
@@ -78,13 +80,9 @@ std::optional<ColorData> UIModding::getColors(const std::string& name) {
 void UIModding::recursiveModify(CCNode* node, const matjson::Value& elements) {
     auto* children = node->getChildren();
 
-    std::string prefix;
-    if (elements.contains("_pack-name") && elements["_pack-name"].isString()) {
-        prefix = fmt::format("{}/", elements["_pack-name"].asString().unwrapOr(""));
-    }
-
     for (auto* child : CCArrayExt<CCNode*>(children)) {
-        std::string id = prefix.empty() ? child->getID() : geode::utils::string::replace(child->getID(), prefix, "");
+        auto myChild = static_cast<MyCCNode*>(child);
+        std::string id = myChild->getBaseID().empty() ? child->getID() : myChild->getBaseID();
 
         if (elements.contains(id)) {
             auto nodeValue = elements[id];
@@ -96,8 +94,233 @@ void UIModding::recursiveModify(CCNode* node, const matjson::Value& elements) {
     }
 }
 
+class BFSNodeTreeCrawler final {
+private:
+    std::queue<CCNode*> m_queue;
+    std::unordered_set<CCNode*> m_explored;
+
+public:
+    BFSNodeTreeCrawler(CCNode* target) {
+        if (auto first = getChild(target, 0)) {
+            m_explored.insert(first);
+            m_queue.push(first);
+        }
+    }
+
+    CCNode* next() {
+        if (m_queue.empty()) {
+            return nullptr;
+        }
+        auto node = m_queue.front();
+        m_queue.pop();
+        for (auto sibling : CCArrayExt<CCNode*>(node->getParent()->getChildren())) {
+            if (!m_explored.contains(sibling)) {
+                m_explored.insert(sibling);
+                m_queue.push(sibling);
+            }
+        }
+        for (auto child : CCArrayExt<CCNode*>(node->getChildren())) {
+            if (!m_explored.contains(child)) {
+                m_explored.insert(child);
+                m_queue.push(child);
+            }
+        }
+        return node;
+    }
+};
+
+class NodeQuery final {
+private:
+    enum class Op {
+        ImmediateChild,
+        DescendantChild,
+    };
+
+    std::string m_targetID;
+    std::string m_targetClass;
+    int m_targetIndex = 0;
+    Op m_nextOp;
+    std::unique_ptr<NodeQuery> m_next = nullptr;
+
+public:
+    static void setNextOp(std::optional<Op>& nextOp, NodeQuery*& current, std::string& collectedID, std::string& collectedClass) {
+        if (nextOp) {
+            current->m_next = std::make_unique<NodeQuery>();
+            current->m_nextOp = *nextOp;
+            current->m_targetID = collectedID;
+            current->m_targetClass = collectedClass;
+            current = current->m_next.get();
+
+            collectedID.clear();
+            collectedClass.clear();
+            nextOp = std::nullopt;
+        }
+    }
+
+    static Result<std::unique_ptr<NodeQuery>> parse(std::string_view query) {
+        if (query.empty()) {
+            return Err("Query may not be empty");
+        }
+
+        auto result = std::make_unique<NodeQuery>();
+        NodeQuery* current = result.get();
+
+        size_t i = 0;
+        std::string collectedID;
+        std::string collectedClass;
+        std::optional<Op> nextOp = Op::DescendantChild;
+        bool inClassBrackets = false;
+
+        while (i < query.size()) {
+            auto c = query.at(i);
+
+            if (inClassBrackets) {
+                if (c == ']') {
+                    inClassBrackets = false;
+
+                    auto colonPos = collectedClass.find(':');
+                    if (colonPos != std::string::npos) {
+                        if (colonPos + 1 < collectedClass.size()) {
+                            current->m_targetIndex = numFromString<int>(collectedClass.data() + colonPos + 1).unwrapOr(0);
+                        } 
+                        collectedClass.resize(colonPos);
+                    }
+                }
+                else {
+                    collectedClass.push_back(c);
+                }
+            }
+
+            else if (c == ' ') {
+                if (!nextOp) {
+                    nextOp.emplace(Op::DescendantChild);
+                }
+            }
+            else if (c == '>') {
+                if (!nextOp || *nextOp == Op::DescendantChild) {
+                    nextOp.emplace(Op::ImmediateChild);
+                }
+                else {
+                    return Err("Can't have multiple child operators at once (index {})", i);
+                }
+            }
+            else if (c == '[') {
+                setNextOp(nextOp, current, collectedID, collectedClass);
+                inClassBrackets = true;
+            }
+            else if (std::isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' || c == '/' || c == '.') {
+                setNextOp(nextOp, current, collectedID, collectedClass);
+                collectedID.push_back(c);
+            }
+            else {
+                return Err("Unexpected character '{}' at index {}", c, i);
+            }
+
+            i += 1;
+        }
+
+        if (inClassBrackets) {
+            return Err("Unclosed class name bracket");
+        }
+        if (nextOp || (collectedID.empty() && collectedClass.empty())) {
+            return Err("Expected node ID or class but got end of query");
+        }
+
+        current->m_targetID = collectedID;
+        current->m_targetClass = collectedClass;
+
+        return Ok(std::move(result));
+    }
+
+    CCNode* match(CCNode* node) const {
+        if (!m_targetID.empty() && node->getID() != m_targetID) {
+            return nullptr;
+        }
+
+        if (!m_targetClass.empty()) {
+            if (AlphaUtils::Cocos::getClassName(node, true) != m_targetClass) {
+                return nullptr;
+            }
+
+            if (auto parent = node->getParent()) {
+                int matchCount = 0;
+                bool found = false;
+                for (auto c : CCArrayExt<CCNode*>(parent->getChildren())) {
+                    if (AlphaUtils::Cocos::getClassName(node, true) == m_targetClass) {
+                        if (matchCount == m_targetIndex) {
+                            if (c != node) return nullptr;
+                            found = true;
+                            break;
+                        }
+                        matchCount++;
+                    }
+                }
+                if (!found) return nullptr;
+            }
+        }
+
+        if (!m_next) {
+            return node;
+        }
+        switch (m_nextOp) {
+            case Op::ImmediateChild: {
+                for (auto c : CCArrayExt<CCNode*>(node->getChildren())) {
+                    if (auto r = m_next->match(c)) {
+                        return r;
+                    }
+                }
+            } break;
+
+            case Op::DescendantChild: {
+                auto crawler = BFSNodeTreeCrawler(node);
+                while (auto c = crawler.next()) {
+                    if (auto r = m_next->match(c)) {
+                        return r;
+                    }
+                }
+            } break;
+        }
+        return nullptr;
+    }
+
+    std::string toString() const {
+        auto str = m_targetID.empty() ? "&" : m_targetID;
+        if (!m_targetClass.empty()) {
+            str += "[" + m_targetClass;
+            if (m_targetIndex != 0) {
+                str += ":" + std::to_string(m_targetIndex);
+            }
+            str += "]";
+        }
+        if (m_next) {
+            switch (m_nextOp) {
+                case Op::ImmediateChild: str += " > "; break;
+                case Op::DescendantChild: str += " "; break;
+            }
+            str += m_next->toString();
+        }
+        return str;
+    }
+};
+
+CCNode* nodeForQuery(CCNode* node, const std::string& queryStr) {
+    auto res = NodeQuery::parse(queryStr);
+    if (!res) return nullptr;
+    
+    auto query = std::move(res.unwrap());
+    return query->match(node);
+}
+
+void UIModding::queryModify(CCNode* node, const matjson::Value& elements) {
+    for (const auto& [k, v] : elements) {
+        std::string query = utils::string::replace(k, "{id}", elements["_pack-name"].asString().unwrapOr("missing"));
+        CCNode* nodeRet = nodeForQuery(node, query);
+        handleModifications(nodeRet, v);
+    }
+}
+
 void UIModding::runAction(CCNode* node, const matjson::Value& attributes) {
-    if (!attributes.contains("actions"))return;
+    if (!attributes.contains("actions")) return;
 
     const auto& actionsValue = attributes["actions"];
     if (!actionsValue.isArray()) return;
@@ -683,7 +906,7 @@ void UIModding::setColor(CCNode* node, const matjson::Value& attributes) {
         std::string colorStr = color.asString().unwrapOr("");
 
         if (colorStr == "reset") {
-            if (auto node1 = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
+            if (auto node1 = static_cast<EventCCMenuItem*>(node)) {
                 auto originalColor = node1->m_fields->originalColor;
                 node1->setColor(originalColor);
                 if (auto buttonNode = node1->getChildByType<ButtonSprite>(0)) {
@@ -711,7 +934,7 @@ void UIModding::removeChild(CCNode* node, const matjson::Value& attributes) {
 
     if (auto removeVal = attributes["remove"]; removeVal.isBool()) {
         bool remove = removeVal.asBool().unwrapOr(false);
-        if (remove) removalQueue->addObject(node);
+        if (remove) removalQueue.push_back(node);
     }
 }
 
@@ -964,7 +1187,7 @@ void UIModding::setOpacity(CCNode* node, const matjson::Value& attributes) {
     }
 
     if (opacity.isString() && opacity.asString().unwrapOr("") == "reset") {
-        if (auto node1 = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
+        if (auto node1 = static_cast<EventCCMenuItem*>(node)) {
             auto original = node1->m_fields->originalOpacity;
             node1->setOpacity(original);
             if (auto node2 = node1->getChildByType<ButtonSprite>(0)) {
@@ -1023,6 +1246,75 @@ void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
     }
     if (auto yVal = scale["y"]; yVal.isNumber()) {
         node->setScaleY(yVal.asDouble().unwrapOr(0.0f));
+    }
+
+    if (auto fit = scale["fit"]; fit.isObject()) {
+        std::string fitRelative = fit["relative"].asString().unwrapOrDefault();
+        float scaleOffset = fit["relative"].asDouble().unwrapOr(1.f);
+        CCSize targetSize = {-1, -1};
+        CCSize screenSize = CCDirector::get()->getWinSize();
+        CCSize parentSize = targetSize;
+        if (auto parent = node->getParent()) {
+            parentSize = parent->getContentSize();
+        }
+        if (fitRelative == "screen") {
+            targetSize = screenSize;
+        }
+        if (fitRelative == "screen-width") {
+            targetSize.width = screenSize.width;
+        }
+        if (fitRelative == "screen-height") {
+            targetSize.height = screenSize.height;
+        }
+        if (fitRelative == "parent") {
+            targetSize = parentSize;
+        }
+        if (fitRelative == "parent-width") {
+            targetSize.width = parentSize.width;
+        }
+        if (fitRelative == "parent-height") {
+            targetSize.height = parentSize.height;
+        }
+        if (fitRelative == "size") {
+            if (auto size = scale["size"]; fit.isObject()) {
+                if (auto widthVal = scale["width"]; widthVal.isNumber()) {
+                    targetSize.width = widthVal.asDouble().unwrapOr(-1.f);
+                }
+                if (auto heightVal = scale["height"]; heightVal.isNumber()) {
+                    targetSize.height = heightVal.asDouble().unwrapOr(-1.f);
+                }
+            }
+        }
+
+        CCSize contentSize = node->getContentSize();
+
+        float largestSide = -1;
+        float largestContentSide = -1;
+
+        if (targetSize.width != -1 && targetSize.height != -1) {
+            if (targetSize.width > targetSize.height) {
+                largestSide = targetSize.width;
+                largestContentSide = contentSize.width;
+            }
+            else {
+                largestSide = targetSize.height;
+                largestContentSide = contentSize.height;
+            }
+        }
+        else if (targetSize.width != -1 ) {
+            largestSide = targetSize.width;
+            largestContentSide = contentSize.width;
+        }
+        else if (targetSize.height != -1 ) {
+            largestSide = targetSize.height;
+            largestContentSide = contentSize.height;
+        }
+
+        if (largestSide != -1) {
+            float scale = largestSide / largestContentSide;
+            node->setScale(scale);
+        }
+        return;
     }
 }
 
@@ -1152,7 +1444,7 @@ void UIModding::handleAttributes(CCNode* node, const matjson::Value& attributes)
 }
 
 void UIModding::handleEvent(CCNode* node, const matjson::Value& eventVal) {
-    if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(node)) {
+    if (EventCCMenuItem* button = static_cast<EventCCMenuItem*>(node)) {
         forEvent(on-click, OnClick);
         forEvent(on-release, OnRelease);
         forEvent(on-activate, OnActivate);
@@ -1184,6 +1476,10 @@ void UIModding::handleChildren(CCNode* node, matjson::Value& childrenVal) {
         childrenVal["node"]["_pack-name"] = childrenVal["_pack-name"];
         recursiveModify(node, childrenVal["node"]);
     }
+    if (childrenVal.contains("query") && childrenVal["query"].isObject()) {
+        childrenVal["query"]["_pack-name"] = childrenVal["_pack-name"];
+        queryModify(node, childrenVal["query"]);
+    }
     if (childrenVal.contains("index") && childrenVal["index"].isArray()) {
         handleChildByIndex(node, childrenVal["index"], childrenVal["_pack-name"].asString().unwrapOr("missing"));
     }
@@ -1193,6 +1489,40 @@ void UIModding::handleChildren(CCNode* node, matjson::Value& childrenVal) {
     }
     if (childrenVal.contains("new") && childrenVal["new"].isArray()) {
         handleNewChildren(node, childrenVal["new"], childrenVal["_pack-name"].asString().unwrapOr("missing"));
+    }
+    if (childrenVal.contains("move") && childrenVal["move"].isArray()) {
+        handleMoveChild(node, childrenVal["move"], childrenVal["_pack-name"].asString().unwrapOr("missing"));
+    }
+
+    for (auto node : removalQueue) {
+        node->removeFromParent();
+    }
+    removalQueue.clear();
+}
+
+void UIModding::handleMoveChild(CCNode* node, const matjson::Value& moveChildrenVal, const std::string& packName) {
+    if (moveChildrenVal.isArray()) {
+        for (const auto& value : moveChildrenVal.asArray().unwrap()) {
+            if (value.isObject()) {
+                if (auto nodeVal = value["node"]; nodeVal.isString()) {
+                    std::string queryNode = utils::string::replace(nodeVal.asString().unwrapOrDefault(), "{id}", packName);
+
+                    CCNode* nodeTo = nodeForQuery(node, queryNode);
+                    if (!nodeTo) return;
+                    moveQueue[nodeTo] = [this, node, nodeTo, value, packName] {
+                        if (auto moveVal = value["parent"]; moveVal.isString()) {
+                            std::string queryParent = utils::string::replace(moveVal.asString().unwrapOrDefault(), "{id}", packName);
+                            CCNode* moveTo = nodeForQuery(node, queryParent);
+                            if (moveTo) {
+                                nodeTo->removeFromParentAndCleanup(false);
+                                moveTo->addChild(nodeTo);
+                                handleModifications(nodeTo, value);
+                            }
+                        }
+                    };
+                }
+            }
+        }
     }
 }
 
@@ -1257,13 +1587,23 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
             CCNode* newNode = nullptr;
 
             if (type == "CCSprite") {
-                newNode = CCSprite::create();
+                matjson::Value attributesVal = newChildVal["attributes"];
+                if (attributesVal.contains("sprite") && attributesVal["sprite"].isString()) {
+                    std::string spriteName = attributesVal["sprite"].asString().unwrapOr("");
+                    newNode = Utils::getValidSpriteFrame(spriteName.c_str());
+                    if (!newNode) newNode = Utils::getValidSprite(spriteName.c_str());
+                    if (!newNode) newNode = CCSprite::create();
+                }
+            } else if (type == "CCNode") {
+                newNode = CCNode::create();
             } else if (type == "CCLabelBMFont") {
                 newNode = CCLabelBMFont::create("", "chatFont.fnt");
             } else if (type == "CCMenu") {
                 newNode = CCMenu::create();
             } else if (type == "CCLayerColor") {
                 newNode = CCLayerColor::create(ccColor4B{0, 0, 0, 0});
+            } else if (type == "CCLayer") {
+                newNode = CCLayer::create();
             } else if (type == "CCMenuItemSpriteExtra") {
                 newNode = CCMenuItemSpriteExtra::create(CCSprite::create(), nullptr, nullptr, nullptr);
             } else if (type == "CCScale9Sprite") {
@@ -1316,23 +1656,30 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
             }
 
             if (newNode) {
+                MyCCNode* myNode = static_cast<MyCCNode*>(newNode);
                 matjson::Value idVal = newChildVal["id"];
                 std::string fullID;
+                std::string id;
                 if (idVal.isString()) {
-                    std::string id = idVal.asString().unwrapOr("");
+                    id = idVal.asString().unwrapOr("");
                     std::string packName = newChildVal.contains("_pack-name") && newChildVal["_pack-name"].isString() 
                                            ? newChildVal["_pack-name"].asString().unwrapOr("") 
                                            : "missing";
                     fullID = fmt::format("{}/{}", packName, id);
 
                     newNode->setID(fullID.c_str());
+                    myNode->setBaseID(id);
                 }
 
                 if (DataNode* data = typeinfo_cast<DataNode*>(newNode)) {
                     if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(data->m_data)) {
+                        MyCCNode* myAlert = reinterpret_cast<MyCCNode*>(data);
                         alert->setID(fullID.c_str());
+                        myAlert->setBaseID(id);
                     }
+                    MyCCNode* myData = reinterpret_cast<MyCCNode*>(data);
                     data->setID(fullID.c_str());
+                    myData->setBaseID(id);
                 }
 
                 if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)) {
@@ -1410,24 +1757,27 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject, boo
 }
 
 void UIModding::reloadChildren(CCNode* parentNode, bool transition) {
+    if (!parentNode) return;
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
     for (const matjson::Value& value : myParentNode->getAttributes()) {
         handleModifications(myParentNode, value, transition);
     }
-    for (auto* node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
+    for (auto node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
         reloadChildren(node, transition);
     }
 }
 
 void UIModding::refreshChildren(CCNode* parentNode) {
+    if (!parentNode) return;
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
     doUICheckForType(AlphaUtils::Cocos::getClassName(parentNode, true), parentNode);
-    for (auto* node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
+    for (auto node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
         refreshChildren(node);
     }
 }
 
 void UIModding::cleanChildren(CCNode* parentNode) {
+    if (!parentNode) return;
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
     myParentNode->clearAttributes();
     myParentNode->resetScheduledAttributes();
@@ -1551,6 +1901,7 @@ void UIModding::loadNodeFiles() {
     }
 }
 
+// for MenuLayer transition after load
 static bool g_firstMenuLayer = true;
 
 void UIModding::doUICheckForType(const std::string& type, CCNode* node) {
@@ -1563,5 +1914,9 @@ void UIModding::doUICheckForType(const std::string& type, CCNode* node) {
             handleModifications(node, *it, true);
             g_firstMenuLayer = false;
         }
+        for (const auto& [k, v] : moveQueue) {
+            v();
+        }
+        moveQueue.clear();
     }
 }

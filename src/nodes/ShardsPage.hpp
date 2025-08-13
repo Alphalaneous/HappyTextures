@@ -9,7 +9,7 @@ using namespace geode::prelude;
 
 class $nodeModify(ShardsPage) {
     void modify() {
-        LateQueue::get()->queue([this] {
+        LateQueue::get()->queue(this, [this] {
             removeFromParentAndCleanup(false);
             CCDirector::get()->m_pRunningScene->addChild(this);
         });

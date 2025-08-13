@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include <Geode/modify/CCMenuItem.hpp>
 #include <Geode/modify/CCMenuItemSpriteExtra.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
@@ -8,6 +9,18 @@
 using namespace geode::prelude;
 
 class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
+    void selected() {
+        CCMenuItem::selected();
+        CCMenuItemSpriteExtra::selected();
+    }
+
+    void unselected() {
+        CCMenuItem::unselected();
+        CCMenuItemSpriteExtra::unselected();
+    }
+};
+
+class $modify(EventCCMenuItem, CCMenuItem) {
 
     struct Fields {
         std::vector<matjson::Value> onClick = {};
@@ -27,42 +40,52 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     };
 
     void setOnClick(matjson::Value onClick) {
-        m_fields->onClick.push_back(onClick);
+        auto fields = m_fields.self();
+
+        fields->onClick.push_back(onClick);
         if (onClick.contains("override")) {
             matjson::Value overrideVal = onClick["override"];
             if (overrideVal.isBool()) {
-                m_fields->overrideOnClick = overrideVal.asBool().unwrapOr(false);
+                fields->overrideOnClick = overrideVal.asBool().unwrapOr(false);
             }
         }
     }
 
     void setOnRelease(matjson::Value onRelease) {
-        m_fields->onRelease.push_back(onRelease);
+        auto fields = m_fields.self();
+
+        fields->onRelease.push_back(onRelease);
         if (onRelease.contains("override")) {
             matjson::Value overrideVal = onRelease["override"];
             if (overrideVal.isBool()) {
-                m_fields->overrideOnRelease = overrideVal.asBool().unwrapOr(false);
+                fields->overrideOnRelease = overrideVal.asBool().unwrapOr(false);
             }
         }
     }
     void setOnActivate(matjson::Value onActivate) {
-        m_fields->onActivate.push_back(onActivate);
+        auto fields = m_fields.self();
+
+        fields->onActivate.push_back(onActivate);
         if (onActivate.contains("override")) {
             matjson::Value overrideVal = onActivate["override"];
             if (overrideVal.isBool()) {
-                m_fields->overrideOnActivate = overrideVal.asBool().unwrapOr(false);
+                fields->overrideOnActivate = overrideVal.asBool().unwrapOr(false);
             }
         }
     }
 
     void setOnHover(matjson::Value onHover) {
-        m_fields->hasHover = true;
-        m_fields->onHover.push_back(onHover);
+        auto fields = m_fields.self();
+
+        fields->hasHover = true;
+        fields->onHover.push_back(onHover);
     }
     
     void setOnExit(matjson::Value onExit) {
-        m_fields->hasExit = true;
-        m_fields->onExit.push_back(onExit);
+        auto fields = m_fields.self();
+
+        fields->hasExit = true;
+        fields->onExit.push_back(onExit);
     }
 
     void modifyForEach(const std::vector<matjson::Value>& values) {
@@ -82,70 +105,49 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
     void selected() {
         modifyForEach(m_fields->onClick);
         if (!m_fields->overrideOnClick) {
-            CCMenuItemSpriteExtra::selected();
+            CCMenuItem::selected();
         }
     }
 
     void unselected() {
         modifyForEach(m_fields->onRelease);
         if (!m_fields->overrideOnRelease) {
-            CCMenuItemSpriteExtra::unselected();
+            CCMenuItem::unselected();
         }
     }
 
     void activate() {
         modifyForEach(m_fields->onActivate);
         if (!m_fields->overrideOnActivate) {
-            CCMenuItemSpriteExtra::activate();
+            CCMenuItem::activate();
         }
     }
 
-    void checkTouch(bool hasLayerOnTop) {
+    void checkTouch(bool shouldExit) {
+        auto fields = m_fields.self();
+        if (fields->hasHover || fields->hasExit) {
+            if (!shouldExit && !fields->isHovering) {
+                fields->isHovering = true;
 
-        if ((m_fields->hasHover || m_fields->hasExit) && nodeIsVisible(this)) {
+                fields->originalColor = getColor();
+                fields->originalOpacity = getOpacity();
 
-            CCPoint point = getMousePos();
+                if (ButtonSprite* node = this->getChildByType<ButtonSprite>(0)) {
 
-            CCMenu* parentMenu = static_cast<CCMenu*>(getParent());
-        
-            CCPoint local = convertToNodeSpace(point);
-            CCRect r = rect();
-            r.origin = CCPointZero;
+                    fields->originalColor = node->getColor();
+                    fields->originalOpacity = node->getOpacity();
 
-            CCSize screenSize = CCDirector::get()->getWinSize();
-
-            CCRect screenRect = CCRect{0, 0, screenSize.width, screenSize.height};
-
-            bool containsPoint = r.containsPoint(local);
-        
-            if (!hasLayerOnTop) {
-                if (containsPoint && !m_fields->isHovering) {
-                    m_fields->isHovering = true;
-
-                    m_fields->originalColor = getColor();
-                    m_fields->originalOpacity = getOpacity();
-
-                    if (ButtonSprite* node = this->getChildByType<ButtonSprite>(0)) {
-
-                        m_fields->originalColor = node->getColor();
-                        m_fields->originalOpacity = node->getOpacity();
-
-                        if (node->getColor() == ccColor3B{255,255,255}) {
-                            if (CCSprite* node1 = node->getChildByType<CCSprite>(0)) {
-                                m_fields->originalColor = node1->getColor();
-                                m_fields->originalOpacity = node1->getOpacity();
-                            }
+                    if (node->getColor() == ccColor3B{255,255,255}) {
+                        if (CCSprite* node1 = node->getChildByType<CCSprite>(0)) {
+                            fields->originalColor = node1->getColor();
+                            fields->originalOpacity = node1->getOpacity();
                         }
                     }
-                    runOnHover();
                 }
-                if (!containsPoint && m_fields->isHovering) {
-                    m_fields->isHovering = false;
-                    runOnExit();
-                }
+                runOnHover();
             }
-            else if (m_fields->isHovering) {
-                m_fields->isHovering = false;
+            if (shouldExit && fields->isHovering) {
+                fields->isHovering = false;
                 runOnExit();
             }
         }

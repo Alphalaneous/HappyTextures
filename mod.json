@@ -6,7 +6,7 @@
         "mac": "2.2074",
         "ios": "2.2074"
     },
-    "version": "v2.0.7",
+    "version": "v2.0.8",
     "id": "alphalaneous.happy_textures",
     "name": "Happy Textures :3",
     "developer": "Alphalaneous",
@@ -15,6 +15,7 @@
     "dependencies": {
         "geode.node-ids": ">=v1.15.0",
         "alphalaneous.alphas_geode_utils": ">=v1.1.8",
+        "prevter.imageplus": ">=v1.0.0",
         "geode.texture-loader": {
             "importance": "suggested",
             "version": ">=v1.7.0"

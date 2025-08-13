@@ -4,6 +4,7 @@
 #include <Geode/modify/LoadingLayer.hpp>
 #include "../Macros.hpp"
 #include "../Config.hpp"
+#include "../Utils.hpp"
 
 using namespace geode::prelude;
 

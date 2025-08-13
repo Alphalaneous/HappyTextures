@@ -23,10 +23,13 @@ public:
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
 
     std::vector<FileWatcher*> listeners;
-    Ref<CCArray> removalQueue = CCArray::create();
+    std::vector<Ref<CCNode>> removalQueue;
+
+    std::unordered_map<Ref<CCNode>, std::function<void()>> moveQueue;
     bool doModify;
     bool skipCheck;
 
+    void queryModify(CCNode* node, const matjson::Value& elements);
     void recursiveModify(CCNode* node, const matjson::Value& elements);
     void setVisible(CCNode* node, const matjson::Value& attributes);
     void setIgnoreAnchorPos(CCNode* node, const matjson::Value& attributes);
@@ -73,6 +76,7 @@ public:
     void handleAllChildren(CCNode* node, const matjson::Value& allChildrenVal);
     void handleChildByIndex(CCNode* node, matjson::Value& indexChildrenVal, const std::string& packName);
     void handleModifications(CCNode* node, matjson::Value nodeObject, bool transition = false);
+    void handleMoveChild(CCNode* node, const matjson::Value& attributes, const std::string& packName);
 
     void modifyChildByIndex(CCNode* node, const matjson::Value& value);
 

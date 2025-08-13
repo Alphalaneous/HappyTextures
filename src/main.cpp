@@ -2,7 +2,7 @@
 #include "Macros.hpp"
 #include "nodes/CCLabelBMFont.hpp"
 #include "nodes/CCMenu.hpp"
-#include "nodes/CCMenuItemSpriteExtra.hpp"
+#include "nodes/CCMenuItem.hpp"
 #include "nodes/CCScale9Sprite.hpp"
 #include "nodes/EditLevelLayer.hpp"
 #include "nodes/GJCommentListLayer.hpp"
@@ -24,7 +24,3 @@
 #include "nodes/CCDirector.hpp"
 #include "NodeModding.hpp"
 #include "BackgroundColors.hpp"
-
-$execute {
-    log::info("hook count: {}", Mod::get()->getHooks().size());
-}

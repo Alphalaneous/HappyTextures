@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "CCMenuItemSpriteExtra.hpp"
+#include "CCMenuItem.hpp"
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
 #include "../Macros.hpp"
@@ -13,75 +13,86 @@ class EventCCMenuItem;
 class KeybindsLayer : CCLayer{};
 class EventsPush : CCNode {};
 
-class $nodeModify(EventCCMenu, CCMenu) {
-
-    struct Fields {
-        bool hasLayerOnTop = true;
-        bool canExit = false;
-        int lastLayerCount = 0;
-        CCScene* currentScene = nullptr;
-    };
-
+class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
     void modify() {
         if (UIModding::get()->doModify) {
-            schedule(schedule_selector(EventCCMenu::check), 1/15.f);
+            schedule(schedule_selector(MyCCMenu::checkMouse));
         }
     }
 
-    void checkTouch(CCNode* node, bool hasLayerOnTop) {
+    static CCNode* getSceneChildContainingNode(CCNode* node) {
+        if (!node) return nullptr;
+        auto current = node;
+        while (current && current->getParent() != CCScene::get()) {
+            current = current->getParent();
+        }
+        return current;
+    }
 
-        for (CCNode* nodeA : CCArrayExt<CCNode*>(node->getChildren())) {
-            if (nodeA && nodeIsVisible(nodeA)) {
-                if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(nodeA)) {
-                    button->checkTouch(hasLayerOnTop);
+    bool isLastAlert(CCNode* node) {
+        bool shouldCheck = false;
+        bool lastAlert = false;
+
+        if (auto child = getSceneChildContainingNode(node)) {
+            for (auto c : CCArrayExt<CCNode*>(child->getChildren())) {
+                if (!AlphaUtils::Cocos::hasNode(node, c)) {
+                    shouldCheck = true;
                 }
-                if (CCMenuItemToggler* toggler = typeinfo_cast<CCMenuItemToggler*>(nodeA)) {
-                    checkTouch(nodeA, hasLayerOnTop);
+                if (shouldCheck) {
+                    if (typeinfo_cast<FLAlertLayer*>(c) || typeinfo_cast<CCBlockLayer*>(c)) {
+                        if (AlphaUtils::Cocos::hasNode(node, c)) continue;
+                        lastAlert = true;
+                    }
                 }
             }
         }
+        return lastAlert;
     }
 
-    void check(float dt) {
-        
+
+    bool isHoverable(CCNode* node, CCPoint point) {
+        if (!CCScene::get() || !node || isLastAlert(node)) return false;
+
+        auto sceneChild = getSceneChildContainingNode(node);
+        if (!sceneChild) return false;
+
+        if (node->getChildrenCount() == 1) {
+            if (typeinfo_cast<ButtonSprite*>(node->getChildren()->objectAtIndex(0))) {
+                return false;
+            }
+        }
+
+        for (auto child : CCArrayExt<CCNode*>(CCScene::get()->getChildren())) {
+            if (child->getZOrder() <= sceneChild->getZOrder()) continue;
+            if (child->boundingBox().containsPoint(point) && nodeIsVisible(child)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    void checkMouse(float) {
         if (!nodeIsVisible(this)) return;
 
-        CCScene* currentScene = CCDirector::get()->getRunningScene();
-        int layerCount = currentScene->getChildrenCount();
-
-        if (layerCount != m_fields->lastLayerCount || currentScene != m_fields->currentScene) {
-
-            bool hasLayerOnTop = true;
-            bool gotNode = false;
-
-            for (CCNode* node : CCArrayExt<CCNode*>(currentScene->getChildren())) {
-                if (!gotNode && Utils::hasNode(this, node)) {
-                    if (typeinfo_cast<KeybindsLayer*>(node)) return;
-                    gotNode = true;
-                    
-                    hasLayerOnTop = false;
-                    continue;
-                }
-                if (gotNode && node->getContentSize() != CCSize{0,0} && node->isVisible()) {
-                    if (!typeinfo_cast<geode::Notification*>(node) && !typeinfo_cast<EventsPush*>(node) && node->getID() != "itzkiba.better_progression/tier-popup" && node->getID() != "dankmeme.globed2/notification-panel") {
-                        hasLayerOnTop = true; 
-                    }
-                    break;
-                }
+#ifdef GEODE_IS_DESKTOP
+        auto mousePos = getMousePos();
+        auto local = convertToNodeSpace(mousePos);
+        for (auto child : CCArrayExt<CCNode*>(getChildren())) {
+            auto realItem = typeinfo_cast<CCMenuItem*>(child);
+            if (!realItem) continue;
+            if (EventCCMenuItem* button = static_cast<EventCCMenuItem*>(realItem)) {
+                auto worldPos = button->convertToWorldSpaceAR(CCPointZero);
+                bool isValid = nodeIsVisible(button) && button->boundingBox().containsPoint(local) && isHoverable(button, worldPos);
+                button->checkTouch(!isValid);
             }
-           
-            m_fields->hasLayerOnTop = hasLayerOnTop;
-            m_fields->lastLayerCount = layerCount;
-            m_fields->currentScene = currentScene;
         }
-
-        if (!m_fields->hasLayerOnTop) {
-            checkTouch(this, m_fields->hasLayerOnTop);
-            m_fields->canExit = true;
+#else
+        auto self = reinterpret_cast<CCMenu*>(this);
+        if (auto item = self->m_pSelectedItem) {
+            if (EventCCMenuItem* button = static_cast<EventCCMenuItem*>(item)) {
+                button->checkTouch(!item->isSelected());
+            }
         }
-        else if (m_fields->canExit) {
-            checkTouch(this, m_fields->hasLayerOnTop);
-            m_fields->canExit = false;
-        }
+#endif
     }
 };

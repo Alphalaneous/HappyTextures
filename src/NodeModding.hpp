@@ -6,6 +6,7 @@
 #include <Geode/modify/CCDictionary.hpp>
 #include "UIModding.hpp"
 #include "nodes/CCNode.hpp"
+#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 #include "Utils.hpp"
 #include "Macros.hpp"
 #include "LateQueue.hpp"
@@ -36,16 +37,13 @@ class $modify(CCObject) {
         
         if (MyCCNode* node = static_cast<MyCCNode*>(typeinfo_cast<CCNode*>(this))) {
             if (!node->isModified()) {
-                const std::string& className = AlphaUtils::Cocos::getClassName(node, true);
-                node->retain();
-                LateQueue::get()->queue([modding, node, className] {
+                LateQueue::get()->queue(node, [modding, node] {
+                    std::string className = AlphaUtils::Cocos::getClassName(node, true);
                     modding->doUICheckForType(className, node);
                     node->setModified();
-                    node->release();
                 });
             }
         }
-        
         return CCObject::autorelease();
     }
 };
@@ -55,4 +53,10 @@ class $modify(CCPoolManager) {
         LateQueue::get()->executeQueue();
         CCPoolManager::pop();
     }
+
+    void removeObject(CCObject* pObject) {
+        LateQueue::get()->remove(pObject);
+        CCPoolManager::removeObject(pObject);
+    }
+
 };

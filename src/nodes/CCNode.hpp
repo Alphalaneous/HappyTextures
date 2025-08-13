@@ -4,6 +4,7 @@
 #include <Geode/modify/CCNode.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
+#include "../LateQueue.hpp"
 
 using namespace geode::prelude;
 
@@ -13,7 +14,16 @@ class $modify(MyCCNode, CCNode) {
         std::vector<matjson::Value> m_attributes;
         std::vector<CCAction*> m_scheduledAttributes;
         bool m_modified = false;
+        std::string m_baseID = "";
     };
+
+    void setBaseID(const std::string& ID) {
+        m_fields->m_baseID = ID;
+    }
+
+    std::string getBaseID() {
+        return m_fields->m_baseID;
+    }
 
     void setAttributes(const matjson::Value& attributes) {
         m_fields->m_attributes.push_back(attributes);

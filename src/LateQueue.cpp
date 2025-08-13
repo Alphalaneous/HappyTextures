@@ -2,13 +2,19 @@
 
 LateQueue* LateQueue::instance = nullptr;
 
-void LateQueue::queue(ScheduledFunction&& func) {
-    m_mainThreadQueue.push_back(std::move(func));
+void LateQueue::queue(CCObject* node, ScheduledFunction&& func) {
+    m_mainThreadQueue[node].push_back(std::move(func));
+}
+
+void LateQueue::remove(CCObject* node) {
+    m_mainThreadQueue.erase(node);
 }
 
 void LateQueue::executeQueue() {
-    for (auto const& func : m_mainThreadQueue) {
-        if (func) func();
+    for (auto const& [k, v] : m_mainThreadQueue) {
+        for (auto const& func : v) {
+            if (func) func();
+        }
     }
     m_mainThreadQueue.clear();
 }

@@ -51,7 +51,7 @@ class $nodeModify(MyGJCommentListLayer, GJCommentListLayer) {
             fields->posSchedule = schedule_selector(MyGJCommentListLayer::listenForPosition);
             fields->revertSchedule = schedule_selector(MyGJCommentListLayer::listenForDisable);
 
-            LateQueue::get()->queue([this] {
+            LateQueue::get()->queue(this, [this] {
                 if (!getUserObject("dont-correct-borders")){
                     updateBordersWithParent(getParent());
                 }
