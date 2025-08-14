@@ -1,3 +1,7 @@
+# 2.0.15
+- Hello, Human Resources?!
+- (Another attempt at a crash fix on android BetterEdit that I personally cannot replicate)
+
 # 2.0.14
 - This might fix the BetterEdit crash, idk.
 

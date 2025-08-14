@@ -68,8 +68,10 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
     }
 
     void checkMouse(float) {
+        if (!reinterpret_cast<const void*>(this)) return;
+        // at this point this should fix it, if not, the game's fucked
+        if (getID() == "channels-menu") return;
         if (!nodeIsVisible(this)) return;
-
 
 #ifdef GEODE_IS_DESKTOP
         auto mousePos = getMousePos();
