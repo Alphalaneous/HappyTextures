@@ -1052,7 +1052,7 @@ std::vector<std::string> generateValidSprites(const std::string& path, const mat
 }
 
 void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
-    if (!attributes.contains("sprite") || !attributes.contains("sprite-frame")) return;
+    if (!attributes.contains("sprite") && !attributes.contains("sprite-frame")) return;
 
     matjson::Value sprite = attributes["sprite"];
     if (attributes.contains("sprite-frame")) sprite = attributes["sprite-frame"];

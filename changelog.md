@@ -1,3 +1,6 @@
+# 2.0.16
+- Fix a bug with setting sprites
+
 # 2.0.15
 - Hello, Human Resources?!
 - (Another attempt at a crash fix on android BetterEdit that I personally cannot replicate)
