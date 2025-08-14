@@ -89,7 +89,7 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
 #else
         auto self = reinterpret_cast<CCMenu*>(this);
         if (auto item = self->m_pSelectedItem) {
-            auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(child);
+            auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(item);
             if (!realItem) continue;
             if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
                 button->checkTouch(!button->isSelected());
