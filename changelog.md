@@ -1,3 +1,6 @@
+# 2.0.13
+- FIx a really stupid oversight
+
 # 2.0.12
 - Fix sprites on new nodes.
 - Fix CCMenuItemSpriteExtra content size on new nodes.

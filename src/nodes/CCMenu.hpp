@@ -78,7 +78,7 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
         auto mousePos = getMousePos();
         auto local = convertToNodeSpace(mousePos);
         for (auto child : CCArrayExt<CCNode*>(getChildren())) {
-            auto realItem = typeinfo_cast<CCMenuItem*>(child);
+            auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(child);
             if (!realItem) continue;
             if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
                 auto worldPos = button->convertToWorldSpaceAR(CCPointZero);
@@ -89,8 +89,10 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
 #else
         auto self = reinterpret_cast<CCMenu*>(this);
         if (auto item = self->m_pSelectedItem) {
-            if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(item)) {
-                button->checkTouch(!item->isSelected());
+            auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(child);
+            if (!realItem) continue;
+            if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
+                button->checkTouch(!button->isSelected());
             }
         }
 #endif
