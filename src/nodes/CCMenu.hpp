@@ -34,7 +34,9 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
         bool lastAlert = false;
 
         if (auto child = getSceneChildContainingNode(node)) {
+            if (!child) return false;
             for (auto c : CCArrayExt<CCNode*>(child->getChildren())) {
+                if (!c) continue;
                 if (!AlphaUtils::Cocos::hasNode(node, c)) {
                     shouldCheck = true;
                 }
@@ -56,12 +58,6 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
         auto sceneChild = getSceneChildContainingNode(node);
         if (!sceneChild) return false;
 
-        if (node->getChildrenCount() == 1) {
-            if (typeinfo_cast<ButtonSprite*>(node->getChildren()->objectAtIndex(0))) {
-                return false;
-            }
-        }
-
         for (auto child : CCArrayExt<CCNode*>(CCScene::get()->getChildren())) {
             if (child->getZOrder() <= sceneChild->getZOrder()) continue;
             if (child->boundingBox().containsPoint(point) && nodeIsVisible(child)) {
@@ -73,6 +69,7 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
 
     void checkMouse(float) {
         if (!nodeIsVisible(this)) return;
+
 
 #ifdef GEODE_IS_DESKTOP
         auto mousePos = getMousePos();
@@ -92,9 +89,10 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
             auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(item);
             if (!realItem) return;
             if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
-                button->checkTouch(!button->isSelected());
+                button->checkTouch(!button->m_bSelected);
             }
         }
 #endif
     }
 };
+

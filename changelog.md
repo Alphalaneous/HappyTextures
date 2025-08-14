@@ -1,3 +1,6 @@
+# 2.0.14
+- This might fix the BetterEdit crash, idk.
+
 # 2.0.13
 - FIx a really stupid oversight
 
