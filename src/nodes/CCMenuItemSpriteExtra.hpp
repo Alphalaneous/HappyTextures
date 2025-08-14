@@ -94,6 +94,9 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         if (!m_fields->overrideOnClick) {
             CCMenuItemSpriteExtra::selected();
         }
+#ifndef GEODE_IS_DESKTOP
+        checkTouch(false);
+#endif
     }
 
     void unselected() {
@@ -101,6 +104,9 @@ class $modify(EventCCMenuItemSpriteExtra, CCMenuItemSpriteExtra) {
         if (!m_fields->overrideOnRelease) {
             CCMenuItemSpriteExtra::unselected();
         }
+#ifndef GEODE_IS_DESKTOP
+        checkTouch(true);
+#endif
     }
 
     void activate() {

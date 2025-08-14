@@ -68,12 +68,8 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
     }
 
     void checkMouse(float) {
-        if (!reinterpret_cast<const void*>(this)) return;
-        // at this point this should fix it, if not, the game's fucked
-        if (getID() == "channels-menu") return;
         if (!nodeIsVisible(this)) return;
 
-#ifdef GEODE_IS_DESKTOP
         auto mousePos = getMousePos();
         auto local = convertToNodeSpace(mousePos);
         for (auto child : CCArrayExt<CCNode*>(getChildren())) {
@@ -85,16 +81,6 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
                 button->checkTouch(!isValid);
             }
         }
-#else
-        auto self = reinterpret_cast<CCMenu*>(this);
-        if (auto item = self->m_pSelectedItem) {
-            auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(item);
-            if (!realItem) return;
-            if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
-                button->checkTouch(!button->m_bSelected);
-            }
-        }
-#endif
     }
 };
 
