@@ -64,6 +64,13 @@ std::optional<ColorData> UIModding::getColors(const std::string& name) {
                         colorCache[name] = data;
                         result = data;
                     }
+                } else if (val.isString()) {
+                    std::string hexStr = val.asString().unwrapOr("");
+                    if (auto hexColor = Utils::parseHexColor(hexStr)) {
+                        ColorData data = {ccColor3B{hexColor->r, hexColor->g, hexColor->b}, hexColor->a, true};
+                        colorCache[name] = data;
+                        result = data;
+                    }
                 }
             }
         }

@@ -157,4 +157,29 @@ namespace Utils {
         return AlphaUtils::Cocos::getChildByClassName(node, name, index).value_or(nullptr);
     }
 
+    static std::optional<ccColor4B> parseHexColor(const std::string& hexStr) {
+        if (hexStr.empty()) return std::nullopt;
+        std::string hex = (hexStr[0] == '#') ? hexStr.substr(1) : hexStr;
+
+        if (hex.size() == 3 || hex.size() == 4) {
+            std::string expanded;
+            for (char c : hex) expanded.append(2, c);
+            hex = expanded;
+        }
+
+        if (hex.size() != 6 && hex.size() != 8) return std::nullopt;
+
+        auto hexValue = [](const std::string& s) -> std::uint8_t {
+            unsigned int v = 0;
+            std::istringstream(s) >> std::hex >> v;
+            return static_cast<std::uint8_t>(v);
+        };
+    
+        std::uint8_t r = hexValue(hex.substr(0, 2));
+        std::uint8_t g = hexValue(hex.substr(2, 2));
+        std::uint8_t b = hexValue(hex.substr(4, 2));
+        std::uint8_t a = (hex.size() == 8) ? hexValue(hex.substr(6, 2)) : 255;
+    
+        return ccColor4B{r, g, b, a};
+    }
 }
