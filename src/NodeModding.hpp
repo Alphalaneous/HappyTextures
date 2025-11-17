@@ -4,11 +4,9 @@
 #include <Geode/modify/CCObject.hpp>
 #include <Geode/modify/CCPoolManager.hpp>
 #include <Geode/modify/CCDictionary.hpp>
-#include "UIModding.hpp"
 #include "nodes/CCNode.hpp"
 #include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 #include <alphalaneous.alphas_geode_utils/include/Fields.h>
-#include "Utils.hpp"
 #include "Macros.hpp"
 #include "LateQueue.hpp"
 
@@ -42,28 +40,52 @@ static void setNodeVTable(CCNode* node) {
     s_nodeVTables[node] = *(uintptr_t*)node;
 }
 
+static std::unordered_map<const std::type_info*, bool> s_isNodeCache;
+
+static bool isNode(CCObject* obj) {
+    const std::type_info* ti = &typeid(*obj);
+
+    auto it = s_isNodeCache.find(ti);
+    if (it != s_isNodeCache.end()) {
+        return it->second;
+    }
+
+    bool isNode = typeinfo_cast<CCNode*>(obj) != nullptr;
+    s_isNodeCache.emplace(ti, isNode);
+
+    return isNode;
+}
+
 class $modify(HTCCObject, CCObject) {
+
+    static std::string_view extract(std::string_view s) {
+        if (auto pos = s.rfind("::"); pos != std::string_view::npos)
+            return s.substr(pos + 2);
+        return s;
+    }
 
     CCObject* autorelease() {
         auto modding = UIModding::get();
         if (!modding->doModify) return CCObject::autorelease();
-        
-        if (MyCCNode* node = static_cast<MyCCNode*>(typeinfo_cast<CCNode*>(this))) {
-            if (!node->isModified()) {
+
+        if (isNode(this)) {
+            MyCCNode* node = reinterpret_cast<MyCCNode*>(this);
+            if (!checkNodeValidity(node)) return CCObject::autorelease();
+            
+            auto fields = node->m_fields.self();
+            if (!fields->m_modified) {
                 setNodeVTable(node);
-                node->retain();
-                LateQueue::get()->queue(node, [modding, node] {
+                LateQueue::get()->queue(node, [modding, node = Ref(node), fields] {
                     if (!checkNodeValidity(node)) return;
-                    std::string className = AlphaUtils::Cocos::getClassName(node, true);
-                    modding->doUICheckForType(className, node);
-                    node->setModified();
-                    node->release();
+                    modding->doUICheckForType(extract(cocos::getObjectName(node)), node);
+                    fields->m_modified = true;
                 });
             }
         }
         return CCObject::autorelease();
     }
 };
+
 
 class $modify(CCPoolManager) {
     void pop() {

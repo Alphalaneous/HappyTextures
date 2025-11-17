@@ -1,7 +1,9 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include <unordered_map>
 #include "FileWatcher.hpp"
+#include "StringUtils.hpp"
 
 using namespace geode::prelude;
 
@@ -11,15 +13,21 @@ struct ColorData {
     bool hasColor;
 };
 
+struct UIData {
+    std::string packName;
+    std::string data;
+};
+
 class UIModding {
 
 protected:
     static UIModding* instance;
 public:
-    std::map<std::string, std::vector<matjson::Value>> uiCache;
-    std::map<std::string, ColorData> colorCache;
-    std::map<std::string, std::string> randomSprites;
-    std::unordered_map<std::string, bool> filenameCache;
+    std::unordered_map<std::string, std::vector<matjson::Value>, StringHash, StringEq> uiCache;
+    std::unordered_map<std::string, std::vector<UIData>, StringHash, StringEq> uiCacheHpt;
+    std::unordered_map<std::string, ColorData, StringHash, StringEq> colorCache;
+    std::unordered_map<std::string, std::string, StringHash, StringEq> randomSprites;
+    std::unordered_map<std::string, bool, StringHash, StringEq> filenameCache;
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
     bool firstMenuLayer = true;
 
@@ -52,7 +60,7 @@ public:
     void setOpacity(CCNode* node, const matjson::Value& attributes);
     void setShow(CCNode* node, const matjson::Value& attributes);
     void setDisablePages(CCNode* node, const matjson::Value& attributes);
-    std::string getSound(const std::string& sound);
+    std::string getSound(std::string_view sound);
     void playSound(CCNode* node, const matjson::Value& attributes);
     void openLink(CCNode* node, const matjson::Value& attributes);
     void setLayout(CCNode* node, const matjson::Value& attributes);
@@ -62,9 +70,6 @@ public:
     void runCallback(CCNode* node, const matjson::Value& attributes);
     void runScrollToTop(CCNode* node, const matjson::Value& attributes);
     void setLocked(CCNode* node, const matjson::Value& attributes);
-    CCActionInterval* createAction(CCNode* node, const matjson::Value& action);
-    CCActionInterval* getEasingType(const std::string& name, CCActionInterval* action, float rate);
-    unsigned int stringToBlendingMode(const std::string& value);
 
     void handleAttributes(CCNode* node, const matjson::Value& attributes);
     void handleEvent(CCNode* node, const matjson::Value& eventVal);
@@ -87,7 +92,7 @@ public:
 
     void loadNodeFiles();
     void doUICheck(CCNode* node, bool afterTransition = false);
-    void doUICheckForType(const std::string& type, CCNode* node);
+    void doUICheckForType(std::string_view type, CCNode* node);
     std::vector<std::filesystem::path> getActivePacks();
     void startFileListeners();
     AxisAlignment getAxisAlignment(const std::string& name);
@@ -96,6 +101,7 @@ public:
     std::optional<ColorData> getColors(const std::string& name);
     void updateColors(CCNode* node, const std::string& name);
     void evaluateIf(CCNode* node, const matjson::Value& ifArray);
+    std::vector<std::string> generateValidSprites(const std::string& path, const matjson::Value& spriteList);
 
     static UIModding* get() {
 

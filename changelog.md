@@ -1,3 +1,11 @@
+# 2.0.18
+- Performance Improvements
+- Bug fixes
+- More ways to define color (hex, rgb(a), hsv(a), hsl(a), lab, and lch)
+
+Example:
+`"color": "hsv(200, 75, 80)"`
+
 # 2.0.17
 - Just not do it like that, why am I doing it like that, apparently doing it like that breaks, here's another stupid update, doing it like that shouldn't break, I am slowly trying to make things rely less on hooks, but sometimes you have to. The world is evil with it's sussy impostor nodes that do sussy things! 
 

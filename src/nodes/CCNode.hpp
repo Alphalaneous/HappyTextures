@@ -4,7 +4,6 @@
 #include <Geode/modify/CCNode.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
-#include "../LateQueue.hpp"
 
 using namespace geode::prelude;
 

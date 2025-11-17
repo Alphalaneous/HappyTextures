@@ -1,6 +1,8 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
 #include "FileWatcher.hpp"
+#include "Geode/cocos/menu_nodes/CCMenu.h"
+#include "Geode/platform/windows.hpp"
 #include "Utils.hpp"
 #include "nodes/CCLabelBMFont.hpp"
 #include "nodes/CCMenuItemSpriteExtra.hpp"
@@ -12,8 +14,9 @@
 #include "Callbacks.hpp"
 #include "Macros.hpp"
 #include "Config.hpp"
-#include "LateQueue.hpp"
-#include <queue>
+#include "HPTParser.hpp"
+#include "HPTCCNode.hpp"
+#include <alphalaneous.pages_api/include/PagesAPI.h>
 
 using namespace geode::prelude;
 
@@ -21,12 +24,13 @@ UIModding* UIModding::instance = nullptr;
 
 $execute {
     UIModding::get()->doModify = Mod::get()->getSettingValue<bool>("ui-modifications");
+    HPTParser::get().setupParser();
 }
 
 void UIModding::updateColors(CCNode* node, const std::string& name) {
     if (auto* bg = typeinfo_cast<CCScale9Sprite*>(node->getChildByIDRecursive(name))) {
         if (auto dataOpt = getColors(name)) {
-            const auto& data = *dataOpt;
+            const auto& data = dataOpt.value();
             bg->setColor(data.color);
             bg->setOpacity(data.alpha);
         }
@@ -65,6 +69,13 @@ std::optional<ColorData> UIModding::getColors(const std::string& name) {
                         result = data;
                     }
                 }
+                else if (val.isString()) {
+                    std::string str = val.asString().unwrapOr("");
+                    auto color = Utils::parseColorFromString(str).unwrapOr(ccColor4B{255, 0, 255, 255});
+                    ColorData data = {ccColor3B{color.r, color.g, color.b}, color.a, true};
+                    colorCache[name] = data;
+                    result = data;
+                }
             }
         }
     }
@@ -94,228 +105,10 @@ void UIModding::recursiveModify(CCNode* node, const matjson::Value& elements) {
     }
 }
 
-class BFSNodeTreeCrawler final {
-private:
-    std::queue<CCNode*> m_queue;
-    std::unordered_set<CCNode*> m_explored;
-
-public:
-    BFSNodeTreeCrawler(CCNode* target) {
-        if (!target) return;
-        if (auto first = getChild(target, 0)) {
-            m_explored.insert(first);
-            m_queue.push(first);
-        }
-    }
-
-    CCNode* next() {
-        if (m_queue.empty()) {
-            return nullptr;
-        }
-        auto node = m_queue.front();
-        m_queue.pop();
-        for (auto sibling : CCArrayExt<CCNode*>(node->getParent()->getChildren())) {
-            if (!m_explored.contains(sibling)) {
-                m_explored.insert(sibling);
-                m_queue.push(sibling);
-            }
-        }
-        for (auto child : CCArrayExt<CCNode*>(node->getChildren())) {
-            if (!m_explored.contains(child)) {
-                m_explored.insert(child);
-                m_queue.push(child);
-            }
-        }
-        return node;
-    }
-};
-
-class NodeQuery final {
-private:
-    enum class Op {
-        ImmediateChild,
-        DescendantChild,
-    };
-
-    std::string m_targetID;
-    std::string m_targetClass;
-    int m_targetIndex = 0;
-    Op m_nextOp;
-    std::unique_ptr<NodeQuery> m_next = nullptr;
-
-public:
-    static void setNextOp(std::optional<Op>& nextOp, NodeQuery*& current, std::string& collectedID, std::string& collectedClass) {
-        if (nextOp) {
-            current->m_next = std::make_unique<NodeQuery>();
-            current->m_nextOp = *nextOp;
-            current->m_targetID = collectedID;
-            current->m_targetClass = collectedClass;
-            current = current->m_next.get();
-
-            collectedID.clear();
-            collectedClass.clear();
-            nextOp = std::nullopt;
-        }
-    }
-
-    static Result<std::unique_ptr<NodeQuery>> parse(std::string_view query) {
-        if (query.empty()) {
-            return Err("Query may not be empty");
-        }
-
-        auto result = std::make_unique<NodeQuery>();
-        NodeQuery* current = result.get();
-
-        size_t i = 0;
-        std::string collectedID;
-        std::string collectedClass;
-        std::optional<Op> nextOp = Op::DescendantChild;
-        bool inClassBrackets = false;
-
-        while (i < query.size()) {
-            auto c = query.at(i);
-
-            if (inClassBrackets) {
-                if (c == ']') {
-                    inClassBrackets = false;
-
-                    auto colonPos = collectedClass.find(':');
-                    if (colonPos != std::string::npos) {
-                        if (colonPos + 1 < collectedClass.size()) {
-                            current->m_targetIndex = numFromString<int>(collectedClass.data() + colonPos + 1).unwrapOr(0);
-                        } 
-                        collectedClass.resize(colonPos);
-                    }
-                }
-                else {
-                    collectedClass.push_back(c);
-                }
-            }
-
-            else if (c == ' ') {
-                if (!nextOp) {
-                    nextOp.emplace(Op::DescendantChild);
-                }
-            }
-            else if (c == '>') {
-                if (!nextOp || *nextOp == Op::DescendantChild) {
-                    nextOp.emplace(Op::ImmediateChild);
-                }
-                else {
-                    return Err("Can't have multiple child operators at once (index {})", i);
-                }
-            }
-            else if (c == '[') {
-                setNextOp(nextOp, current, collectedID, collectedClass);
-                inClassBrackets = true;
-            }
-            else if (std::isalnum(static_cast<unsigned char>(c)) || c == '-' || c == '_' || c == '/' || c == '.') {
-                setNextOp(nextOp, current, collectedID, collectedClass);
-                collectedID.push_back(c);
-            }
-            else {
-                return Err("Unexpected character '{}' at index {}", c, i);
-            }
-
-            i += 1;
-        }
-
-        if (inClassBrackets) {
-            return Err("Unclosed class name bracket");
-        }
-        if (nextOp || (collectedID.empty() && collectedClass.empty())) {
-            return Err("Expected node ID or class but got end of query");
-        }
-
-        current->m_targetID = collectedID;
-        current->m_targetClass = collectedClass;
-
-        return Ok(std::move(result));
-    }
-
-    CCNode* match(CCNode* node) const {
-        if (!m_targetID.empty() && node->getID() != m_targetID) {
-            return nullptr;
-        }
-
-        if (!m_targetClass.empty()) {
-            if (AlphaUtils::Cocos::getClassName(node, true) != m_targetClass) {
-                return nullptr;
-            }
-
-            if (auto parent = node->getParent()) {
-                int matchCount = 0;
-                bool found = false;
-                for (auto c : CCArrayExt<CCNode*>(parent->getChildren())) {
-                    if (AlphaUtils::Cocos::getClassName(node, true) == m_targetClass) {
-                        if (matchCount == m_targetIndex) {
-                            if (c != node) return nullptr;
-                            found = true;
-                            break;
-                        }
-                        matchCount++;
-                    }
-                }
-                if (!found) return nullptr;
-            }
-        }
-
-        if (!m_next) {
-            return node;
-        }
-        switch (m_nextOp) {
-            case Op::ImmediateChild: {
-                for (auto c : CCArrayExt<CCNode*>(node->getChildren())) {
-                    if (auto r = m_next->match(c)) {
-                        return r;
-                    }
-                }
-            } break;
-
-            case Op::DescendantChild: {
-                auto crawler = BFSNodeTreeCrawler(node);
-                while (auto c = crawler.next()) {
-                    if (auto r = m_next->match(c)) {
-                        return r;
-                    }
-                }
-            } break;
-        }
-        return nullptr;
-    }
-
-    std::string toString() const {
-        auto str = m_targetID.empty() ? "&" : m_targetID;
-        if (!m_targetClass.empty()) {
-            str += "[" + m_targetClass;
-            if (m_targetIndex != 0) {
-                str += ":" + std::to_string(m_targetIndex);
-            }
-            str += "]";
-        }
-        if (m_next) {
-            switch (m_nextOp) {
-                case Op::ImmediateChild: str += " > "; break;
-                case Op::DescendantChild: str += " "; break;
-            }
-            str += m_next->toString();
-        }
-        return str;
-    }
-};
-
-CCNode* nodeForQuery(CCNode* node, const std::string& queryStr) {
-    auto res = NodeQuery::parse(queryStr);
-    if (!res) return nullptr;
-    
-    auto query = std::move(res.unwrap());
-    return query->match(node);
-}
-
 void UIModding::queryModify(CCNode* node, const matjson::Value& elements) {
     for (const auto& [k, v] : elements) {
         std::string query = utils::string::replace(k, "{id}", elements["_pack-name"].asString().unwrapOr("missing"));
-        CCNode* nodeRet = nodeForQuery(node, query);
+        CCNode* nodeRet = Utils::nodeForQuery(node, query);
         handleModifications(nodeRet, v);
     }
 }
@@ -332,7 +125,7 @@ void UIModding::runAction(CCNode* node, const matjson::Value& attributes) {
     for (const auto& action : actionValues.unwrap()) {
         if (!action.isObject()) continue;
 
-        if (auto actionInterval = createAction(node, action)) {
+        if (auto actionInterval = Utils::createAction(node, action)) {
             actionArray->addObject(actionInterval);
         }
     }
@@ -371,103 +164,6 @@ void UIModding::runCallback(CCNode* node, const matjson::Value& attributes) {
             (target->*selector)(Callbacks::get()->getDummyButton());
         }
     }
-}
-
-CCActionInterval* UIModding::createAction(CCNode* node, const matjson::Value& action) {
-    if (!action.contains("type")) return nullptr;
-
-    std::string type = action["type"].asString().unwrapOr("");
-    if (type == "Stop") {
-        node->stopAllActions();
-        return nullptr;
-    }
-
-    float duration = action["duration"].asDouble().unwrapOr(0.f);
-    float easingRate = action["easing-rate"].asDouble().unwrapOr(0.f);
-    std::string easingType = action["easing"].asString().unwrapOr("none");
-    int repeatCount = INT32_MAX;
-    bool repeat = false;
-
-    if (action.contains("repeat")) {
-        const auto& r = action["repeat"];
-        if (r.isBool()) repeat = r.asBool().unwrapOr(false);
-        if (r.isNumber()) {
-            repeat = true;
-            repeatCount = r.asInt().unwrapOr(INT32_MAX);
-        }
-    }
-
-    float x = 0, y = 0, value = 0;
-    if (const auto& val = action["value"]; val.isNumber()) {
-        value = val.asDouble().unwrapOr(0.f);
-        x = value;
-        y = value;
-    } else if (val.isObject()) {
-        x = val["x"].asDouble().unwrapOr(val["width"].asDouble().unwrapOr(0.f));
-        y = val["y"].asDouble().unwrapOr(val["height"].asDouble().unwrapOr(0.f));
-    }
-
-    CCActionInterval* actionToDo = nullptr;
-
-    if (type == "Sequence") {
-        CCArray* sequence = CCArray::create();
-        if (action["actions"].isArray()) {
-            if (auto arr = action["actions"].asArray().unwrap(); !arr.empty()) {
-                for (auto& a : arr) {
-                    if (auto act = createAction(node, a)) {
-                        sequence->addObject(act);
-                    }
-                }
-            }
-        }
-        if (sequence->count() > 0) actionToDo = CCSequence::create(sequence);
-    }
-
-    actionCase(MoveBy, duration, ccp(x, y))
-    actionCase(MoveTo, duration, ccp(x, y))
-    actionCase(SkewBy, duration, x, y)
-    actionCase(SkewTo, duration, x, y)
-    actionCase(FadeIn, duration)
-    actionCase(FadeOut, duration)
-    actionCase(FadeTo, duration, value)
-    actionCase(ScaleTo, duration, x, y)
-    actionCase(ScaleBy, duration, x, y)
-    actionCase(RotateBy, duration, x)
-    actionCase(RotateTo, duration, x)
-
-    if (!actionToDo) return nullptr;
-
-    auto finalAction = getEasingType(easingType, actionToDo, easingRate);
-    if (!finalAction) return nullptr;
-
-    return repeat ? CCRepeat::create(finalAction, repeatCount) : finalAction;
-}
-
-CCActionInterval* UIModding::getEasingType(const std::string& name, CCActionInterval* action, float rate) {
-    CCActionInterval* easingType = nullptr;
-    
-    if (name == "none")  return action;
-    
-    typeForEaseCC(EaseInOut);
-    typeForEaseCC(EaseIn);
-    typeForEaseCC(EaseOut);
-    typeForEaseRate(ElasticInOut);
-    typeForEaseRate(ElasticIn);
-    typeForEaseRate(ElasticOut);
-    typeForEase(BounceInOut);
-    typeForEase(BounceIn);
-    typeForEase(BounceOut);
-    typeForEase(ExponentialInOut);
-    typeForEase(ExponentialIn);
-    typeForEase(ExponentialOut);
-    typeForEase(SineInOut);
-    typeForEase(SineIn);
-    typeForEase(SineOut);
-    typeForEase(BackInOut);
-    typeForEase(BackIn);
-    typeForEase(BackOut);
-
-    return easingType;
 }
 
 void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
@@ -622,7 +318,7 @@ void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
     }
 }
 
-std::string UIModding::getSound(const std::string& sound) {
+std::string UIModding::getSound(std::string_view sound) {
     const auto& paths = CCFileUtils::sharedFileUtils()->getSearchPaths();
 
     for (const auto& path : paths) {
@@ -660,7 +356,7 @@ void UIModding::openLink(CCNode* node, const matjson::Value& attributes) {
     matjson::Value linkVal = attributes["link"];
 
     if (linkVal.isString()) {
-        web::openLinkInBrowser(linkVal.asString().unwrapOr(""));
+        Utils::openURLSafe(linkVal.asString().unwrapOr(""));
     }
     else if (linkVal.isObject()) {
         if (linkVal.contains("type") && linkVal.contains("id")) {
@@ -677,7 +373,7 @@ void UIModding::openLink(CCNode* node, const matjson::Value& attributes) {
                 else if (type == "level") {
                     auto searchObject = GJSearchObject::create(SearchType::Type19, fmt::format("{}&gameVersion=22", id));
                     auto scene = LevelBrowserLayer::scene(searchObject);
-                    CCDirector::sharedDirector()->replaceScene(CCTransitionFade::create(0.5f, scene));
+                    CCDirector::get()->pushScene(CCTransitionFade::create(0.5f, scene));
                 }
             }
         }
@@ -722,36 +418,14 @@ void UIModding::setBlending(CCNode* node, const matjson::Value& attributes) {
     std::string source = sourceVal.asString().unwrapOr("");
     std::string destination = destinationVal.asString().unwrapOr("");
 
-    unsigned int src = stringToBlendingMode(source);
-    unsigned int dst = stringToBlendingMode(destination);
+    unsigned int src = Utils::stringToBlendingMode(source);
+    unsigned int dst = Utils::stringToBlendingMode(destination);
 
     if (src != -1 && dst != -1) {
         if (CCBlendProtocol* blendable = typeinfo_cast<CCBlendProtocol*>(node)) {
             blendable->setBlendFunc({src, dst});
         }
     }
-}
-
-unsigned int UIModding::stringToBlendingMode(const std::string& value) {
-    static const std::unordered_map<std::string, unsigned int> strBlend = {
-        {"GL_ZERO", GL_ZERO},
-        {"GL_ONE", GL_ONE},
-        {"GL_SRC_COLOR", GL_SRC_COLOR},
-        {"GL_ONE_MINUS_SRC_COLOR", GL_ONE_MINUS_SRC_COLOR},
-        {"GL_DST_COLOR", GL_DST_COLOR},
-        {"GL_ONE_MINUS_DST_COLOR", GL_ONE_MINUS_DST_COLOR},
-        {"GL_SRC_ALPHA", GL_SRC_ALPHA},
-        {"GL_ONE_MINUS_SRC_ALPHA", GL_ONE_MINUS_SRC_ALPHA},
-        {"GL_DST_ALPHA", GL_DST_ALPHA},
-        {"GL_ONE_MINUS_DST_ALPHA", GL_ONE_MINUS_DST_ALPHA},
-        {"GL_SRC_ALPHA_SATURATE", GL_SRC_ALPHA_SATURATE},
-        {"GL_CONSTANT_COLOR", GL_CONSTANT_COLOR},
-        {"GL_ONE_MINUS_CONSTANT_COLOR", GL_ONE_MINUS_CONSTANT_COLOR},
-        {"GL_CONSTANT_ALPHA", GL_CONSTANT_ALPHA},
-        {"GL_ONE_MINUS_CONSTANT_ALPHA", GL_ONE_MINUS_CONSTANT_ALPHA}
-    };
-    auto it = strBlend.find(value);
-    return it != strBlend.end() ? it->second : -1;
 }
 
 void UIModding::setFlip(CCNode* node, const matjson::Value& attributes) {
@@ -914,17 +588,23 @@ void UIModding::setColor(CCNode* node, const matjson::Value& attributes) {
                     buttonNode->setColor(originalColor);
                 }
             }
-        } 
-        else if (geode::utils::string::startsWith(colorStr, "#")) {
-            ccColor3B hexColor = cc3bFromHexString(colorStr).unwrapOr(ccColor3B{255, 0, 255});
+        }
+        else {
+            auto color = Utils::parseColorFromString(colorStr).unwrapOr(ccColor4B{255, 0, 255, 255});
+            auto color3B = ccColor3B{color.r, color.g, color.b};
+            auto alpha = color.a;
+
             if (auto node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
-                node1->setColor(hexColor);
+                node1->setColor(color3B);
+                node1->setOpacity(alpha);
                 if (auto buttonNode = node1->getChildByType<ButtonSprite>(0)) {
-                    buttonNode->setColor(hexColor);
+                    buttonNode->setColor(color3B);
+                    buttonNode->setOpacity(alpha);
                 }
             }
             if (auto node1 = typeinfo_cast<CCRGBAProtocol*>(node)) {
-                node1->setColor(hexColor);
+                node1->setColor(color3B);
+                node1->setOpacity(alpha);
             }
         }
     }
@@ -961,16 +641,12 @@ void UIModding::setScaleBase(CCNode* node, const matjson::Value& attributes) {
     }
 }
 
-//todo use event api
 void UIModding::setDisablePages(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("disable-pages")) return;
 
     if (auto pagesVal = attributes["disable-pages"]; pagesVal.isBool()) {
-        bool disablePages = pagesVal.asBool().unwrapOr(false);
-        if (disablePages) {
-            if (auto disableItem = typeinfo_cast<CCMenuItemSpriteExtra*>(node->getUserObject("alphalaneous.pages_api/disable"))) {
-                (disableItem->m_pListener->*disableItem->m_pfnSelector)(disableItem);
-            }
+        if (!pagesVal.asBool().unwrap()) {
+            PagesAPI::enablePages(typeinfo_cast<CCMenu*>(node), false);
         }
     }
 }
@@ -1016,7 +692,7 @@ void UIModding::setText(CCNode* node, const matjson::Value& attributes) {
     }
 }
 
-std::vector<std::string> generateValidSprites(const std::string& path, const matjson::Value& spriteList) {
+std::vector<std::string> UIModding::generateValidSprites(const std::string& path, const matjson::Value& spriteList) {
     std::vector<std::string> validSprites;
 
     if (!path.empty()) {
@@ -1471,11 +1147,6 @@ void UIModding::handleChildren(CCNode* node, matjson::Value& childrenVal) {
     if (childrenVal.contains("move") && childrenVal["move"].isArray()) {
         handleMoveChild(node, childrenVal["move"], childrenVal["_pack-name"].asString().unwrapOr("missing"));
     }
-
-    for (auto node : removalQueue) {
-        node->removeFromParent();
-    }
-    removalQueue.clear();
 }
 
 void UIModding::handleMoveChild(CCNode* node, const matjson::Value& moveChildrenVal, const std::string& packName) {
@@ -1485,12 +1156,12 @@ void UIModding::handleMoveChild(CCNode* node, const matjson::Value& moveChildren
                 if (auto nodeVal = value["node"]; nodeVal.isString()) {
                     std::string queryNode = utils::string::replace(nodeVal.asString().unwrapOrDefault(), "{id}", packName);
 
-                    CCNode* nodeTo = nodeForQuery(node, queryNode);
+                    CCNode* nodeTo = Utils::nodeForQuery(node, queryNode);
                     if (!nodeTo) return;
                     moveQueue[nodeTo] = [this, node, nodeTo, value, packName] {
                         if (auto moveVal = value["parent"]; moveVal.isString()) {
                             std::string queryParent = utils::string::replace(moveVal.asString().unwrapOrDefault(), "{id}", packName);
-                            CCNode* moveTo = nodeForQuery(node, queryParent);
+                            CCNode* moveTo = Utils::nodeForQuery(node, queryParent);
                             if (moveTo) {
                                 nodeTo->removeFromParentAndCleanup(false);
                                 moveTo->addChild(nodeTo);
@@ -1790,22 +1461,25 @@ void UIModding::startFileListeners() {
 
         listeners.push_back(fw);
 
-        std::thread([this, fw]() mutable {
-            fw->start([this](std::filesystem::path pathToWatch, FileStatus status) -> void {
+        std::thread([this, fw, pack]() mutable {
+            fw->start([this, pack](std::filesystem::path pathToWatch, FileStatus status) -> void {
                 if (!std::filesystem::is_regular_file(pathToWatch) && status != FileStatus::erased) {
                     return;
                 }
 
-                Loader::get()->queueInMainThread([this]{
+                Loader::get()->queueInMainThread([this, pack]{
                     CCScene* scene = CCDirector::get()->getRunningScene();
 
                     cleanChildren(scene);
+                    HPTCCNode::resetAllFromPack(pack.id);
+
                     Utils::clearCaches();
                     Utils::reloadFileNames();
                     UIModding::get()->loadNodeFiles();
                     Config::get()->loadPackJsons();
 
                     refreshChildren(scene);
+
                 });
             });
         }).detach();
@@ -1864,46 +1538,76 @@ void UIModding::loadNodeFiles() {
         
         if (std::filesystem::is_directory(nodePath)) {
             for (const auto& entry : std::filesystem::directory_iterator(nodePath)) {
-                const std::string fileName = entry.path().filename().string();
+                const std::string fileName = utils::string::pathToString(entry.path().filename());
                 std::vector<std::string> parts = utils::string::split(fileName, ".");
                 std::string type = parts.empty() ? "" : parts[0];
 
                 auto fileData = utils::file::readString(entry.path());
 
+                auto extension = utils::string::toLower(utils::string::pathToString(entry.path().extension()));
+
                 if (fileData.isOk()) {
-                    geode::Result<matjson::Value, matjson::ParseError> result = matjson::parse(fileData.unwrap());
-                    if (result.isOk()) {
-                        matjson::Value obj = result.unwrap();
+                    if (extension == ".json") {
+                        geode::Result<matjson::Value, matjson::ParseError> result = matjson::parse(fileData.unwrap());
+                        if (result.isOk()) {
+                            matjson::Value obj = result.unwrap();
+                            std::string id = pack.id;
+                            if (id.empty()) id = pack.name;
+                            obj["_pack-name"] = id;
+                            obj["after-transition"]["_pack-name"] = id;
+                            uiCache[type].push_back(obj);
+                        }
+                    }
+                    else if (extension == ".hpt") {
                         std::string id = pack.id;
                         if (id.empty()) id = pack.name;
-                        obj["_pack-name"] = id;
-                        obj["after-transition"]["_pack-name"] = id;
-                        uiCache[type].push_back(obj);
-                    } else {
-                        uiCache[type].push_back(matjson::Value(nullptr));
+                        uiCacheHpt[type].push_back({id, fileData.unwrap()});
                     }
-                }
-                else {
-                    uiCache[type].push_back(matjson::Value(nullptr));
                 }
             }
         }
     }
 }
 
-void UIModding::doUICheckForType(const std::string& type, CCNode* node) {
+void UIModding::doUICheckForType(std::string_view type, CCNode* node) {
     if (skipCheck) return;
-    const auto& vec = uiCache[type];
-    
-    for (auto it = vec.rbegin(); it != vec.rend(); ++it) {
-        handleModifications(node, *it);
+
+    auto it = uiCache.find(type);
+    if (it != uiCache.end()) {
+        const auto& vec = it->second;
+        bool firstMenuLayer = false;
         if (UIModding::get()->firstMenuLayer && type == "MenuLayer") {
-            handleModifications(node, *it, true);
+            firstMenuLayer = true;
             UIModding::get()->firstMenuLayer = false;
         }
-        for (const auto& [k, v] : moveQueue) {
-            v();
+        
+        for (auto it = vec.rbegin(); it != vec.rend(); ++it) {
+            handleModifications(node, *it);
+            if (firstMenuLayer) {
+                handleModifications(node, *it, true);
+            }
+            for (const auto& [k, v] : moveQueue) {
+                v();
+            }
+            moveQueue.clear();
         }
-        moveQueue.clear();
     }
+
+    auto itHpt = uiCacheHpt.find(type);
+    if (itHpt != uiCacheHpt.end()) {
+        const auto& hptVec = itHpt->second;
+        for (auto it = hptVec.rbegin(); it != hptVec.rend(); ++it) {
+            const auto& nodes = HPTParser::get().parse(it->data, it->packName, type, node);
+
+            if (firstMenuLayer) {
+                //handleModifications(node, *it, true);
+            }
+        }
+    }
+
+    for (auto node : removalQueue) {
+        node->removeFromParent();
+    }
+    removalQueue.clear();
 }
+

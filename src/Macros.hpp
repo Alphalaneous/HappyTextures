@@ -111,7 +111,7 @@ class $nodeModify(My##className, className) {                                   
 #define CREATE_NORMAL(clazz)                                                    \
 m_layers[#clazz] = clazz::create();                                             \
 CCNode* self = m_layers[#clazz];                                                \
-std::map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>> callbacks;  \
+std::unordered_map<std::string, std::pair<CCNode*, cocos2d::SEL_MenuHandler>, StringHash, StringEq> callbacks;  \
 m_callbacks[#clazz] = callbacks
 
 #define REGISTER_CALLBACK(clazz, method)                                        \

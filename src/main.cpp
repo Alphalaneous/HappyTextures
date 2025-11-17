@@ -22,5 +22,8 @@
 #include "nodes/CCNode.hpp"
 #include "nodes/CCSprite.hpp"
 #include "nodes/CCDirector.hpp"
+#include "nodes/PushNotReplace.hpp"
 #include "NodeModding.hpp"
 #include "BackgroundColors.hpp"
+#include "HPTParser.hpp"
+#include "HPTCCNode.hpp"

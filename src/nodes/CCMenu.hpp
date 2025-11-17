@@ -71,13 +71,12 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
         if (!nodeIsVisible(this)) return;
 
         auto mousePos = getMousePos();
-        auto local = convertToNodeSpace(mousePos);
         for (auto child : CCArrayExt<CCNode*>(getChildren())) {
             auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(child);
             if (!realItem) continue;
             if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
                 auto worldPos = button->convertToWorldSpaceAR(CCPointZero);
-                bool isValid = nodeIsVisible(button) && button->boundingBox().containsPoint(local) && isHoverable(button, worldPos);
+                bool isValid = nodeIsVisible(button) && button->boundingBox().containsPoint(mousePos) && isHoverable(button, worldPos);
                 button->checkTouch(!isValid);
             }
         }
