@@ -1,8 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
 #include "FileWatcher.hpp"
-#include "Geode/cocos/menu_nodes/CCMenu.h"
-#include "Geode/platform/windows.hpp"
 #include "Utils.hpp"
 #include "nodes/CCLabelBMFont.hpp"
 #include "nodes/CCMenuItemSpriteExtra.hpp"
