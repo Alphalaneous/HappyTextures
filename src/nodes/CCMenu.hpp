@@ -12,7 +12,7 @@ class EventCCMenuItem;
 class KeybindsLayer : CCLayer{};
 class EventsPush : CCNode {};
 
-class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
+/*class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
     void modify() {
         if (UIModding::get()->doModify) {
             schedule(schedule_selector(MyCCMenu::checkMouse));
@@ -82,9 +82,8 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
                 auto nodeMouse = convertToNodeSpace(mousePos);
 
                 bool isValid = button->boundingBox().containsPoint(nodeMouse) && isHoverable(button);
-                button->checkTouch(!isValid);
+                //button->checkTouch(!isValid);
             }
         }
     }
-};
-
+};*/

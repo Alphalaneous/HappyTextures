@@ -64,7 +64,7 @@ if (eventVal.contains(#type)) {                                                 
     matjson::Value eventType = eventVal[#type];                                 \
     if (eventType.isObject()) {                                                 \
         eventType["_pack-name"] = eventVal["_pack-name"];                       \
-        button->set##method(eventType);                                         \
+        reinterpret_cast<HPTCCNode*>(node)->set##method(eventType);             \
     }                                                                           \
 }
 

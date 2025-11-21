@@ -1096,13 +1096,11 @@ void UIModding::handleAttributes(CCNode* node, const matjson::Value& attributes)
 }
 
 void UIModding::handleEvent(CCNode* node, const matjson::Value& eventVal) {
-    if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(typeinfo_cast<CCMenuItemSpriteExtra*>(node))) {
-        forEvent(on-click, OnClick);
-        forEvent(on-release, OnRelease);
-        forEvent(on-activate, OnActivate);
-        forEvent(on-hover, OnHover);
-        forEvent(on-exit, OnExit);
-    }
+    forEvent(on-click, OnClick);
+    forEvent(on-release, OnRelease);
+    forEvent(on-activate, OnActivate);
+    forEvent(on-hover, OnHover);
+    forEvent(on-exit, OnExit);
 }
 
 void UIModding::handleSchedule(CCNode* node, const matjson::Value& scheduleVal) {

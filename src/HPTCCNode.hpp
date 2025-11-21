@@ -1,8 +1,9 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include <Geode/modify/CCNode.hpp>
 #include "HPTParser.hpp"
+#include "TouchObject.hpp"
 
 using namespace geode::prelude;
 
@@ -20,168 +21,7 @@ struct UISchedule {
     }
 };
 
-class HPTCCNode;
-
-struct TouchObject : public CCNode, CCTouchDelegate {
-    CCNode* m_self;
-    bool m_clicked;
-    bool m_hovering;
-    CCNode* m_parentLayer = nullptr;
-
-    std::vector<std::shared_ptr<HPTNode>> m_onClick;
-    std::vector<std::shared_ptr<HPTNode>> m_onRelease;
-    std::vector<std::shared_ptr<HPTNode>> m_onActivate;
-    std::vector<std::shared_ptr<HPTNode>> m_onHover;
-    std::vector<std::shared_ptr<HPTNode>> m_onExit;
-
-    static TouchObject* create(CCNode* self) {
-        auto ret = new TouchObject();
-        if (ret->init(self)) {
-            ret->autorelease();
-            return ret;
-        }
-        delete ret;
-        return nullptr;
-    }
-
-    CCNode* getSceneChildContainingNode() {
-        if (m_parentLayer) {
-            if (CCScene::get() != m_parentLayer->getParent()) return nullptr;
-            return m_parentLayer;
-        }
-
-        auto current = m_self;
-        while (current && current->getParent() != CCScene::get()) {
-            current = current->getParent();
-        }
-        m_parentLayer = current;
-        if (m_parentLayer && CCScene::get() != m_parentLayer->getParent()) return nullptr;
-        return current;
-    }
-
-    bool isLastAlert() {
-        bool shouldCheck = false;
-        bool lastAlert = false;
-
-        if (auto child = getSceneChildContainingNode()) {
-            if (!child) return false;
-            for (auto c : CCArrayExt<CCNode*>(child->getChildren())) {
-                if (!c) continue;
-                if (!AlphaUtils::Cocos::hasNode(m_self, c)) {
-                    shouldCheck = true;
-                }
-                if (shouldCheck) {
-                    if (typeinfo_cast<FLAlertLayer*>(c) || typeinfo_cast<CCBlockLayer*>(c)) {
-                        if (AlphaUtils::Cocos::hasNode(m_self, c)) continue;
-                        lastAlert = true;
-                    }
-                }
-            }
-        }
-        return lastAlert;
-    }
-
-    bool isHoverable(CCNode* node) {
-        if (!CCScene::get() || !node || isLastAlert()) return false;
-        auto worldPos = node->convertToWorldSpaceAR(CCPointZero);
-
-        auto sceneChild = getSceneChildContainingNode();
-        if (!sceneChild) return false;
-
-        for (auto child : CCArrayExt<CCNode*>(CCScene::get()->getChildren())) {
-            if (child->getZOrder() <= sceneChild->getZOrder()) continue;
-            if (child->boundingBox().containsPoint(worldPos) && nodeIsVisible(child)) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    void checkMouse(float) {
-        if (!nodeIsVisible(m_self)) return;
-        if (!m_self->getParent()) return;
-        
-        auto nodeMouse = m_self->getParent()->convertToNodeSpace(getMousePos());
-
-        bool isValid = m_self->boundingBox().containsPoint(nodeMouse) && isHoverable(m_self);
-
-        checkTouch(!isValid);
-    }
-
-    void checkTouch(bool shouldExit) {
-        if (!shouldExit && !m_hovering) {
-            m_hovering = true;
-            parseForEach(m_onHover);
-        }
-        if (shouldExit && m_hovering) {
-            m_hovering = false;
-            parseForEach(m_onExit);
-        }
-    }
-
-    bool init(CCNode* self) {
-        m_self = self;
-        schedule(schedule_selector(TouchObject::checkMouse));
-        return true;
-    }
-
-    void parseForEach(std::vector<std::shared_ptr<HPTNode>> vec) {
-        for (const auto& v : vec) {
-            v->reparse();
-        }
-    }
-
-    bool ccTouchBegan(CCTouch *pTouch, CCEvent *pEvent) override {
-        if (m_self->boundingBox().containsPoint(pTouch->getLocation()) && getSceneChildContainingNode()) {
-            parseForEach(m_onClick);
-            m_clicked = true;
-            return true;
-        }
-        return false;
-    }
-
-    void ccTouchMoved(CCTouch *pTouch, CCEvent *pEvent) override {
-        if (m_self->boundingBox().containsPoint(pTouch->getLocation()) && getSceneChildContainingNode()) {
-            if (!m_clicked) {
-                m_clicked = true;
-                parseForEach(m_onClick);
-            }
-        }
-        else {
-            if (m_clicked) {
-                m_clicked = false;
-                parseForEach(m_onRelease);
-            }
-        }
-    }
-
-    void ccTouchEnded(CCTouch *pTouch, CCEvent *pEvent) override {
-        m_clicked = false;
-        parseForEach(m_onActivate);
-        parseForEach(m_onRelease);
-    }
-
-    void ccTouchCancelled(CCTouch *pTouch, CCEvent *pEvent) override {
-        m_clicked = false;
-        parseForEach(m_onRelease);
-    }
-
-    void onEnter() override {
-        CCNode::onEnter();
-        CCDirector::get()->getTouchDispatcher()->addTargetedDelegate(this, 0, true);
-    }
-
-    void onExit() override {
-        CCNode::onExit();
-        CCDirector::get()->getTouchDispatcher()->removeDelegate(this);
-    }
-
-    ~TouchObject() {
-        unscheduleAllSelectors();
-    }
-};
-
-class $nodeModify(HPTCCNode, CCNode) {
+class $modify(HPTCCNode, CCNode) {
 
     struct Fields {
         TouchObject* m_touchObject;
@@ -202,8 +42,6 @@ class $nodeModify(HPTCCNode, CCNode) {
             resetChildren(packName, node);
         }
     }
-
-    void modify() {}
 
     void setOwner(std::shared_ptr<HPTNode> node) {
         m_fields->m_owned.push_back(node);
@@ -250,6 +88,27 @@ class $nodeModify(HPTCCNode, CCNode) {
             erase(fields->m_touchObject->m_onHover);
             erase(fields->m_touchObject->m_onExit);
         }
+
+        //resetByPackJson(packName);
+    }
+
+    void resetByPackJson(const std::string& packName) {
+        auto fields = m_fields.self();
+
+        auto erase = [&packName] (std::vector<matjson::Value>& vec) {
+            vec.erase(
+                std::remove_if(vec.begin(), vec.end(), [&packName](matjson::Value value){ return value["_pack-name"] == packName; }),
+                vec.end()
+            );
+        };
+
+        if (fields->m_touchObject) {
+            erase(fields->m_touchObject->m_onClickJson);
+            erase(fields->m_touchObject->m_onReleaseJson);
+            erase(fields->m_touchObject->m_onActivateJson);
+            erase(fields->m_touchObject->m_onHoverJson);
+            erase(fields->m_touchObject->m_onExitJson);
+        }
     }
 
     void setSchedule(std::shared_ptr<HPTNode> node) {
@@ -294,6 +153,68 @@ class $nodeModify(HPTCCNode, CCNode) {
         auto fields = m_fields.self();
         enableTouch();
         fields->m_touchObject->m_onExit.push_back(node);
+    }
+
+    void setOnClick(matjson::Value value) {
+        auto fields = m_fields.self();
+        enableTouch();
+        fields->m_touchObject->m_onClickJson.push_back(value);
+        auto& override = fields->m_touchObject->m_cancelOriginalClick;
+
+        if (!override) {
+            if (value.contains("override")) {
+                matjson::Value overrideVal = value["override"];
+                if (overrideVal.isBool()) {
+                    override = overrideVal.asBool().unwrapOr(false);
+                }
+            }
+        }
+    }
+
+    void setOnRelease(matjson::Value value) {
+        auto fields = m_fields.self();
+        enableTouch();
+        fields->m_touchObject->m_onReleaseJson.push_back(value);
+
+        auto& override = fields->m_touchObject->m_cancelOriginalRelease;
+
+        if (!override) {
+            if (value.contains("override")) {
+                matjson::Value overrideVal = value["override"];
+                if (overrideVal.isBool()) {
+                    override = overrideVal.asBool().unwrapOr(false);
+                }
+            }
+        }
+    }
+
+    void setOnActivate(matjson::Value value) {
+        auto fields = m_fields.self();
+        enableTouch();
+        fields->m_touchObject->m_onActivateJson.push_back(value);
+
+        auto& override = fields->m_touchObject->m_cancelOriginalActivate;
+
+        if (!override) {
+            if (value.contains("override")) {
+                matjson::Value overrideVal = value["override"];
+                if (overrideVal.isBool()) {
+                    override = overrideVal.asBool().unwrapOr(false);
+                }
+            }
+        }
+    }
+
+    void setOnHover(matjson::Value value) {
+        auto fields = m_fields.self();
+        enableTouch();
+        fields->m_touchObject->m_onHoverJson.push_back(value);
+    }
+
+    void setOnExit(matjson::Value value) {
+        auto fields = m_fields.self();
+        enableTouch();
+        fields->m_touchObject->m_onExitJson.push_back(value);
     }
 };
 

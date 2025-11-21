@@ -1,5 +1,6 @@
 # 2.0.20
-- Fix some hover bugs
+- Change how touch is handled
+  - Any node can have touch and hover events now
 - Fix onQuit crashes
 
 # 2.0.19
