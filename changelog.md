@@ -1,3 +1,6 @@
+# 2.0.19
+- Fixed a bug that caused UI modifications to not actually modify the UI haha
+
 # 2.0.18
 - Performance Improvements
 - Bug fixes

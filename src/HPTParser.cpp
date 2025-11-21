@@ -993,7 +993,7 @@ void HPTParser::setupParser() {
     
     registerCommand("play-sound", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.empty()) return;
-        log::info("attr: {}", hptNode->attributes);
+        log::debug("attr: {}", hptNode->attributes);
 
         float speed = numFromString<float>(hptNode->attributes["speed"]).unwrapOr(1);
         float volume = numFromString<float>(hptNode->attributes["volume"]).unwrapOr(1);
@@ -1243,10 +1243,10 @@ void HPTParser::handleCommand(std::shared_ptr<HPTNode> node, std::string_view sr
 
     skipWhitespace(src, pos);
     if (matchChar(src, pos, ':')) {
-        log::info("here");
+        log::debug("here");
         skipWhitespace(src, pos);
         if (matchChar(src, pos, '{')) {
-            log::info("skip? {}", child->typeDef.skipParsing);
+            log::debug("skip? {}", child->typeDef.skipParsing);
             parseBlock(child, src, pos, parentNode);
             node->children.push_back(child);
         }
@@ -1326,7 +1326,7 @@ void HPTParser::handleAttribute(std::shared_ptr<HPTNode> node, std::string_view 
         } else {
             std::string orig = parseValue(node, src, pos);
             node->attributes.emplace(key, orig);
-            log::info("orig: {}", orig);
+            log::debug("orig: {}", orig);
             if (node->targetNode) applyAttribute(node, key, orig);
         }
     }

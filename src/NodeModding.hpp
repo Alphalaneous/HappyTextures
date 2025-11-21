@@ -30,7 +30,7 @@ class $modify(CCDictionary) {
 
 static std::unordered_map<CCObject*, uintptr_t> s_nodeVTables;
 
-static bool checkNodeValidity(CCNode* node) {
+static bool checkNodeValidity(CCObject* node) {
     auto ret = *(uintptr_t*)node == s_nodeVTables[node];
     s_nodeVTables.erase(node);
     return ret;
@@ -70,7 +70,6 @@ class $modify(HTCCObject, CCObject) {
 
         if (isNode(this)) {
             MyCCNode* node = reinterpret_cast<MyCCNode*>(this);
-            if (!checkNodeValidity(node)) return CCObject::autorelease();
             
             auto fields = node->m_fields.self();
             if (!fields->m_modified) {
