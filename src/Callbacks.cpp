@@ -36,6 +36,14 @@ struct MenuLayerCallbacks : public CCNode {
         CCDirector::get()->pushScene(CCTransitionFade::create(0.5, GJGarageLayer::scene()));
     }
 
+    void onQuit(CCObject* obj) {
+        createQuickPopup("Quit Game", "Are you sure you want to <cr>quit</c>?", "Cancel", "Yes", [](auto, bool selected) {
+            if (selected) {
+                utils::game::exit(true);
+            }
+        }, true);
+    }
+
 };
 
 void Callbacks::generateMenuLayerCallbacks() {
@@ -43,13 +51,13 @@ void Callbacks::generateMenuLayerCallbacks() {
     m_callbacks["MenuLayer"]["onPlay"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onPlay));
     m_callbacks["MenuLayer"]["onGarage"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onGarage));
     m_callbacks["MenuLayer"]["onCreator"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onCreator));
+    m_callbacks["MenuLayer"]["onQuit"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onQuit));
     REGISTER_CALLBACK(MenuLayer, onAchievements);
     REGISTER_CALLBACK(MenuLayer, onDaily);
     REGISTER_CALLBACK(MenuLayer, onMoreGames);
     REGISTER_CALLBACK(MenuLayer, onMyProfile);
     REGISTER_CALLBACK(MenuLayer, onOptions);
     REGISTER_CALLBACK(MenuLayer, onStats);
-    REGISTER_CALLBACK(MenuLayer, onQuit);
 }
 
 void Callbacks::generateCreatorLayerCallbacks() {

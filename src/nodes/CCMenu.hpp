@@ -3,7 +3,6 @@
 #include <Geode/Geode.hpp>
 #include "CCMenuItemSpriteExtra.hpp"
 #include "../UIModding.hpp"
-#include "../Utils.hpp"
 #include "../Macros.hpp"
 #include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 
@@ -52,15 +51,16 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
     }
 
 
-    bool isHoverable(CCNode* node, CCPoint point) {
+    bool isHoverable(CCNode* node) {
         if (!CCScene::get() || !node || isLastAlert(node)) return false;
+        auto worldPos = node->convertToWorldSpaceAR(CCPointZero);
 
         auto sceneChild = getSceneChildContainingNode(node);
         if (!sceneChild) return false;
 
-        for (auto child : CCArrayExt<CCNode*>(CCScene::get()->getChildren())) {
+        for (auto child : CCScene::get()->getChildrenExt()) {
             if (child->getZOrder() <= sceneChild->getZOrder()) continue;
-            if (child->boundingBox().containsPoint(point) && nodeIsVisible(child)) {
+            if (child->boundingBox().containsPoint(worldPos) && nodeIsVisible(child)) {
                 return false;
             }
         }
@@ -72,11 +72,16 @@ class $nodeModify(MyCCMenu, cocos2d::CCMenu) {
 
         auto mousePos = getMousePos();
         for (auto child : CCArrayExt<CCNode*>(getChildren())) {
+            if (!nodeIsVisible(child)) continue;
             auto realItem = typeinfo_cast<CCMenuItemSpriteExtra*>(child);
             if (!realItem) continue;
+
             if (EventCCMenuItemSpriteExtra* button = static_cast<EventCCMenuItemSpriteExtra*>(realItem)) {
-                auto worldPos = button->convertToWorldSpaceAR(CCPointZero);
-                bool isValid = nodeIsVisible(button) && button->boundingBox().containsPoint(mousePos) && isHoverable(button, worldPos);
+                auto worldPos = button->convertToWorldSpace(CCPointZero);
+
+                auto nodeMouse = convertToNodeSpace(mousePos);
+
+                bool isValid = button->boundingBox().containsPoint(nodeMouse) && isHoverable(button);
                 button->checkTouch(!isValid);
             }
         }

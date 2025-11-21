@@ -81,15 +81,16 @@ struct TouchObject : public CCNode, CCTouchDelegate {
         return lastAlert;
     }
 
-    bool isHoverable(CCNode* node, CCPoint point) {
+    bool isHoverable(CCNode* node) {
         if (!CCScene::get() || !node || isLastAlert()) return false;
+        auto worldPos = node->convertToWorldSpaceAR(CCPointZero);
 
         auto sceneChild = getSceneChildContainingNode();
         if (!sceneChild) return false;
 
         for (auto child : CCArrayExt<CCNode*>(CCScene::get()->getChildren())) {
             if (child->getZOrder() <= sceneChild->getZOrder()) continue;
-            if (child->boundingBox().containsPoint(point) && nodeIsVisible(child)) {
+            if (child->boundingBox().containsPoint(worldPos) && nodeIsVisible(child)) {
                 return false;
             }
         }
@@ -100,8 +101,9 @@ struct TouchObject : public CCNode, CCTouchDelegate {
         if (!nodeIsVisible(m_self)) return;
         if (!m_self->getParent()) return;
         
-        auto worldPos = m_self->convertToWorldSpaceAR(CCPointZero);
-        bool isValid = nodeIsVisible(m_self) && m_self->boundingBox().containsPoint(getMousePos()) && isHoverable(m_self, worldPos);
+        auto nodeMouse = m_self->getParent()->convertToNodeSpace(getMousePos());
+
+        bool isValid = m_self->boundingBox().containsPoint(nodeMouse) && isHoverable(m_self);
 
         checkTouch(!isValid);
     }

@@ -1,3 +1,7 @@
+# 2.0.20
+- Fix some hover bugs
+- Fix onQuit crashes
+
 # 2.0.19
 - Fixed a bug that caused UI modifications to not actually modify the UI haha
 
