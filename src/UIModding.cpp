@@ -1416,6 +1416,8 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject, boo
 void UIModding::reloadChildren(CCNode* parentNode, bool transition) {
     if (!parentNode) return;
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
+    if (!checkNodeValidity(myParentNode)) return;
+    
     for (const matjson::Value& value : myParentNode->getAttributes()) {
         handleModifications(myParentNode, value, transition);
     }
@@ -1607,3 +1609,34 @@ void UIModding::doUICheckForType(std::string_view type, CCNode* node) {
     removalQueue.clear();
 }
 
+bool UIModding::checkNodeValidity(CCObject* node) {
+    auto ret = *(uintptr_t*)node == m_nodeVTables[node];
+    m_nodeVTables.erase(node);
+    return ret;
+}
+
+void UIModding::setNodeVTable(CCNode* node) {
+    m_nodeVTables[node] = *(uintptr_t*)node;
+}
+
+bool UIModding::isNode(CCObject* obj) {
+    const std::type_info* ti = &typeid(*obj);
+
+    auto it = m_isNodeCache.find(ti);
+    if (it != m_isNodeCache.end()) {
+        return it->second;
+    }
+
+    bool isNode = typeinfo_cast<CCNode*>(obj) && !typeinfo_cast<GJGameLevel*>(obj);
+    m_isNodeCache.emplace(ti, isNode);
+
+    return isNode;
+}
+
+UIModding* UIModding::get() {
+
+    if (!instance) {
+        instance = new UIModding();
+    };
+    return instance;
+}

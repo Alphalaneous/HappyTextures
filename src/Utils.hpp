@@ -263,6 +263,12 @@ namespace Utils {
         return AlphaUtils::Cocos::hasNode(child, node);
     }
 
+    static std::string_view extract(std::string_view s) {
+        if (auto pos = s.rfind("::"); pos != std::string_view::npos)
+            return s.substr(pos + 2);
+        return s;
+    }
+
     static std::string_view trim(std::string_view s) {
         const auto is_space = [](unsigned char c) {
             return c == ' ' || c == '\t' || c == '\n' ||

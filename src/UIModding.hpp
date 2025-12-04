@@ -31,6 +31,9 @@ public:
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
     bool firstMenuLayer = true;
 
+    std::unordered_map<CCObject*, uintptr_t> m_nodeVTables;
+    std::unordered_map<const std::type_info*, bool> m_isNodeCache;
+
     std::vector<FileWatcher*> listeners;
     std::vector<Ref<CCNode>> removalQueue;
 
@@ -103,11 +106,9 @@ public:
     void evaluateIf(CCNode* node, const matjson::Value& ifArray);
     std::vector<std::string> generateValidSprites(const std::string& path, const matjson::Value& spriteList);
 
-    static UIModding* get() {
+    bool checkNodeValidity(CCObject* node);
+    void setNodeVTable(CCNode* node);
+    bool isNode(CCObject* obj);
 
-        if (!instance) {
-            instance = new UIModding();
-        };
-        return instance;
-    }
+    static UIModding* get();
 };
