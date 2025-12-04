@@ -1,3 +1,6 @@
+# 2.0.21 & 2.0.22
+- Attempt to fix a rare crash
+
 # 2.0.20
 - Change how touch is handled
   - Any node can have touch and hover events now
