@@ -1,8 +1,6 @@
 #include <Geode/Geode.hpp>
 #include "Macros.hpp"
 #include "nodes/CCLabelBMFont.hpp"
-#include "nodes/CCMenu.hpp"
-#include "nodes/CCMenuItemSpriteExtra.hpp"
 #include "nodes/CCScale9Sprite.hpp"
 #include "nodes/EditLevelLayer.hpp"
 #include "nodes/GJCommentListLayer.hpp"

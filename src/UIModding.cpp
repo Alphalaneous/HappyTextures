@@ -3,7 +3,6 @@
 #include "FileWatcher.hpp"
 #include "Utils.hpp"
 #include "nodes/CCLabelBMFont.hpp"
-#include "nodes/CCMenuItemSpriteExtra.hpp"
 #include "nodes/FLAlertLayer.hpp"
 #include "nodes/CCNode.hpp"
 #include "UIModding.hpp"
@@ -579,11 +578,13 @@ void UIModding::setColor(CCNode* node, const matjson::Value& attributes) {
         std::string colorStr = color.asString().unwrapOr("");
 
         if (colorStr == "reset") {
-            if (auto node1 = static_cast<EventCCMenuItemSpriteExtra*>(typeinfo_cast<CCMenuItemSpriteExtra*>(node))) {
-                auto originalColor = node1->m_fields->originalColor;
-                node1->setColor(originalColor);
-                if (auto buttonNode = node1->getChildByType<ButtonSprite>(0)) {
-                    buttonNode->setColor(originalColor);
+            if (auto node1 = typeinfo_cast<CCNodeRGBA*>(node)) {
+                if (auto color = static_cast<ObjWrapper<ccColor3B>*>(node1->getUserObject("orig-color"_spr))) {
+                    auto originalColor = color->getValue();
+                    node1->setColor(originalColor);
+                    if (auto buttonNode = node1->getChildByType<ButtonSprite>(0)) {
+                        buttonNode->setColor(originalColor);
+                    }
                 }
             }
         }
@@ -840,11 +841,13 @@ void UIModding::setOpacity(CCNode* node, const matjson::Value& attributes) {
     }
 
     if (opacity.isString() && opacity.asString().unwrapOr("") == "reset") {
-        if (auto node1 = static_cast<EventCCMenuItemSpriteExtra*>(typeinfo_cast<CCMenuItemSpriteExtra*>(node))) {
-            auto original = node1->m_fields->originalOpacity;
-            node1->setOpacity(original);
-            if (auto node2 = node1->getChildByType<ButtonSprite>(0)) {
-                node2->setOpacity(original);
+        if (auto node1 = typeinfo_cast<CCNodeRGBA*>(node)) {
+            if (auto opacity = static_cast<CCInteger*>(node1->getUserObject("orig-opacity"_spr))) {
+                auto originalOpacity = opacity->getValue();
+                node1->setOpacity(originalOpacity);
+                if (auto buttonNode = node1->getChildByType<ButtonSprite>(0)) {
+                    buttonNode->setOpacity(originalOpacity);
+                }
             }
         }
     }
@@ -1415,9 +1418,10 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject, boo
 
 void UIModding::reloadChildren(CCNode* parentNode, bool transition) {
     if (!parentNode) return;
+    if (!checkNodeValidity(parentNode)) return;
+
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
-    if (!checkNodeValidity(myParentNode)) return;
-    
+
     for (const matjson::Value& value : myParentNode->getAttributes()) {
         handleModifications(myParentNode, value, transition);
     }

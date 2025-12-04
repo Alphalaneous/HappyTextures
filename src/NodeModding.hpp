@@ -30,7 +30,6 @@ class $modify(CCDictionary) {
     }
 };
 
-
 class $modify(HTCCObject, CCObject) {
 
     CCObject* autorelease() {
@@ -53,7 +52,6 @@ class $modify(HTCCObject, CCObject) {
         return CCObject::autorelease();
     }
 };
-
 
 class $modify(CCPoolManager) {
     void pop() {

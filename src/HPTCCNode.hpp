@@ -50,6 +50,10 @@ class $modify(HPTCCNode, CCNode) {
     void enableTouch() {
         auto fields = m_fields.self();
         if (!fields->m_touchObject) {
+            if (auto nodeRGBA = typeinfo_cast<CCNodeRGBA*>(this)) {
+                nodeRGBA->setUserObject("orig-color"_spr, ObjWrapper<ccColor3B>::create(nodeRGBA->getColor()));
+                nodeRGBA->setUserObject("orig-opacity"_spr, CCInteger::create(nodeRGBA->getOpacity()));
+            }
             fields->m_touchObject = TouchObject::create(this);
             addChild(fields->m_touchObject);
         }
