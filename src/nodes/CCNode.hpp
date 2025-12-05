@@ -13,7 +13,11 @@ class $modify(MyCCNode, CCNode) {
         std::vector<matjson::Value> m_attributes;
         std::vector<CCAction*> m_scheduledAttributes;
         bool m_modified = false;
+        CCNode* m_self;
         std::string m_baseID = "";
+        ~Fields() {
+            UIModding::get()->m_nodeVTables.erase(m_self);
+        }
     };
 
     void setBaseID(const std::string& ID) {
@@ -64,6 +68,8 @@ class $modify(MyCCNode, CCNode) {
     }
 
     void setModified() {
-        m_fields->m_modified = true;
+        auto fields = m_fields.self();
+        fields->m_self = this;
+        fields->m_modified = true;
     }
 };

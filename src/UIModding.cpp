@@ -1614,9 +1614,7 @@ void UIModding::doUICheckForType(std::string_view type, CCNode* node) {
 }
 
 bool UIModding::checkNodeValidity(CCObject* node) {
-    auto ret = *(uintptr_t*)node == m_nodeVTables[node];
-    m_nodeVTables.erase(node);
-    return ret;
+    return *(uintptr_t*)node == m_nodeVTables[node];
 }
 
 void UIModding::setNodeVTable(CCNode* node) {

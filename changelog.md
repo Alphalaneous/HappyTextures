@@ -1,3 +1,6 @@
+# 2.0.23
+- Fix a small oversight that could break transitions
+
 # 2.0.21 & 2.0.22
 - Attempt to fix a rare crash
 

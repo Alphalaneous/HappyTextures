@@ -40,6 +40,8 @@ class $modify(HTCCObject, CCObject) {
             MyCCNode* node = reinterpret_cast<MyCCNode*>(this);
             
             auto fields = node->m_fields.self();
+            fields->m_self = node;
+
             if (!fields->m_modified) {
                 modding->setNodeVTable(node);
                 LateQueue::get()->queue(node, [modding, node = Ref(node), fields] {
