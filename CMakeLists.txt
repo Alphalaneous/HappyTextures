@@ -10,13 +10,7 @@ set(CMAKE_CXX_VISIBILITY_PRESET hidden)
 
 project(HappyTextures VERSION 1.0.0)
 
-file(GLOB SOURCES
-	src/*.cpp
-	src/nodes/*.cpp
-	src/alerts/*.cpp
-	src/fixes/*.cpp
-	src/texture-loader/*.cpp
-)
+file(GLOB_RECURSE SOURCES CONFIGURE_DEPENDS src/*.cpp)
 
 add_library(${PROJECT_NAME} SHARED ${SOURCES})
 

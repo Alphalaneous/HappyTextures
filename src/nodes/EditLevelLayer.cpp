@@ -1,14 +1,11 @@
-
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include "../Utils.hpp"
 #include "../Macros.hpp"
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 using namespace geode::prelude;
 
-class $nodeModify(MyEditLevelLayer, EditLevelLayer) {
+class $classModify(MyEditLevelLayer, EditLevelLayer) {
 
     void modify() {
         if (UIModding::get()->doModify) {

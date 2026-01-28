@@ -329,7 +329,7 @@ namespace LabelValues {
             LABEL("node_skew_x", node->getSkewX()),
             LABEL("node_skew_y", node->getSkewY()),
             LABEL("node_z_order", node->getZOrder()),
-            LABEL("node_parent_id", node->getParent() ? node->getParent()->getID() : ""),
+            LABEL("node_parent_id", node->getParent() ? std::string(node->getParent()->getID()) : ""),
             LABEL("node_font", font),
             LABEL("node_text", text),
             LABEL("node_sprite", sprite),

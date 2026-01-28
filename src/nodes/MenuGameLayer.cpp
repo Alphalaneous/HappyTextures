@@ -1,14 +1,12 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 using namespace geode::prelude;
 
-class $nodeModify(MyMenuGameLayer, MenuGameLayer) {
+class $classModify(MyMenuGameLayer, MenuGameLayer) {
 
     void modify() {
         MyMenuGameLayer::updateColors(0);

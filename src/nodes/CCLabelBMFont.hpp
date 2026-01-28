@@ -2,8 +2,8 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCLabelBMFont.hpp>
-#include "../LabelValues.hpp"
 #include "../Macros.hpp"
+#include "Geode/utils/ZStringView.hpp"
 
 #include <rift.hpp>
 
@@ -11,11 +11,7 @@ using namespace geode::prelude;
 
 class $modify(MyCCLabelBMFont, CCLabelBMFont) {
 
-    static void onModify(auto& self) {
-        HOOK_LATEST("cocos2d::CCLabelBMFont::setString");
-        HOOK_LATEST("cocos2d::CCLabelBMFont::limitLabelWidth");
-        HOOK_LATEST("cocos2d::CCLabelBMFont::create");
-    }
+    static void onModify(auto& self);
 
     struct Fields {
         float m_limitWidth = 1;
@@ -28,80 +24,15 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
         bool m_compiled = false;
     };
     
-    std::string riftString(std::string input) {
-        auto fields = m_fields.self();
+    std::string riftString(ZStringView input);
 
-        if (fields->m_isHappyTexturesModified) {
-            if (!fields->m_compiled) {
-                auto compiled = rift::compile(std::string_view(input));
-                if (compiled) {
-                    fields->m_riftScript = std::move(compiled.unwrap());
-                }
-                fields->m_compiled = true;
-            }
-            if (fields->m_riftScript) {
-                auto vars = LabelValues::getValueMap(getString());
-                auto res = fields->m_riftScript->run(vars);
-                if (res) {
-                    std::string newNewString = res.unwrap();
-                    return newNewString;
-                }
-            }
-        }
-        return input;
-    }
+    void setString(const char *newString, bool needUpdateLabel);
 
-    void setString(const char *newString, bool needUpdateLabel) {
-        auto fields = m_fields.self();
-        if (std::string_view(newString) != std::string_view(getString())) {
-            fields->m_compiled = false;
-        }
-        CCLabelBMFont::setString(riftString(newString).c_str(), needUpdateLabel);
-    }
+    void setHappyTexturesModified(bool refresh = false);
 
-    void setHappyTexturesModified(bool refresh = false) {
-        m_fields->m_isHappyTexturesModified = true;
-        if (refresh) {
-            CCLabelBMFont::setString(getString());
-        }
-    }
+    void limitLabelWidth(float width, float defaultScale, float minScale);
 
-    void limitLabelWidth(float width, float defaultScale, float minScale) {
+    static CCLabelBMFont* create(const char *str, const char *fntFile, float width, CCTextAlignment alignment, CCPoint imageOffset);
 
-        m_fields->m_limitWidth = width;
-        m_fields->m_limitDefaultScale = defaultScale;
-        m_fields->m_limitMinScale = minScale;
-        m_fields->m_isLimited = true;
-
-        CCLabelBMFont::limitLabelWidth(width, defaultScale, minScale);
-    }
-
-    static CCLabelBMFont* create(const char *str, const char *fntFile, float width, CCTextAlignment alignment, CCPoint imageOffset) {
-
-        auto ret = CCLabelBMFont::create(str, fntFile, width, alignment, imageOffset);
-
-        auto myRet = static_cast<MyCCLabelBMFont*>(ret);
-
-        bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
-
-        if (doFix) {
-            myRet->m_fields->m_schedule = schedule_selector(MyCCLabelBMFont::checkParent);
-            ret->schedule(myRet->m_fields->m_schedule);
-        }
-        
-        return ret;
-    }
-
-    void checkParent(float dt) {
-        if (auto parent = getParent()) {
-            if (typeinfo_cast<LabelGameObject*>(parent)) {
-                if (std::string_view(getFntFile()) == "bigFont.fnt") {
-                    ccBlendFunc blendFunc = getBlendFunc();
-                    setFntFile("bigFont.fnt"_spr);
-                    setBlendFunc(blendFunc);
-                }
-            }
-            unschedule(m_fields->m_schedule);
-        }
-    }
+    void checkParent(float dt);
 };

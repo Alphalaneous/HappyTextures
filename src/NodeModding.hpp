@@ -6,8 +6,6 @@
 #include <Geode/modify/CCPoolManager.hpp>
 #include <Geode/modify/CCDictionary.hpp>
 #include "nodes/CCNode.hpp"
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
-#include <alphalaneous.alphas_geode_utils/include/Fields.h>
 #include "Macros.hpp"
 #include "LateQueue.hpp"
 #include "Utils.hpp"
@@ -46,7 +44,7 @@ class $modify(HTCCObject, CCObject) {
                 modding->setNodeVTable(node);
                 LateQueue::get()->queue(node, [modding, node = Ref(node), fields] {
                     if (!modding->checkNodeValidity(node)) return;
-                    modding->doUICheckForType(Utils::extract(cocos::getObjectName(node)), node);
+                    modding->doUICheckForType(Utils::extract(std::string(cocos::getObjectName(node))), node);
                     fields->m_modified = true;
                 });
             }

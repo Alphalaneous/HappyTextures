@@ -1,5 +1,5 @@
 #include "TouchObject.hpp"
-#include <alphalaneous.alphas_geode_utils/include/Utils.h>
+#include <alphalaneous.alphas_geode_utils/include/Utils.hpp>
 #include "UIModding.hpp"
 #include "HPTCCNode.hpp"
 
@@ -36,12 +36,12 @@ bool TouchObject::isLastAlert() {
         if (!child) return false;
         for (auto c : CCArrayExt<CCNode*>(child->getChildren())) {
             if (!c) continue;
-            if (!AlphaUtils::Cocos::hasNode(m_self, c)) {
+            if (!alpha::utils::cocos::hasNode(m_self, c)) {
                 shouldCheck = true;
             }
             if (shouldCheck) {
                 if (typeinfo_cast<FLAlertLayer*>(c) || typeinfo_cast<CCBlockLayer*>(c)) {
-                    if (AlphaUtils::Cocos::hasNode(m_self, c)) continue;
+                    if (alpha::utils::cocos::hasNode(m_self, c)) continue;
                     lastAlert = true;
                 }
             }

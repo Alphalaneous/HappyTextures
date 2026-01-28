@@ -1,10 +1,7 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CustomListView.hpp>
 #include "../Macros.hpp"
 #include "../Utils.hpp"
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
 
 using namespace geode::prelude;
 

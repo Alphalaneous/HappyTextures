@@ -1,16 +1,14 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include "CCScale9Sprite.hpp"
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include "../LateQueue.hpp"
 
 using namespace geode::prelude;
 
-class $nodeModify(MyGJCommentListLayer, GJCommentListLayer) {
+class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
 
     struct Fields {
         SEL_SCHEDULE revertSchedule;
@@ -20,11 +18,9 @@ class $nodeModify(MyGJCommentListLayer, GJCommentListLayer) {
     };
 
     void modify() {
-        auto self = reinterpret_cast<GJCommentListLayer*>(this);
-
         if (UIModding::get()->doModify) {
-            if (self->getColor() == ccColor3B{191,114,62}) {
-                Utils::setColorIfExists(self, "comment-list-layer-bg");
+            if (getColor() == ccColor3B{191,114,62}) {
+                Utils::setColorIfExists(this, "comment-list-layer-bg");
             }
         }
 
@@ -52,7 +48,7 @@ class $nodeModify(MyGJCommentListLayer, GJCommentListLayer) {
             fields->revertSchedule = schedule_selector(MyGJCommentListLayer::listenForDisable);
 
             LateQueue::get()->queue(this, [this] {
-                if (!getUserObject("dont-correct-borders")){
+                if (!static_cast<CCNode*>(this)->getUserFlag("dont-correct-borders"_spr)){
                     updateBordersWithParent(getParent());
                 }
             });
@@ -92,7 +88,7 @@ class $nodeModify(MyGJCommentListLayer, GJCommentListLayer) {
     }
 
     void listenForDisable(float dt) {
-        if (getUserObject("dont-correct-borders")){
+        if (static_cast<CCNode*>(this)->getUserFlag("dont-correct-borders"_spr)){
             revert();
         }
     }

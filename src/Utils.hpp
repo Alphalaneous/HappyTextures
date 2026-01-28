@@ -1,10 +1,14 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
+#include "Geode/cocos/cocoa/CCObject.h"
+#include "Geode/utils/ZStringView.hpp"
+#include "Geode/utils/cocos.hpp"
+#include "Geode/utils/string.hpp"
 #include "UIModding.hpp"
 #include "Macros.hpp"
 #include <geode.texture-loader/include/TextureLoader.hpp>
-#include <alphalaneous.alphas_geode_utils/include/Utils.h>
+#include <alphalaneous.alphas_geode_utils/include/Utils.hpp>
 #include <queue>
 
 using namespace geode::prelude;
@@ -156,7 +160,7 @@ namespace Utils {
             }
 
             if (!m_targetClass.empty()) {
-                if (AlphaUtils::Cocos::getClassName(node, true) != m_targetClass) {
+                if (getObjectName(node) != m_targetClass) {
                     return nullptr;
                 }
 
@@ -164,7 +168,7 @@ namespace Utils {
                     int matchCount = 0;
                     bool found = false;
                     for (auto c : CCArrayExt<CCNode*>(parent->getChildren())) {
-                        if (AlphaUtils::Cocos::getClassName(node, true) == m_targetClass) {
+                        if (getObjectName(node) == m_targetClass) {
                             if (matchCount == m_targetIndex) {
                                 if (c != node) return nullptr;
                                 found = true;
@@ -221,6 +225,17 @@ namespace Utils {
         }
     };
 
+    static ZStringView extract(ZStringView s) {
+        if (auto pos = s.view().rfind("::"); pos != std::string_view::npos)
+            return std::string(s.view().substr(pos + 2));
+        return s;
+    }
+
+    static ZStringView getObjectName(CCObject* obj) {
+        auto name = cocos::getObjectName(obj);
+        return extract(std::string(name));
+    }
+
     static CCNode* nodeForQuery(CCNode* node, const std::string& queryStr) {
         auto res = NodeQuery::parse(queryStr);
         if (!res) return nullptr;
@@ -241,7 +256,7 @@ namespace Utils {
 
     template <typename Layer, typename = std::enable_if_t<std::is_pointer_v<Layer>>>
     static Layer getLayer() {
-        return AlphaUtils::Cocos::getLayer<Layer>().value_or(nullptr);
+        return alpha::utils::cocos::getLayer<Layer>().value_or(nullptr);
     }
 
     static int getValidStat(const std::string& key) {
@@ -259,27 +274,17 @@ namespace Utils {
         return level;
     }
 
-    static bool hasNode(CCNode* child, CCNode* node) {
-        return AlphaUtils::Cocos::hasNode(child, node);
-    }
-
-    static std::string_view extract(std::string_view s) {
-        if (auto pos = s.rfind("::"); pos != std::string_view::npos)
-            return s.substr(pos + 2);
-        return s;
-    }
-
-    static std::string_view trim(std::string_view s) {
+    static ZStringView trim(ZStringView s) {
         const auto is_space = [](unsigned char c) {
             return c == ' ' || c == '\t' || c == '\n' ||
                 c == '\r' || c == '\f' || c == '\v';
         };
 
-        while (!s.empty() && is_space(s.front()))
-            s.remove_prefix(1);
+        while (!s.empty() && is_space(s.view().front()))
+            s.view().remove_prefix(1);
 
-        while (!s.empty() && is_space(s.back()))
-            s.remove_suffix(1);
+        while (!s.empty() && is_space(s.view().back()))
+            s.view().remove_suffix(1);
 
         return s;
     }
@@ -289,16 +294,6 @@ namespace Utils {
         if (str == "false") return Ok(false);
         return Err("Invalid bool string");
     };
-
-    //fix texture loader fallback
-
-    static CCSprite* getValidSprite(const char* sprName) {
-        return AlphaUtils::Cocos::getSprite(sprName).value_or(nullptr);
-    }
-
-    static CCSprite* getValidSpriteFrame(const char* sprName) {
-        return AlphaUtils::Cocos::getSpriteByFrameName(sprName).value_or(nullptr);
-    }
 
     static void setColorIfExists(CCRGBAProtocol* node, const std::string& colorId) {
         if (!node) return;
@@ -324,7 +319,8 @@ namespace Utils {
     }
 
     static int getRandomNumber(int lower, int upper) {
-        return AlphaUtils::Misc::getRandomNumber(lower, upper);
+        return 0;
+        //return AlphaUtils::Misc::getRandomNumber(lower, upper);
     }
 
     static void clearCaches() {
@@ -400,32 +396,12 @@ namespace Utils {
         return UIModding::get()->filenameCache[fileName];
     }
 
-    static CCNode* getChildByTypeName(CCNode* node, int index, const std::string& name) {
-        return AlphaUtils::Cocos::getChildByClassName(node, name, index).value_or(nullptr);
-    }
-
     static uint8_t clampByte(float v) {
         return static_cast<uint8_t>(std::clamp(std::round(v), 0.f, 255.f));
     }
 
-    static std::vector<std::string> split(std::string_view str, std::string_view delimiter) {
-        std::vector<std::string> result;
-        size_t start = 0;
-
-        while (start <= str.size()) {
-            size_t end = str.find(delimiter, start);
-            if (end == std::string_view::npos) {
-                end = str.size();
-            }
-            result.emplace_back(str.substr(start, end - start));
-            start = end + delimiter.size();
-        }
-
-        return result;
-    }
-
-    static Result<std::vector<float>> parseFloatArgs(std::string_view str) {
-        auto parts = split(str, ",");
+    static Result<std::vector<float>> parseFloatArgs(ZStringView str) {
+        auto parts = utils::string::split(str, ",");
         std::vector<float> values;
         values.reserve(parts.size());
         for (auto& part : parts) {
@@ -437,14 +413,14 @@ namespace Utils {
     }
 
     // HEX
-    static Result<ccColor4B> parseHex(std::string_view str) {
-        auto hexColorRes = cc4bFromHexString(std::string(str));
+    static Result<ccColor4B> parseHex(ZStringView str) {
+        auto hexColorRes = cc4bFromHexString(str);
         if (!hexColorRes) return Err("Invalid Hex Color");
         return Ok(hexColorRes.unwrap());
     }
 
     // rgb
-    static Result<ccColor4B> parseRGB(std::string_view str) {
+    static Result<ccColor4B> parseRGB(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 3) return Err("rgb requires 3 values");
         return Ok(ccColor4B {
@@ -456,7 +432,7 @@ namespace Utils {
     }
 
     // rgba
-    static Result<ccColor4B> parseRGBA(std::string_view str) {
+    static Result<ccColor4B> parseRGBA(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 4) return Err("rgba requires 4 values");
         return Ok(ccColor4B {
@@ -496,13 +472,13 @@ namespace Utils {
         return { clampByte(r * 255.f), clampByte(g * 255.f), clampByte(b * 255.f), clampByte(a * 255.f) };
     }
 
-    static Result<ccColor4B> parseHSL(std::string_view str) {
+    static Result<ccColor4B> parseHSL(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 3) return Err("hsl requires 3 values");
         return Ok(hslToRgb(values[0], values[1], values[2], 1.f));
     }
 
-    static Result<ccColor4B> parseHSLA(std::string_view str) {
+    static Result<ccColor4B> parseHSLA(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 4) return Err("hsla requires 4 values");
         return Ok(hslToRgb(values[0], values[1], values[2], values[3]));
@@ -533,13 +509,13 @@ namespace Utils {
         return { clampByte(r * 255.f), clampByte(g * 255.f), clampByte(b * 255.f), clampByte(a * 255.f) };
     }
 
-    static Result<ccColor4B> parseHSV(std::string_view str) {
+    static Result<ccColor4B> parseHSV(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 3) return Err("hsv requires 3 values");
         return Ok(hsvToRgb(values[0], values[1], values[2], 1.f));
     }
 
-    static Result<ccColor4B> parseHSVA(std::string_view str) {
+    static Result<ccColor4B> parseHSVA(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 4) return Err("hsva requires 4 values");
         return Ok(hsvToRgb(values[0], values[1], values[2], values[3]));
@@ -571,14 +547,14 @@ namespace Utils {
         return { clampByte(gamma(r) * 255.f), clampByte(gamma(g) * 255.f), clampByte(gamma(bl) * 255.f), clampByte(alpha * 255.f) };
     }
 
-    static Result<ccColor4B> parseLAB(std::string_view str) {
+    static Result<ccColor4B> parseLAB(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 3) return Err("lab requires 3 values");
         return Ok(labToRgb(values[0], values[1], values[2], 1.f));
     }
 
     // LCH
-    static Result<ccColor4B> parseLCH(std::string_view str) {
+    static Result<ccColor4B> parseLCH(ZStringView str) {
         GEODE_UNWRAP_INTO(auto values, parseFloatArgs(str));
         if (values.size() != 3) return Err("lch requires 3 values");
 
@@ -592,21 +568,21 @@ namespace Utils {
         return Ok(labToRgb(L, a, b, 1.f));
     }
 
-    static Result<ccColor4B> parseColorFromString(std::string_view color) {
+    static Result<ccColor4B> parseColorFromString(ZStringView color) {
         auto trimmed = trim(color);
 
-        if (trimmed.starts_with("#")) {
+        if (trimmed.view().starts_with("#")) {
             return parseHex(trimmed);
         }
 
-        auto open = trimmed.find('(');
-        auto close = trimmed.find(')');
+        auto open = trimmed.view().find('(');
+        auto close = trimmed.view().find(')');
         if (open == std::string::npos || close == std::string::npos || close <= open) {
             return Err("Invalid color format");
         }
 
-        auto fn = trimmed.substr(0, open);
-        auto args = trimmed.substr(open + 1, close - open - 1);
+        auto fn = trimmed.view().substr(0, open);
+        ZStringView args = std::string(trimmed.view().substr(open + 1, close - open - 1));
 
         if (fn == "rgb") return parseRGB(args);
         if (fn == "rgba") return parseRGBA(args);
@@ -620,14 +596,14 @@ namespace Utils {
         return Err("Unknown color function: {}", fn);
     }
 
-    static Result<ccColor3B> parseColor3BFromString(const std::string& color) {
+    static Result<ccColor3B> parseColor3BFromString(ZStringView color) {
         auto ret = parseColorFromString(color);
         if (!ret) return Err(ret.unwrapErr());
         auto c = ret.unwrap();
         return Ok(ccColor3B{c.r, c.g, c.b});
     }
 
-    static CCActionInterval* getEasingType(const std::string& name, CCActionInterval* action, float rate) {
+    static CCActionInterval* getEasingType(ZStringView name, CCActionInterval* action, float rate) {
         CCActionInterval* easingType = nullptr;
         
         if (name == "none")  return action;
@@ -794,7 +770,7 @@ namespace Utils {
         return repeat ? CCRepeat::create(finalAction, repeatCount) : finalAction;
     }
 
-    static unsigned int stringToBlendingMode(const std::string& value) {
+    static unsigned int stringToBlendingMode(ZStringView value) {
         static const std::unordered_map<std::string, unsigned int> strBlend = {
             {"GL_ZERO", GL_ZERO},
             {"GL_ONE", GL_ONE},
@@ -816,7 +792,7 @@ namespace Utils {
         return it != strBlend.end() ? it->second : -1;
     }
 
-    static std::vector<std::string> generateValidSprites(const std::string& path, const std::vector<std::string>& spriteList) {
+    static std::vector<std::string> generateValidSprites(ZStringView path, const std::vector<std::string>& spriteList) {
         std::vector<std::string> validSprites;
 
         if (!path.empty()) {
@@ -832,21 +808,21 @@ namespace Utils {
                         continue;
 
                     const std::string sprName = fmt::format("{}\\{}", path, file.filename().string());
-                    if (Utils::getValidSprite(sprName.c_str()))
+                    if (alpha::utils::cocos::getSprite(sprName))
                         validSprites.push_back(sprName);
                 }
             }
         }
 
         for (const auto& v : spriteList) {
-            if (Utils::getValidSprite(v.c_str()))
+            if (alpha::utils::cocos::getSprite(v.c_str()))
                 validSprites.push_back(v);
         }
 
         return validSprites;
     }
 
-    static void openURLSafe(const std::string& url) {
+    static void openURLSafe(ZStringView url) {
         auto lower = utils::string::toLower(url);
         utils::string::trimIP(lower);
         if (utils::string::startsWith(lower, "http://") || utils::string::startsWith(lower, "https://")) {

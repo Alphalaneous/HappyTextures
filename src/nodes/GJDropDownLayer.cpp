@@ -1,5 +1,3 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/GJDropDownLayer.hpp>
 #include "../Macros.hpp"

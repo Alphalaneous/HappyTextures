@@ -11,8 +11,8 @@ void LateQueue::remove(CCObject* node) {
 }
 
 void LateQueue::executeQueue() {
-    for (auto const& [k, v] : m_mainThreadQueue) {
-        for (auto const& func : v) {
+    for (auto& [k, v] : m_mainThreadQueue) {
+        for (auto& func : v) {
             if (func) func();
         }
     }

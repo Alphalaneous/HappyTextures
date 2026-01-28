@@ -1,10 +1,9 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
+#include "alphalaneous.alphas_geode_utils/include/Utils.hpp"
 
 using namespace geode::prelude;
 
@@ -34,22 +33,26 @@ class $modify(MyLevelInfoLayer, LevelInfoLayer) {
             
             if (!spriteOuter || !spriteInner || !spriteCenter || !m_progressTimer || !m_progressTimer->getSprite()) return;
 
-            if (CCSprite* spr = Utils::getValidSprite("play_loading_outer.png")) {
+            if (auto res = alpha::utils::cocos::getSprite("play_loading_outer.png")) {
+                auto spr = res.value();
                 spriteOuter->setTexture(spr->getTexture());
                 spriteOuter->setTextureRect(spr->getTextureRect());
             }
 
-            if (CCSprite* spr = Utils::getValidSprite("play_loading_center.png")) {
+            if (auto res = alpha::utils::cocos::getSprite("play_loading_center.png")) {
+                auto spr = res.value();
                 spriteCenter->setTexture(spr->getTexture());
                 spriteCenter->setTextureRect(spr->getTextureRect());
             }
 
-            if (CCSprite* spr = Utils::getValidSprite("play_loading_inner.png")) {
+            if (auto res = alpha::utils::cocos::getSprite("play_loading_inner.png")) {
+                auto spr = res.value();
                 spriteInner->setTexture(spr->getTexture());
                 spriteInner->setTextureRect(spr->getTextureRect());
             }
 
-            if (CCSprite* spr = Utils::getValidSprite("play_loading_progress.png")) {
+            if (auto res = alpha::utils::cocos::getSprite("play_loading_progress.png")) {
+                auto spr = res.value();
                 spr->setColor(m_progressTimer->getSprite()->getColor());
                 m_progressTimer->setSprite(spr);
             }

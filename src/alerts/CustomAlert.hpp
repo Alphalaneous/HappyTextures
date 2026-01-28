@@ -4,10 +4,9 @@
 
 using namespace geode::prelude;
 
-class CustomAlert : public geode::Popup<> {
+class CustomAlert : public geode::Popup {
 
 protected:
-    bool setup() override;
     bool init(float width, float height, std::string texture, std::string title);
 
 public:

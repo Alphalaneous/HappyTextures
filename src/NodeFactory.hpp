@@ -1,7 +1,7 @@
 #pragma once
 #include <Geode/Geode.hpp>
+#include "Geode/utils/StringMap.hpp"
 #include "HPTParser.hpp"
-#include "StringUtils.hpp"
 
 using namespace geode::prelude;
 
@@ -14,5 +14,5 @@ public:
     void registerNode(std::string_view type, NodeHandler nodeHandler);
     NodeHandler getNodeHandler(std::string_view type);
 private:
-    std::unordered_map<std::string, NodeHandler, StringHash, StringEq> m_nodeHandlers;
+    StringMap<NodeHandler> m_nodeHandlers;
 };

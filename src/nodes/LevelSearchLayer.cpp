@@ -1,13 +1,11 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include "../Macros.hpp"
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 #include "../UIModding.hpp"
 
 using namespace geode::prelude;
 
-class $nodeModify(MyLevelSearchLayer, LevelSearchLayer) {
+class $classModify(MyLevelSearchLayer, LevelSearchLayer) {
     void modify() {
         if (UIModding::get()->doModify) {
             UIModding::get()->updateColors(this, "level-search-bg");

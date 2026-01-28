@@ -1,12 +1,12 @@
 {
-    "geode": "4.10.0",
+    "geode": "5.0.0-alpha.1",
     "gd": {
-        "win": "2.2074",
-        "android": "2.2074",
-        "mac": "2.2074",
-        "ios": "2.2074"
+        "win": "2.2081",
+        "android": "2.2081",
+        "mac": "2.2081",
+        "ios": "2.2081"
     },
-    "version": "v2.0.23",
+    "version": "v2.1.0",
     "id": "alphalaneous.happy_textures",
     "name": "Happy Textures :3",
     "developer": "Alphalaneous",
@@ -14,7 +14,7 @@
     "early-load": true,
     "dependencies": {
         "geode.node-ids": ">=v1.15.0",
-        "alphalaneous.alphas_geode_utils": ">=v1.1.8",
+        "alphalaneous.alphas_geode_utils": ">=v1.2.0",
         "prevter.imageplus": ">=v1.0.0",
         "geode.texture-loader": {
             "importance": "suggested",

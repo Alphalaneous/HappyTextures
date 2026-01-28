@@ -1,7 +1,10 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
 #include "FileWatcher.hpp"
+#include "Geode/utils/ZStringView.hpp"
+#include "Geode/utils/cocos.hpp"
 #include "Utils.hpp"
+#include "alphalaneous.alphas_geode_utils/include/Utils.hpp"
 #include "nodes/CCLabelBMFont.hpp"
 #include "nodes/FLAlertLayer.hpp"
 #include "nodes/CCNode.hpp"
@@ -14,6 +17,7 @@
 #include "HPTParser.hpp"
 #include "HPTCCNode.hpp"
 #include <alphalaneous.pages_api/include/PagesAPI.h>
+#include "LabelValues.hpp"
 
 using namespace geode::prelude;
 
@@ -707,7 +711,7 @@ std::vector<std::string> UIModding::generateValidSprites(const std::string& path
                     continue;
 
                 const std::string sprName = fmt::format("{}\\{}", path, file.filename().string());
-                if (Utils::getValidSprite(sprName.c_str()))
+                if (alpha::utils::cocos::getSprite(sprName))
                     validSprites.push_back(sprName);
             }
         }
@@ -718,7 +722,7 @@ std::vector<std::string> UIModding::generateValidSprites(const std::string& path
             if (!v.isString()) continue;
 
             const std::string& spriteName = v.asString().unwrap();
-            if (Utils::getValidSprite(spriteName.c_str()))
+            if (alpha::utils::cocos::getSprite(spriteName))
                 validSprites.push_back(spriteName);
         }
     }
@@ -758,9 +762,10 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
         spriteName = sprite.asString().unwrapOr("");
     }
 
-    spr = Utils::getValidSpriteFrame(spriteName.c_str());
-    if (!spr) spr = Utils::getValidSprite(spriteName.c_str());
-    if (!spr) return;
+    auto res = alpha::utils::cocos::getSprite(spriteName);
+    if (!res) res = alpha::utils::cocos::getSpriteByFrameName(spriteName);
+    if (!res) return;
+    spr = res.value();
 
     if (auto spriteNode = typeinfo_cast<CCSprite*>(node)) {
         spriteNode->setTexture(spr->getTexture());
@@ -788,7 +793,7 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
                     setSpriteVarNum(scale, scale, Double, 0);
                     setSpriteVar(absolute, absolute, Bool, false);
 
-                    if (CCSprite* sprite = Utils::getValidSprite(texture.c_str())) {
+                    if (auto res = alpha::utils::cocos::getSprite(texture)) {
                         if (FNTConfigLoadFile(font.c_str())) {
                             auto buttonSprite = ButtonSprite::create(caption.c_str(), width, absolute, font.c_str(), texture.c_str(), height, scale);
                             buttonNode->setNormalImage(buttonSprite);
@@ -1220,7 +1225,8 @@ void UIModding::modifyChildByIndex(CCNode* node, const matjson::Value& value) {
             type = typeVal.asString().unwrapOr("");
         }
     }
-    UIModding::get()->handleModifications(Utils::getChildByTypeName(node, index, type), value);
+    
+    UIModding::get()->handleModifications(alpha::utils::cocos::getChildByClassName(node, type, index).value_or(nullptr), value);
 }
 
 void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newChildVal) {
@@ -1240,9 +1246,11 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                 if (attributesVal.contains("sprite-frame")) sprType = "sprite-frame";
                 if ((attributesVal.contains(sprType) && attributesVal[sprType].isString())) {
                     std::string spriteName = attributesVal[sprType].asString().unwrapOr("");
-                    newNode = Utils::getValidSpriteFrame(spriteName.c_str());
-                    if (!newNode) newNode = Utils::getValidSprite(spriteName.c_str());
-                    if (!newNode) newNode = CCSprite::create();
+
+                    auto res = alpha::utils::cocos::getSprite(spriteName);
+                    if (!res) res = alpha::utils::cocos::getSpriteByFrameName(spriteName);
+                    if (!res) newNode = CCSprite::create();
+                    newNode = res.value();
                 }
             } else if (type == "CCNode") {
                 newNode = CCNode::create();
@@ -1261,9 +1269,11 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                 if (attributesVal.contains("sprite-frame")) sprType = "sprite-frame";
                 if ((attributesVal.contains(sprType) && attributesVal[sprType].isString())) {
                     std::string spriteName = attributesVal[sprType].asString().unwrapOr("");
-                    spr = Utils::getValidSpriteFrame(spriteName.c_str());
-                    if (!spr) spr = Utils::getValidSprite(spriteName.c_str());
-                    if (!spr) spr = CCSprite::create();
+
+                    auto res = alpha::utils::cocos::getSprite(spriteName);
+                    if (!res) res = alpha::utils::cocos::getSpriteByFrameName(spriteName);
+                    if (!res) spr = CCSprite::create();
+                    spr = res.value();
                 }
                 newNode = CCMenuItemSpriteExtra::create(spr, nullptr, nullptr, nullptr);
             } else if (type == "CCScale9Sprite") {
@@ -1433,7 +1443,10 @@ void UIModding::reloadChildren(CCNode* parentNode, bool transition) {
 void UIModding::refreshChildren(CCNode* parentNode) {
     if (!parentNode) return;
     MyCCNode* myParentNode = static_cast<MyCCNode*>(parentNode);
-    doUICheckForType(AlphaUtils::Cocos::getClassName(parentNode, true), parentNode);
+
+    auto className = cocos::getObjectName(parentNode);
+
+    doUICheckForType(Utils::getObjectName(parentNode), parentNode);
     for (auto node : CCArrayExt<MyCCNode*>(myParentNode->getChildren())) {
         refreshChildren(node);
     }
@@ -1571,7 +1584,7 @@ void UIModding::loadNodeFiles() {
     }
 }
 
-void UIModding::doUICheckForType(std::string_view type, CCNode* node) {
+void UIModding::doUICheckForType(ZStringView type, CCNode* node) {
     if (skipCheck) return;
 
     auto it = uiCache.find(type);

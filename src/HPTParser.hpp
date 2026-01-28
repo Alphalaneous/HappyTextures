@@ -1,16 +1,15 @@
 #pragma once
 #include <Geode/Geode.hpp>
-#include "StringUtils.hpp"
 
 using namespace geode::prelude;
 
 struct HPTNode;
 
-using AttributeHandler = std::function<void(CCNode*, std::shared_ptr<HPTNode>, std::string_view)>;
-using AttributeExportHandler = std::function<std::string_view(CCNode*)>;
+using AttributeHandler = std::function<void(CCNode*, std::shared_ptr<HPTNode>, ZStringView)>;
+using AttributeExportHandler = std::function<ZStringView(CCNode*)>;
 
-using CommandHandler = std::function<void(CCNode*, std::shared_ptr<HPTNode>, const std::vector<std::string_view>&)>;
-using MethodHandler = std::function<std::string_view(const std::vector<std::string_view>&)>;
+using CommandHandler = std::function<void(CCNode*, std::shared_ptr<HPTNode>, const std::vector<ZStringView>&)>;
+using MethodHandler = std::function<ZStringView(const std::vector<ZStringView>&)>;
 
 struct ErrorInfo {
     int row;
@@ -32,10 +31,10 @@ struct HPTNode {
     std::string data;
     int rowOffset;
     bool skip;
-    std::unordered_map<std::string, std::string, StringHash, StringEq> attributes;
+    StringMap<std::string> attributes;
     std::vector<std::string> skippedAttributes;
     std::vector<std::shared_ptr<HPTNode>> children;
-    std::unordered_map<std::string, std::string, StringHash, StringEq> variables;
+    StringMap<std::string> variables;
 
     HPTNode* parent;
     CCNode* targetNode = nullptr;
@@ -63,46 +62,46 @@ class HPTParser {
 public:
     static HPTParser& get();
 
-    std::shared_ptr<HPTNode> parse(std::string_view src, std::string_view packName, std::string_view identifier, CCNode* rootNode, HPTNode* originalNode = nullptr);
+    std::shared_ptr<HPTNode> parse(ZStringView src, ZStringView packName, ZStringView identifier, CCNode* rootNode, HPTNode* originalNode = nullptr);
 
-    void registerAttribute(std::string_view name, AttributeHandler handler, AttributeExportHandler exportHandler, bool skipParsing = false);
-    void registerCommand(std::string_view name, CommandHandler handler);
-    void registerMethod(std::string_view name, MethodHandler handler);
-    void registerNodeType(std::string_view name, const HPTNodeTypeDef& def);
+    void registerAttribute(ZStringView name, AttributeHandler handler, AttributeExportHandler exportHandler, bool skipParsing = false);
+    void registerCommand(ZStringView name, CommandHandler handler);
+    void registerMethod(ZStringView name, MethodHandler handler);
+    void registerNodeType(ZStringView name, const HPTNodeTypeDef& def);
     void setupParser();
 
 private:
-    std::shared_ptr<HPTNode> parseNode(std::string_view src, std::shared_ptr<HPTNode> parent, size_t& pos, CCNode* parentNode);
-    void parseBlock(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode);
-    void parseEntry(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode);
-    ErrorInfo getLineColFromPos(std::string_view src, size_t pos);
-    std::string parseSelector(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos);
-    std::string parseValue(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos);
-    std::vector<std::string_view> parseArguments(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, char startSym = '(', char endSym = ')', int initialDepth = 0);
-    std::string_view resolveValue(std::shared_ptr<HPTNode> node, std::string_view rawValue);
+    std::shared_ptr<HPTNode> parseNode(ZStringView src, std::shared_ptr<HPTNode> parent, size_t& pos, CCNode* parentNode);
+    void parseBlock(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode);
+    void parseEntry(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode);
+    ErrorInfo getLineColFromPos(ZStringView src, size_t pos);
+    std::string parseSelector(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos);
+    std::string parseValue(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos);
+    std::vector<ZStringView> parseArguments(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, char startSym = '(', char endSym = ')', int initialDepth = 0);
+    ZStringView resolveValue(std::shared_ptr<HPTNode> node, ZStringView rawValue);
 
-    void skipWhitespace(std::string_view src, size_t& pos);
-    void skip(std::shared_ptr<HPTNode> parent, std::string_view src, size_t& pos, CCNode* parentNode);
-    void skipBlock(std::string_view src, size_t& pos, int depth, bool shouldConsumeClosing = true);
-    bool matchChar(std::string_view src, size_t& pos, char c);
+    void skipWhitespace(ZStringView src, size_t& pos);
+    void skip(std::shared_ptr<HPTNode> parent, ZStringView src, size_t& pos, CCNode* parentNode);
+    void skipBlock(ZStringView src, size_t& pos, int depth, bool shouldConsumeClosing = true);
+    bool matchChar(ZStringView src, size_t& pos, char c);
 
-    void setVar(std::shared_ptr<HPTNode> node, std::string_view name, std::string_view value);
-    Result<std::string_view> getVar(std::shared_ptr<HPTNode> node, std::string_view name);
+    void setVar(std::shared_ptr<HPTNode> node, ZStringView name, ZStringView value);
+    Result<ZStringView> getVar(std::shared_ptr<HPTNode> node, ZStringView name);
 
-    CCNode* resolveSelector(CCNode* parent, std::string_view selector);
-    void applyAttribute(std::shared_ptr<HPTNode> node, std::string_view key, std::string_view value);
-    void runCommand(std::shared_ptr<HPTNode> node, std::string_view key, const std::vector<std::string_view>& args);
+    CCNode* resolveSelector(CCNode* parent, ZStringView selector);
+    void applyAttribute(std::shared_ptr<HPTNode> node, ZStringView key, ZStringView value);
+    void runCommand(std::shared_ptr<HPTNode> node, ZStringView key, const std::vector<ZStringView>& args);
     std::string process(std::shared_ptr<HPTNode> node, std::string& value);
     std::string processOnce(std::shared_ptr<HPTNode> node, std::string value);
-    HPTNodeTypeDef getNodeType(std::string_view name);
+    HPTNodeTypeDef getNodeType(ZStringView name);
 
-    void handleNode(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode);
-    void handleCommand(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode);
-    void handleVariable(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode);
-    void handleAttribute(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode);
+    void handleNode(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode);
+    void handleCommand(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode);
+    void handleVariable(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode);
+    void handleAttribute(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode);
 
-    std::unordered_map<std::string, AttributeHandler, StringHash, StringEq> m_attributeHandlers;
-    std::unordered_map<std::string, CommandHandler, StringHash, StringEq> m_commandHandlers;
-    std::unordered_map<std::string, MethodHandler, StringHash, StringEq> m_methodHandlers;
-    std::unordered_map<std::string, HPTNodeTypeDef, StringHash, StringEq> m_nodeTypes;
+    StringMap<AttributeHandler> m_attributeHandlers;
+    StringMap<CommandHandler> m_commandHandlers;
+    StringMap<MethodHandler> m_methodHandlers;
+    StringMap<HPTNodeTypeDef> m_nodeTypes;
 };

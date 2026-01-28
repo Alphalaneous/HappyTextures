@@ -3,7 +3,7 @@
 #include <Geode/Geode.hpp>
 #include <unordered_map>
 #include "FileWatcher.hpp"
-#include "StringUtils.hpp"
+#include "Geode/utils/ZStringView.hpp"
 
 using namespace geode::prelude;
 
@@ -23,11 +23,11 @@ class UIModding {
 protected:
     static UIModding* instance;
 public:
-    std::unordered_map<std::string, std::vector<matjson::Value>, StringHash, StringEq> uiCache;
-    std::unordered_map<std::string, std::vector<UIData>, StringHash, StringEq> uiCacheHpt;
-    std::unordered_map<std::string, ColorData, StringHash, StringEq> colorCache;
-    std::unordered_map<std::string, std::string, StringHash, StringEq> randomSprites;
-    std::unordered_map<std::string, bool, StringHash, StringEq> filenameCache;
+    StringMap<std::vector<matjson::Value>> uiCache;
+    StringMap<std::vector<UIData>> uiCacheHpt;
+    StringMap<ColorData> colorCache;
+    StringMap<std::string> randomSprites;
+    StringMap<bool> filenameCache;
     std::unordered_map<CCTexture2D*, std::string> textureToNameMap;
     bool firstMenuLayer = true;
 
@@ -95,7 +95,7 @@ public:
 
     void loadNodeFiles();
     void doUICheck(CCNode* node, bool afterTransition = false);
-    void doUICheckForType(std::string_view type, CCNode* node);
+    void doUICheckForType(ZStringView type, CCNode* node);
     std::vector<std::filesystem::path> getActivePacks();
     void startFileListeners();
     AxisAlignment getAxisAlignment(const std::string& name);

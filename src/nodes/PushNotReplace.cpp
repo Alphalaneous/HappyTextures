@@ -1,5 +1,3 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/SecretRewardsLayer.hpp>
 #include <Geode/modify/GauntletSelectLayer.hpp>

@@ -1,5 +1,3 @@
-#pragma once
-
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCDirector.hpp>
 #include <Geode/modify/LeaderboardsLayer.hpp>
@@ -7,7 +5,7 @@
 #include "UIModding.hpp"
 #include "Macros.hpp"
 #include "Utils.hpp"
-#include <alphalaneous.alphas_geode_utils/include/NodeModding.h>
+#include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
 
 using namespace geode::prelude;
 
@@ -33,13 +31,13 @@ class $modify(CCDirector) {
     }
 };
 
-class $nodeModify(LeaderboardsLayer) {
+class $classModify(LeaderboardsLayer) {
     void modify() {
         setBackground(this);
     }
 };
 
-class $nodeModify(LevelBrowserLayer) {
+class $classModify(LevelBrowserLayer) {
     void modify() {
         setBackground(this);
     }
