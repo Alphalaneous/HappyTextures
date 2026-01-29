@@ -15,7 +15,10 @@
     "dependencies": {
         "geode.node-ids": ">=v1.15.0",
         "alphalaneous.alphas_geode_utils": ">=v1.2.0",
-        "prevter.imageplus": ">=v1.0.0",
+        "prevter.imageplus": {
+            "importance": "suggested",
+            "version": ">=v1.0.0"
+        },
         "geode.texture-loader": {
             "importance": "suggested",
             "version": ">=v1.7.0"

@@ -18,6 +18,7 @@ class $modify(MyGJDropDownLayer, GJDropDownLayer) {
             removeFromParentAndCleanup(false);
             CCScene* currentScene = CCDirector::get()->getRunningScene();
             currentScene->addChild(this);
+            setZOrder(currentScene->getHighestChildZ() + 1);
 
             if (instant) {
                 m_mainLayer->setPosition(m_endPosition);

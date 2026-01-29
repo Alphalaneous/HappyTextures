@@ -4,17 +4,26 @@
 #include "../UIModding.hpp"
 #include "../Utils.hpp"
 #include <alphalaneous.alphas_geode_utils/include/ObjectModify.hpp>
-#include "../LateQueue.hpp"
+#include <Geode/modify/ProfilePage.hpp>
+#include <Geode/modify/InfoLayer.hpp>
+#include <Geode/modify/LevelLeaderboard.hpp>
+#include <Geode/modify/AudioAssetsBrowser.hpp>
+#include <Geode/modify/MusicBrowser.hpp>
+#include <Geode/modify/OptionsScrollLayer.hpp>
+#include <Geode/modify/FRequestProfilePage.hpp>
+#include <Geode/modify/FriendsProfilePage.hpp>
+#include <Geode/modify/MessagesProfilePage.hpp>
+#include <Geode/modify/SFXBrowser.hpp>
 
 using namespace geode::prelude;
 
 class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
 
     struct Fields {
-        SEL_SCHEDULE revertSchedule;
-        SEL_SCHEDULE posSchedule;
-        bool hasBorder = false;
-        CCPoint lastPos;
+        SEL_SCHEDULE m_posSchedule;
+        bool m_hasBorder = false;
+        bool m_setBorder = false;
+        CCPoint m_lastPos;
     };
 
     void modify() {
@@ -23,11 +32,16 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
                 Utils::setColorIfExists(this, "comment-list-layer-bg");
             }
         }
+    }
 
+    void setBorder() {
         bool doFix = Mod::get()->getSettingValue<bool>("comment-border-fix");
+        auto fields = m_fields.self();
 
-        if (doFix) {
+        if (doFix && !fields->m_setBorder) {
+            fields->m_setBorder = true;
             bool brownBorder = true;
+
             if (CCSprite* node = typeinfo_cast<CCSprite*>(getChildByID("left-border"))) {
                 brownBorder = Utils::getSpriteName(node) == "GJ_commentSide_001.png";
                 node->setVisible(false);
@@ -42,19 +56,13 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
                 node->setVisible(false);
             }
         
-            auto fields = m_fields.self();
+            fields->m_posSchedule = schedule_selector(MyGJCommentListLayer::listenForPosition);
+            
+            if (!getUserFlag("dont-correct-borders"_spr)) {
+                updateBordersWithParent(getParent());
+            }
 
-            fields->posSchedule = schedule_selector(MyGJCommentListLayer::listenForPosition);
-            fields->revertSchedule = schedule_selector(MyGJCommentListLayer::listenForDisable);
-
-            LateQueue::get()->queue(this, [this] {
-                if (!static_cast<CCNode*>(this)->getUserFlag("dont-correct-borders"_spr)){
-                    updateBordersWithParent(getParent());
-                }
-            });
-
-            schedule(fields->posSchedule);
-            schedule(fields->revertSchedule);
+            schedule(fields->m_posSchedule);
 
             CCSize size = getContentSize();
     
@@ -88,14 +96,15 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
     }
 
     void listenForDisable(float dt) {
-        if (static_cast<CCNode*>(this)->getUserFlag("dont-correct-borders"_spr)){
+        if (getUserFlag("dont-correct-borders"_spr)){
             revert();
         }
     }
 
     void revert(bool showBorders) {
+        log::info("revered");
         
-        unschedule(m_fields->posSchedule);
+        unschedule(m_fields->m_posSchedule);
 
         if (showBorders) {
             if (CCNode* node = getChildByID("left-border")) {
@@ -114,8 +123,6 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
 
         removeChildByID("outline");
         removeChildByID("special-border");
-
-        unschedule(m_fields->revertSchedule);
     }
 
     void revert() {
@@ -123,11 +130,12 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
     }
 
     void listenForPosition(float dt) {
-        if (m_fields->hasBorder && m_fields->lastPos != getPosition()) {
+        auto fields = m_fields.self();
+        if (fields->m_hasBorder && fields->m_lastPos != getPosition()) {
             if (CCNode* parent = getParent()) {
                 updateBordersWithParent(parent);
             }
-            m_fields->lastPos = getPosition();
+            fields->m_lastPos = getPosition();
         }
     }
 
@@ -157,12 +165,18 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
         else if (CCScale9Sprite* bg = parent->getChildByType<CCScale9Sprite>(0)) {
             createMask(bg);
         }
+        else {
+            auto newBg = CCScale9Sprite::create("GJ_square01-uhd.png");
+            newBg->setContentSize({440, 290});
+            newBg->setPosition(parent->getContentSize() / 2);
+            createMask(newBg);
+        }
     }
 
     void createMask(CCScale9Sprite* bg) {
 
-        removeChildByID("special-border");
-        m_fields->hasBorder = true;
+        removeChildByID("special-border"_spr);
+        m_fields->m_hasBorder = true;
 
         CCSize winSize = CCDirector::get()->getWinSize();
         CCSize nodeSize = getContentSize();
@@ -193,10 +207,102 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
         parentNode->setAnchorPoint({0, 0});
         parentNode->setContentSize({nodeSize.width+10, nodeSize.height+10});
         parentNode->setPosition({-5, -5});
-        parentNode->setID("special-border");
+        parentNode->setID("special-border"_spr);
         parentNode->setZOrder(19);
         parentNode->addChild(clippingNode);
 
         addChild(parentNode);
+    }
+};
+
+class $modify(ProfilePage) {
+    void setBorder() {
+        for (auto child : m_mainLayer->getChildrenExt()) {
+            if (auto list = typeinfo_cast<GJCommentListLayer*>(child)) {
+                static_cast<MyGJCommentListLayer*>(list)->setBorder();
+            }
+        }
+    }
+
+    void setupCommentsBrowser(cocos2d::CCArray* comments) {
+        ProfilePage::setupCommentsBrowser(comments);
+        setBorder();
+    }
+
+    void loadPageFromUserInfo(GJUserScore* score) {
+        ProfilePage::loadPageFromUserInfo(score);
+        setBorder();
+    }
+};
+
+class $modify(InfoLayer) {
+
+    void setupCommentsBrowser(cocos2d::CCArray* comments) {
+        InfoLayer::setupCommentsBrowser(comments);
+        static_cast<MyGJCommentListLayer*>(m_list)->setBorder();
+    }
+};
+
+class $modify(LevelLeaderboard) {
+    
+    void setupLeaderboard(cocos2d::CCArray* scores) {
+        LevelLeaderboard::setupLeaderboard(scores);
+        static_cast<MyGJCommentListLayer*>(m_list)->setBorder();
+    }
+};
+
+class $modify(AudioAssetsBrowser) {
+    
+    void setupList() {
+        AudioAssetsBrowser::setupList();
+        static_cast<MyGJCommentListLayer*>(m_songList)->setBorder();
+    }
+};
+
+class $modify(MusicBrowser) {
+    
+    void setupList(MusicSearchResult* result) {
+        MusicBrowser::setupList(result);
+        static_cast<MyGJCommentListLayer*>(m_listLayer)->setBorder();
+    }
+};
+
+class $modify(OptionsScrollLayer) {
+    
+    void setupList(cocos2d::CCArray* objects) {
+        OptionsScrollLayer::setupList(objects);
+        static_cast<MyGJCommentListLayer*>(m_listLayer)->setBorder();
+    }
+};
+
+class $modify(MessagesProfilePage) {
+    
+    void setupCommentsBrowser(cocos2d::CCArray* messages) {
+        MessagesProfilePage::setupCommentsBrowser(messages);
+        static_cast<MyGJCommentListLayer*>(m_listLayer)->setBorder();
+    }
+};
+
+class $modify(FriendsProfilePage) {
+    
+    void setupUsersBrowser(cocos2d::CCArray* users, UserListType type) {
+        FriendsProfilePage::setupUsersBrowser(users, type);
+        static_cast<MyGJCommentListLayer*>(m_listLayer)->setBorder();
+    }
+};
+
+class $modify(FRequestProfilePage) {
+    
+    void setupCommentsBrowser(cocos2d::CCArray* scores) {
+        FRequestProfilePage::setupCommentsBrowser(scores);
+        static_cast<MyGJCommentListLayer*>(m_listLayer)->setBorder();
+    }
+};
+
+class $modify(SFXBrowser) {
+    
+    void setupList(SFXSearchResult* result) {
+        SFXBrowser::setupList(result);
+        static_cast<MyGJCommentListLayer*>(m_listLayer)->setBorder();
     }
 };
