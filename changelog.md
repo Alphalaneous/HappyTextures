@@ -2,6 +2,7 @@
 - 2.2081 support
 - Cleanup code
 - Fix border flicker
+- Fix a mysterious memory leak
 
 # 2.0.23
 - Fix a small oversight that could break transitions

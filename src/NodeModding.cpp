@@ -10,25 +10,12 @@
 
 using namespace geode::prelude;
 
-class $modify(CCDictionary) {
-
-    // Cocos will call autorelease on a nullptr here for some reason, 
-    // it doesn't crash due to no member access but will crash with this 
-    // mod since I retain and release which access m_uReference 
-
-    static CCDictionary* createWithContentsOfFile(const char *pFileName) {
-        if (auto ret = CCDictionary::createWithContentsOfFileThreadSafe(pFileName)) {
-            ret->autorelease();
-            return ret;
-        }
-
-        return nullptr;
-    }
-};
-
 class $modify(HTCCObject, CCObject) {
 
     CCObject* autorelease() {
+        auto ret = CCObject::autorelease();
+        if (!ret) return nullptr;
+
         auto modding = UIModding::get();
         if (!modding->doModify) return CCObject::autorelease();
 
@@ -47,7 +34,7 @@ class $modify(HTCCObject, CCObject) {
                 });
             }
         }
-        return CCObject::autorelease();
+        return ret;
     }
 };
 

@@ -1,10 +1,10 @@
 #include "CCLabelBMFont.hpp"
 #include "../LabelValues.hpp"
+#include <Geode/modify/LabelGameObject.hpp>
 
 void MyCCLabelBMFont::onModify(auto& self) {
     HOOK_LATEST("cocos2d::CCLabelBMFont::setString");
     HOOK_LATEST("cocos2d::CCLabelBMFont::limitLabelWidth");
-    HOOK_LATEST("cocos2d::CCLabelBMFont::create");
 }
 
 std::string MyCCLabelBMFont::riftString(ZStringView input) {
@@ -56,31 +56,14 @@ void MyCCLabelBMFont::limitLabelWidth(float width, float defaultScale, float min
     CCLabelBMFont::limitLabelWidth(width, defaultScale, minScale);
 }
 
-CCLabelBMFont* MyCCLabelBMFont::create(const char *str, const char *fntFile, float width, CCTextAlignment alignment, CCPoint imageOffset) {
+class $modify(LabelGameObject) {
+    void createLabel(gd::string text) {
+        LabelGameObject::createLabel(text);
 
-    auto ret = CCLabelBMFont::create(str, fntFile, width, alignment, imageOffset);
-
-    auto myRet = static_cast<MyCCLabelBMFont*>(ret);
-
-    bool doFix = Mod::get()->getSettingValue<bool>("pusab-fix");
-
-    if (doFix) {
-        myRet->m_fields->m_schedule = schedule_selector(MyCCLabelBMFont::checkParent);
-        ret->schedule(myRet->m_fields->m_schedule);
-    }
-    
-    return ret;
-}
-
-void MyCCLabelBMFont::checkParent(float dt) {
-    if (auto parent = getParent()) {
-        if (typeinfo_cast<LabelGameObject*>(parent)) {
-            if (std::string_view(getFntFile()) == "bigFont.fnt") {
-                ccBlendFunc blendFunc = getBlendFunc();
-                setFntFile("bigFont.fnt"_spr);
-                setBlendFunc(blendFunc);
-            }
+        if (std::string_view(m_label->getFntFile()) == "bigFont.fnt") {
+            ccBlendFunc blendFunc = m_label->getBlendFunc();
+            m_label->setFntFile("bigFont.fnt"_spr);
+            m_label->setBlendFunc(blendFunc);
         }
-        unschedule(m_fields->m_schedule);
     }
-}
+};

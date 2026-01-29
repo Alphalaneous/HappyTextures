@@ -384,12 +384,12 @@ void HPTParser::setupParser() {
 
                     if (mode == "load" || id.empty()) {
                         std::vector<std::string> validSprites = UIModding::get()->generateValidSprites(path, spriteList);
-                        if (!validSprites.empty()) spriteName = validSprites.at(Utils::getRandomNumber(0, validSprites.size()-1));
+                        if (!validSprites.empty()) spriteName = validSprites.at(utils::random::generate(0, validSprites.size()-1));
                     }
                     else if (mode == "session") {
                         if (!UIModding::get()->randomSprites.contains(id)) {
                             std::vector<std::string> validSprites = UIModding::get()->generateValidSprites(path, spriteList);
-                            if (!validSprites.empty()) UIModding::get()->randomSprites[id] = validSprites.at(Utils::getRandomNumber(0, validSprites.size()-1));
+                            if (!validSprites.empty()) UIModding::get()->randomSprites[id] = validSprites.at(utils::random::generate(0, validSprites.size()-1));
                         }
                         spriteName = UIModding::get()->randomSprites[id];
                     }

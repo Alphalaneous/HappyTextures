@@ -4,6 +4,7 @@
 #include "Geode/cocos/cocoa/CCObject.h"
 #include "Geode/utils/ZStringView.hpp"
 #include "Geode/utils/cocos.hpp"
+#include "Geode/utils/random.hpp"
 #include "Geode/utils/string.hpp"
 #include "UIModding.hpp"
 #include "Macros.hpp"
@@ -316,11 +317,6 @@ namespace Utils {
             }
         }
         return "";
-    }
-
-    static int getRandomNumber(int lower, int upper) {
-        return 0;
-        //return AlphaUtils::Misc::getRandomNumber(lower, upper);
     }
 
     static void clearCaches() {

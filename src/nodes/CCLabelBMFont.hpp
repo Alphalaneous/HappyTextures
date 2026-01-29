@@ -18,7 +18,6 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
         float m_limitDefaultScale = 1;
         float m_limitMinScale = 1;
         bool m_isLimited = false;
-        SEL_SCHEDULE m_schedule;
         bool m_isHappyTexturesModified;
         std::unique_ptr<rift::Script> m_riftScript;
         bool m_compiled = false;
@@ -31,8 +30,6 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
     void setHappyTexturesModified(bool refresh = false);
 
     void limitLabelWidth(float width, float defaultScale, float minScale);
-
-    static CCLabelBMFont* create(const char *str, const char *fntFile, float width, CCTextAlignment alignment, CCPoint imageOffset);
 
     void checkParent(float dt);
 };

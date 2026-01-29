@@ -747,12 +747,12 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
 
         if (mode == "load" || id.empty()) {
             std::vector<std::string> validSprites = generateValidSprites(path, spriteList);
-            if (!validSprites.empty()) spriteName = validSprites.at(Utils::getRandomNumber(0, validSprites.size()-1));
+            if (!validSprites.empty()) spriteName = validSprites.at(utils::random::generate(0, validSprites.size()-1));
         }
         else if (mode == "session") {
             if (!randomSprites.contains(id)) {
                 std::vector<std::string> validSprites = generateValidSprites(path, spriteList);
-                if (!validSprites.empty()) randomSprites[id] = validSprites.at(Utils::getRandomNumber(0, validSprites.size()-1));
+                if (!validSprites.empty()) randomSprites[id] = validSprites.at(utils::random::generate(0, validSprites.size()-1));
             }
             spriteName = randomSprites[id];
         }
