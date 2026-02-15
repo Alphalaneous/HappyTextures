@@ -1,5 +1,5 @@
 {
-    "geode": "5.0.0-alpha.1",
+    "geode": "5.0.0-beta.1",
     "gd": {
         "win": "2.2081",
         "android": "2.2081",
@@ -14,18 +14,18 @@
     "early-load": true,
     "dependencies": {
         "geode.node-ids": ">=v1.15.0",
-        "alphalaneous.alphas_geode_utils": ">=v1.2.0",
+        "alphalaneous.alphas_geode_utils": ">=v1.2.0-beta.2",
         "prevter.imageplus": {
-            "importance": "recommended",
+            "required": false,
             "version": ">=v1.0.0"
         },
         "geode.texture-loader": {
-            "importance": "suggested",
+            "required": false,
             "version": ">=v1.7.0"
         },
-        "alphalaneous.pages_api": {
-            "importance": "suggested",
-            "version": ">=v1.4.10"
+        "raydeeux.pages_api": {
+            "required": false,
+            "version": ">=v1.4.15"
         }
     },
     "resources": {

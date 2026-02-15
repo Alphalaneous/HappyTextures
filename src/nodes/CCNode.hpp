@@ -4,7 +4,6 @@
 #include <Geode/modify/CCNode.hpp>
 #include "../Macros.hpp"
 #include "../UIModding.hpp"
-#include "Geode/utils/ZStringView.hpp"
 
 using namespace geode::prelude;
 
@@ -21,9 +20,9 @@ class $modify(MyCCNode, CCNode) {
         }
     };
 
-    void setBaseID(ZStringView ID);
+    void setBaseID(std::string_view ID);
 
-    ZStringView getBaseID();
+    std::string_view getBaseID();
 
     void setAttributes(const matjson::Value& attributes);
 

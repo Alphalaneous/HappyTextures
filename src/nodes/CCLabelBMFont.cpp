@@ -7,7 +7,7 @@ void MyCCLabelBMFont::onModify(auto& self) {
     HOOK_LATEST("cocos2d::CCLabelBMFont::limitLabelWidth");
 }
 
-std::string MyCCLabelBMFont::riftString(ZStringView input) {
+std::string MyCCLabelBMFont::riftString(std::string_view input) {
     auto fields = m_fields.self();
 
     if (fields->m_isHappyTexturesModified) {
@@ -27,7 +27,7 @@ std::string MyCCLabelBMFont::riftString(ZStringView input) {
             }
         }
     }
-    return input;
+    return std::string(input);
 }
 
 void MyCCLabelBMFont::setString(const char *newString, bool needUpdateLabel) {

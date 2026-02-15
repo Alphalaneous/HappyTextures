@@ -3,8 +3,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCLabelBMFont.hpp>
 #include "../Macros.hpp"
-#include "Geode/utils/ZStringView.hpp"
-
 #include <rift.hpp>
 
 using namespace geode::prelude;
@@ -23,7 +21,7 @@ class $modify(MyCCLabelBMFont, CCLabelBMFont) {
         bool m_compiled = false;
     };
     
-    std::string riftString(ZStringView input);
+    std::string riftString(std::string_view input);
 
     void setString(const char *newString, bool needUpdateLabel);
 

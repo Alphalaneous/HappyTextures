@@ -2,7 +2,6 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/CCNode.hpp>
-#include "Geode/utils/ZStringView.hpp"
 #include "HPTParser.hpp"
 #include "TouchObject.hpp"
 
@@ -31,17 +30,17 @@ class $modify(HPTCCNode, CCNode) {
         std::vector<std::shared_ptr<UISchedule>> m_schedules;
     };
 
-    static void resetAllFromPack(ZStringView packName);
+    static void resetAllFromPack(std::string_view packName);
 
-    static void resetChildren(ZStringView packName, CCNode* child);
+    static void resetChildren(std::string_view packName, CCNode* child);
 
     void setOwner(std::shared_ptr<HPTNode> node);
 
     void enableTouch();
 
-    void resetByPack(ZStringView packName) ;
+    void resetByPack(std::string_view packName) ;
 
-    void resetByPackJson(ZStringView packName);
+    void resetByPackJson(std::string_view packName);
 
     void setSchedule(std::shared_ptr<HPTNode> node);
 

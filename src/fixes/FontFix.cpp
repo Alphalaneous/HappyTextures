@@ -19,7 +19,7 @@ class $modify(GJBaseGameLayer) {
 
 static bool pusabFix() {
     static bool setting = Mod::get()->getSettingValue<bool>("pusab-fix");
-    static auto listener = listenForSettingChanges("pusab-fix", [](bool value) {
+    static auto listener = listenForSettingChanges<bool>("pusab-fix", [](bool value) {
         setting = value;
     });
 

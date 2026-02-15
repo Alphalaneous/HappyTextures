@@ -4,7 +4,7 @@
 #include "nodes/CCLabelBMFont.hpp"
 #include "UIModding.hpp"
 #include "Callbacks.hpp"
-#include <alphalaneous.pages_api/include/PagesAPI.h>
+#include <raydeeux.pages_api/include/PagesAPI.h>
 #include "HPTCCNode.hpp"
 #include <Geode/ui/GeodeUI.hpp>
 #include "NodeFactory.hpp"
@@ -18,7 +18,7 @@ void HPTParser::setupParser() {
     NodeFactory::get().setupNodes();
 
     registerNodeType("command", {"Command", false, true});
-    registerAttribute("color", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("color", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (value.empty()) return;
 
         auto color = Utils::parseColorFromString(value).unwrapOr(ccColor4B{255, 0, 255, 255});
@@ -43,21 +43,21 @@ void HPTParser::setupParser() {
         return "";
     });
 
-    registerAttribute("scale-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("scale-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xNum = numFromString<float>(value);
         if (xNum) {
             node->setScaleX(xNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("scale-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("scale-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto yNum = numFromString<float>(value);
         if (yNum) {
             node->setScaleY(yNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("scale", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("scale", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto num = numFromString<float>(value);
         if (num) {
             node->setScale(num.unwrap());
@@ -157,21 +157,21 @@ void HPTParser::setupParser() {
         return fmt::format("{{\n x: {}\n y: {} \n}}", node->getScaleX(), node->getScaleY());
     });
 
-    registerAttribute("rotation-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("rotation-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xNum = numFromString<float>(value);
         if (xNum) {
             node->setRotationX(xNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("rotation-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("rotation-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto yNum = numFromString<float>(value);
         if (yNum) {
             node->setRotationY(yNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("rotation", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("rotation", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto num = numFromString<float>(value);
         if (num) {
             node->setScale(num.unwrap());
@@ -195,21 +195,21 @@ void HPTParser::setupParser() {
         return fmt::format("{{\n x: {}\n y: {} \n}}", node->getRotationX(), node->getRotationY());
     });
 
-    registerAttribute("skew-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("skew-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xNum = numFromString<float>(value);
         if (xNum) {
             node->setSkewX(xNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("skew-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("skew-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto yNum = numFromString<float>(value);
         if (yNum) {
             node->setSkewY(yNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("skew", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("skew", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xStr = hptNode->attributes["x"];
         auto xNum = numFromString<float>(xStr);
 
@@ -227,7 +227,7 @@ void HPTParser::setupParser() {
         return fmt::format("{{\n x: {}\n y: {} \n}}", node->getSkewX(), node->getSkewY());
     });
 
-    registerAttribute("anchor-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("anchor-x", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xNum = numFromString<float>(value);
         if (xNum) {
             auto anchor = node->getAnchorPoint();
@@ -236,7 +236,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("anchor-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("anchor-y", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto yNum = numFromString<float>(value);
         if (yNum) {
             auto anchor = node->getAnchorPoint();
@@ -245,7 +245,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("anchor-point", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("anchor-point", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xStr = hptNode->attributes["x"];
         auto xNum = numFromString<float>(xStr);
 
@@ -267,21 +267,21 @@ void HPTParser::setupParser() {
         return fmt::format("{{\n x: {}\n y: {} \n}}", node->getAnchorPoint().x, node->getAnchorPoint().y);
     });
 
-    registerAttribute("content-width", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("content-width", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto widthNum = numFromString<float>(value);
         if (widthNum) {
             node->setContentWidth(widthNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("content-height", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("content-height", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto heightNum = numFromString<float>(value);
         if (heightNum) {
             node->setContentHeight(heightNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("content-size", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("content-size", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto widthStr = hptNode->attributes["width"];
         auto widthNum = numFromString<float>(widthStr);
 
@@ -303,7 +303,7 @@ void HPTParser::setupParser() {
         return fmt::format("{{\n width: {}\n height: {} \n}}", node->getContentWidth(), node->getContentHeight());
     });
 
-    registerAttribute("ignore-anchor-point-for-position", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("ignore-anchor-point-for-position", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto boolRes = Utils::boolFromString(value);
         if (boolRes) {
             node->ignoreAnchorPointForPosition(boolRes.unwrap());
@@ -312,7 +312,7 @@ void HPTParser::setupParser() {
         return fmt::format("{}", node->isIgnoreAnchorPointForPosition());
     });
 
-    registerAttribute("update-layout", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("update-layout", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto boolRes = Utils::boolFromString(value);
         if (boolRes && boolRes.unwrap()) {
             if (auto parent = node->getParent()) {
@@ -329,7 +329,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("visible", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("visible", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto boolRes = Utils::boolFromString(value);
         if (boolRes) {
             node->setVisible(boolRes.unwrap());
@@ -338,7 +338,7 @@ void HPTParser::setupParser() {
         return fmt::format("{}", node->isVisible());
     });
 
-    registerAttribute("opacity", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("opacity", [](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto floatRes = numFromString<float>(value);
         if (floatRes) {
             auto opacity = floatRes.unwrap();
@@ -358,7 +358,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("sprite", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("sprite", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         std::string spriteName;
         CCSprite* spr = nullptr;
 
@@ -413,7 +413,7 @@ void HPTParser::setupParser() {
             auto infoRes = hptNode->get("button-info");
             if (infoRes) {
                 auto info = infoRes.unwrap();
-                if (info.attributes.contains(ZStringView("type"))) {
+                if (info.attributes.contains(std::string_view("type"))) {
                     std::string type = info.attributes["type"];
 
                     if (type == "labeled") {
@@ -460,7 +460,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("text", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("text", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (value.empty()) return;
 
         CCLabelBMFont* textObject = nullptr;
@@ -519,7 +519,7 @@ void HPTParser::setupParser() {
         return "";
     });
 
-    registerAttribute("font", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("font", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (value.empty()) return;
 
         CCLabelBMFont* textObject = nullptr;
@@ -537,7 +537,7 @@ void HPTParser::setupParser() {
             }
         }
 
-        if (textObject && value.view().ends_with(".fnt")) {
+        if (textObject && value.ends_with(".fnt")) {
             auto myTextObject = static_cast<MyCCLabelBMFont*>(textObject);
             auto& fields = myTextObject->m_fields;
 
@@ -575,7 +575,7 @@ void HPTParser::setupParser() {
         return "";
     });
 
-    registerAttribute("base-scale", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("base-scale", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto floatRes = numFromString<float>(value);
         if (floatRes) {
             if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
@@ -589,7 +589,7 @@ void HPTParser::setupParser() {
         return "";
     });
 
-    registerAttribute("scale-multiplier", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("scale-multiplier", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto floatRes = numFromString<float>(value);
         if (floatRes) {
             if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
@@ -603,28 +603,28 @@ void HPTParser::setupParser() {
         return "";
     });
 
-    registerAttribute("remove", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("remove", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto boolRes = Utils::boolFromString(value);
         if (boolRes && boolRes.unwrap()) {
             UIModding::get()->removalQueue.push_back(node);
         }
     }, nullptr);
 
-    registerAttribute("position-x", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("position-x", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xNum = numFromString<float>(value);
         if (xNum) {
             node->setPositionX(xNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("position-y", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("position-y", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto yNum = numFromString<float>(value);
         if (yNum) {
             node->setPositionY(yNum.unwrap());
         }
     }, nullptr);
 
-    registerAttribute("position", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("position", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         auto xStr = hptNode->attributes["x"];
         auto xNum = numFromString<float>(xStr);
 
@@ -653,7 +653,7 @@ void HPTParser::setupParser() {
             if (relative == "screen") nodeSize = CCDirector::get()->getWinSize();
             else if (relative == "parent") nodeSize = parent->getContentSize();
         }
-        else if (hptNode->attributes.contains(ZStringView("anchor"))) {
+        else if (hptNode->attributes.contains(std::string_view("anchor"))) {
             anchorTo = hptNode->attributes["anchor"];
         }
 
@@ -687,7 +687,7 @@ void HPTParser::setupParser() {
         return fmt::format("{{\n x: {}\n y: {} \n}}", node->getPositionX(), node->getPositionY());
     });
 
-    registerAttribute("flip-x", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("flip-x", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (auto sprite = typeinfo_cast<CCSprite*>(node)) {
             auto xRes = Utils::boolFromString(value);
             if (xRes) {
@@ -696,7 +696,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("flip-y", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("flip-y", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (auto sprite = typeinfo_cast<CCSprite*>(node)) {
             auto yRes = Utils::boolFromString(value);
             if (yRes) {
@@ -705,7 +705,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("flip", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("flip", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (auto sprite = typeinfo_cast<CCSprite*>(node)) {
 
             bool flipX = sprite->isFlipX();
@@ -731,8 +731,8 @@ void HPTParser::setupParser() {
         return "";
     });
 
-    registerAttribute("blending", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
-        if (!hptNode->attributes.contains(ZStringView("source")) || !hptNode->attributes.contains(ZStringView("destination"))) return;
+    registerAttribute("blending", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
+        if (!hptNode->attributes.contains(std::string_view("source")) || !hptNode->attributes.contains(std::string_view("destination"))) return;
 
         std::string source = hptNode->attributes["source"];
         std::string destination = hptNode->attributes["destination"];
@@ -749,7 +749,7 @@ void HPTParser::setupParser() {
         return ""; //TODO BLENDING MODE TO STRING
     });
 
-    registerAttribute("z-order", [this](CCNode* node, std::shared_ptr<HPTNode>, ZStringView value) {
+    registerAttribute("z-order", [this](CCNode* node, std::shared_ptr<HPTNode>, std::string_view value) {
         auto zOrder = numFromString<float>(value);
         if (zOrder) {
             node->setZOrder(zOrder.unwrap());
@@ -758,7 +758,7 @@ void HPTParser::setupParser() {
         return fmt::format("{}", node->getZOrder());
     });
 
-    registerAttribute("show", [this](CCNode* node, std::shared_ptr<HPTNode>, ZStringView value) {
+    registerAttribute("show", [this](CCNode* node, std::shared_ptr<HPTNode>, std::string_view value) {
         if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)) {
             auto boolRes = Utils::boolFromString(value);
             if (boolRes) {
@@ -768,7 +768,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("scroll-to-top", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("scroll-to-top", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (auto scrollLayer = typeinfo_cast<geode::ScrollLayer*>(node)) {
             auto boolRes = Utils::boolFromString(value);
             if (boolRes && boolRes.unwrap()) {
@@ -777,7 +777,7 @@ void HPTParser::setupParser() {
         }
     }, nullptr);
 
-    registerAttribute("layout", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("layout", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         Layout* layout;
 
         if (node->getLayout()) {
@@ -911,7 +911,7 @@ void HPTParser::setupParser() {
         return ""; //TODO LAYOUT TO EXPORT
     });
 
-    registerAttribute("pages", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("pages", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         if (auto menu = typeinfo_cast<CCMenu*>(node)) {
             auto boolRes = Utils::boolFromString(hptNode->attributes["enabled"]);
             if (boolRes) {
@@ -947,27 +947,27 @@ void HPTParser::setupParser() {
         return ""; //TODO MOVE TO API;
     });
 
-    registerAttribute("on-click", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("on-click", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         reinterpret_cast<HPTCCNode*>(node)->setOnClick(hptNode);
     }, nullptr, true);
 
-    registerAttribute("on-release", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("on-release", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         reinterpret_cast<HPTCCNode*>(node)->setOnRelease(hptNode);
     }, nullptr, true);
 
-    registerAttribute("on-activate", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("on-activate", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         reinterpret_cast<HPTCCNode*>(node)->setOnActivate(hptNode);
     }, nullptr, true);
 
-    registerAttribute("on-hover", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("on-hover", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         reinterpret_cast<HPTCCNode*>(node)->setOnHover(hptNode);
     }, nullptr, true);
 
-    registerAttribute("on-exit", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, ZStringView value) {
+    registerAttribute("on-exit", [this](CCNode* node, std::shared_ptr<HPTNode> hptNode, std::string_view value) {
         reinterpret_cast<HPTCCNode*>(node)->setOnExit(hptNode);
     }, nullptr, true);
 
-    registerCommand("open-level", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("open-level", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.empty()) return;
         auto idRes = numFromString<int>(args[0]);
         if (!idRes) return;
@@ -977,7 +977,7 @@ void HPTParser::setupParser() {
         CCDirector::get()->pushScene(CCTransitionFade::create(0.5f, scene));
     });
 
-    registerCommand("open-profile", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("open-profile", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.empty()) return;
         auto idRes = numFromString<int>(args[0]);
         if (!idRes) return;
@@ -985,17 +985,17 @@ void HPTParser::setupParser() {
         ProfilePage::create(id, false)->show();
     });
 
-    registerCommand("open-mod", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("open-mod", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.empty()) return;
         (void) openInfoPopup(std::string(args[0]));
     });
 
-    registerCommand("open-link", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("open-link", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.empty()) return;
         Utils::openURLSafe(std::string(args[0]));
     });
     
-    registerCommand("play-sound", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("play-sound", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.empty()) return;
         log::debug("attr: {}", hptNode->attributes);
 
@@ -1019,15 +1019,15 @@ void HPTParser::setupParser() {
         }
     });
 
-    registerCommand("run-action", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("run-action", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
 
     });
 
-    registerCommand("stop-action", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("stop-action", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
 
     });
 
-    registerCommand("run-callback", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("run-callback", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.size() < 2) return;
 
         const auto& className = args[0];
@@ -1043,19 +1043,19 @@ void HPTParser::setupParser() {
         }
     });
 
-    registerCommand("run-schedule", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("run-schedule", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
 
     });
 
-    registerCommand("stop-schedule", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("stop-schedule", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
 
     });
 
-    registerCommand("for-all", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("for-all", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
 
     });
 
-    registerCommand("add-node", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<ZStringView>& args) {
+    registerCommand("add-node", [] (CCNode* node, std::shared_ptr<HPTNode> hptNode, const std::vector<std::string_view>& args) {
         if (args.size() < 2) return;
         
         const auto& className = args[0];
@@ -1076,25 +1076,25 @@ void HPTParser::setupParser() {
     });
 }
 
-void HPTParser::registerAttribute(ZStringView name, AttributeHandler handler, AttributeExportHandler exportHandler, bool skipParsing) {
+void HPTParser::registerAttribute(std::string_view name, AttributeHandler handler, AttributeExportHandler exportHandler, bool skipParsing) {
     registerNodeType(name, {std::string(name), true, skipParsing});
     m_attributeHandlers.emplace(name, handler);
 }
 
-void HPTParser::registerCommand(ZStringView name, CommandHandler handler) {
+void HPTParser::registerCommand(std::string_view name, CommandHandler handler) {
     m_commandHandlers.emplace(name, handler);
 }
 
-void HPTParser::registerNodeType(ZStringView name, const HPTNodeTypeDef& def) {
+void HPTParser::registerNodeType(std::string_view name, const HPTNodeTypeDef& def) {
     m_nodeTypes.emplace(name, def);
 }
 
-HPTNodeTypeDef HPTParser::getNodeType(ZStringView name) {
+HPTNodeTypeDef HPTParser::getNodeType(std::string_view name) {
     auto it = m_nodeTypes.find(name);
     return it != m_nodeTypes.end() ? it->second : HPTNodeTypeDef{"Default", false, false};
 }
 
-std::shared_ptr<HPTNode> HPTParser::parse(ZStringView src, ZStringView packName, ZStringView identifier, CCNode* rootNode, HPTNode* originalNode) {
+std::shared_ptr<HPTNode> HPTParser::parse(std::string_view src, std::string_view packName, std::string_view identifier, CCNode* rootNode, HPTNode* originalNode) {
     size_t pos = 0;
 
     auto root = std::make_shared<HPTNode>();
@@ -1120,22 +1120,22 @@ std::shared_ptr<HPTNode> HPTParser::parse(ZStringView src, ZStringView packName,
     return root;
 }
 
-ErrorInfo HPTParser::getLineColFromPos(ZStringView src, size_t pos) {
+ErrorInfo HPTParser::getLineColFromPos(std::string_view src, size_t pos) {
     if (pos > src.size()) pos = src.size();
 
     int lineNumber = 1;
     for (size_t i = 0; i < pos; i++) {
-        if (src.view()[i] == '\n') lineNumber++;
+        if (src[i] == '\n') lineNumber++;
     }
 
-    size_t start = src.view().rfind('\n', pos);
+    size_t start = src.rfind('\n', pos);
     if (start == std::string::npos) start = 0;
     else start += 1;
 
-    size_t end = src.view().find('\n', pos);
+    size_t end = src.find('\n', pos);
     if (end == std::string::npos) end = src.size();
 
-    ZStringView line = std::string(src.view().substr(start, end - start));
+    std::string_view line = src.substr(start, end - start);
     int column = static_cast<int>(pos - start + 1);
 
     int lineSize = line.size();
@@ -1145,7 +1145,7 @@ ErrorInfo HPTParser::getLineColFromPos(ZStringView src, size_t pos) {
     return { lineNumber, column, column - offset, std::string(line)};
 }
 
-std::shared_ptr<HPTNode> HPTParser::parseNode(ZStringView src, std::shared_ptr<HPTNode> parent, size_t& pos, CCNode* parentNode) {
+std::shared_ptr<HPTNode> HPTParser::parseNode(std::string_view src, std::shared_ptr<HPTNode> parent, size_t& pos, CCNode* parentNode) {
     auto node = std::make_shared<HPTNode>();
     node->parent = parent.get();
     node->rowOffset = parent->rowOffset;
@@ -1162,7 +1162,7 @@ std::shared_ptr<HPTNode> HPTParser::parseNode(ZStringView src, std::shared_ptr<H
             parseBlock(node, src, pos, node->targetNode);
         }
         else if (matchChar(src, pos, '^')) {
-            ZStringView value = resolveValue(node, parseValue(parent, src, pos));
+            std::string_view value = resolveValue(node, parseValue(parent, src, pos));
             size_t newPos = 0;
             if (matchChar(value, newPos, '{')) {
                 parseBlock(node, value, newPos, node->targetNode);
@@ -1176,7 +1176,7 @@ std::shared_ptr<HPTNode> HPTParser::parseNode(ZStringView src, std::shared_ptr<H
     return node;
 }
 
-void HPTParser::parseBlock(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode) {
+void HPTParser::parseBlock(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode) {
     size_t contentStart = pos;
 
     while (pos < src.size()) {
@@ -1185,7 +1185,7 @@ void HPTParser::parseBlock(std::shared_ptr<HPTNode> node, ZStringView src, size_
         if (matchChar(src, pos, '}')) {
             size_t contentEnd = pos - 1;
             if (contentEnd >= contentStart) {
-                node->data = src.view().substr(contentStart, contentEnd - contentStart);
+                node->data = src.substr(contentStart, contentEnd - contentStart);
             } else {
                 node->data.clear();
             }
@@ -1195,7 +1195,7 @@ void HPTParser::parseBlock(std::shared_ptr<HPTNode> node, ZStringView src, size_
     }
 }
 
-void HPTParser::parseEntry(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode) {
+void HPTParser::parseEntry(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode) {
     skipWhitespace(src, pos);
     if (pos >= src.size()) return;
 
@@ -1204,7 +1204,7 @@ void HPTParser::parseEntry(std::shared_ptr<HPTNode> node, ZStringView src, size_
         return;
     }
     
-    char c = src.view()[pos];
+    char c = src[pos];
 
     if (!node->typeDef.isAttribute) {
         if (c == '#' || c == '.' || c == '?') {
@@ -1221,17 +1221,17 @@ void HPTParser::parseEntry(std::shared_ptr<HPTNode> node, ZStringView src, size_
     }
 }
 
-void HPTParser::handleNode(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode) {
+void HPTParser::handleNode(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode) {
     auto child = parseNode(src, node, pos, parentNode);
     if (node->typeDef.isAttribute) return;
     node->children.push_back(child);
 }
 
-void HPTParser::handleCommand(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode) {
+void HPTParser::handleCommand(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode) {
     if (node->typeDef.isAttribute) return;
     std::string fullCommand = parseSelector(node, src, pos);
     std::string command = fullCommand.substr(1);
-    std::vector<ZStringView> args;
+    std::vector<std::string_view> args;
     skipWhitespace(src, pos);
     if (matchChar(src, pos, '(')) {
         args = parseArguments(node, src, pos, '(', ')', 1);
@@ -1261,7 +1261,7 @@ void HPTParser::handleCommand(std::shared_ptr<HPTNode> node, ZStringView src, si
     runCommand(child, command, args);
 }
 
-void HPTParser::handleVariable(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode) {
+void HPTParser::handleVariable(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode) {
     ++pos;
     std::string varName = parseSelector(node, src, pos);
     skipWhitespace(src, pos);
@@ -1270,7 +1270,7 @@ void HPTParser::handleVariable(std::shared_ptr<HPTNode> node, ZStringView src, s
         if (matchChar(src, pos, '{')) {
             size_t start = --pos;
             skipBlock(src, pos, 0);
-            ZStringView value = std::string(src.view().substr(start, pos - start));
+            std::string_view value = src.substr(start, pos - start);
             setVar(node, varName, value);
         }
         else {
@@ -1283,7 +1283,7 @@ void HPTParser::handleVariable(std::shared_ptr<HPTNode> node, ZStringView src, s
     }
 }
 
-void HPTParser::handleAttribute(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, CCNode* parentNode) {
+void HPTParser::handleAttribute(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, CCNode* parentNode) {
     std::string key = parseSelector(node, src, pos);
     
     size_t prePos = pos;
@@ -1339,16 +1339,16 @@ void HPTParser::handleAttribute(std::shared_ptr<HPTNode> node, ZStringView src, 
     }
 }
 
-ZStringView HPTParser::resolveValue(std::shared_ptr<HPTNode> node, ZStringView rawValue) {
-    Result<ZStringView> res = getVar(node, rawValue);
+std::string_view HPTParser::resolveValue(std::shared_ptr<HPTNode> node, std::string_view rawValue) {
+    Result<std::string_view> res = getVar(node, rawValue);
     return res ? res.unwrap() : rawValue;
 }
 
-std::string HPTParser::parseSelector(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos) {
+std::string HPTParser::parseSelector(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos) {
     skipWhitespace(src, pos);
     std::string sel;
     while (pos < src.size()) {
-        char c = src.view()[pos];
+        char c = src[pos];
         if (c == ':' || c == '{' || c == '}' || c == '(' || c == ')') break;
         sel.push_back(c);
         ++pos;
@@ -1357,7 +1357,7 @@ std::string HPTParser::parseSelector(std::shared_ptr<HPTNode> node, ZStringView 
     return process(node, sel);
 }
 
-std::string HPTParser::parseValue(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos) {
+std::string HPTParser::parseValue(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos) {
     std::string val = "";
 
     skipWhitespace(src, pos);
@@ -1365,13 +1365,13 @@ std::string HPTParser::parseValue(std::shared_ptr<HPTNode> node, ZStringView src
 
     size_t startPos = pos;
 
-    if ((src.view()[pos] == '"' || src.view()[pos] == '\'') && src.view().find(src.view()[pos], pos + 1) != std::string::npos) {
-        char quoteChar = src.view()[pos++];
+    if ((src[pos] == '"' || src[pos] == '\'') && src.find(src[pos], pos + 1) != std::string::npos) {
+        char quoteChar = src[pos++];
         while (pos < src.size()) {
-            char c = src.view()[pos];
+            char c = src[pos];
             if (c == '\\') {
                 if (pos + 1 < src.size()) {
-                    char next = src.view()[pos + 1];
+                    char next = src[pos + 1];
                     if (next == quoteChar || next == '\\') {
                         val.push_back(next);
                         pos += 2;
@@ -1391,7 +1391,7 @@ std::string HPTParser::parseValue(std::shared_ptr<HPTNode> node, ZStringView src
         }
     } else {
         while (pos < src.size()) {
-            char c = src.view()[pos];
+            char c = src[pos];
             if (c == '\n' || c == '\r' || c == '}') break;
             val.push_back(c);
             ++pos;
@@ -1403,8 +1403,8 @@ std::string HPTParser::parseValue(std::shared_ptr<HPTNode> node, ZStringView src
     return val;
 }
 
-void HPTParser::skipWhitespace(ZStringView src, size_t& pos) {
-    while (pos < src.size() && std::isspace((unsigned char)src.view()[pos])) ++pos;
+void HPTParser::skipWhitespace(std::string_view src, size_t& pos) {
+    while (pos < src.size() && std::isspace((unsigned char)src[pos])) ++pos;
 }
 
 int numDigits(int number) {
@@ -1417,12 +1417,12 @@ int numDigits(int number) {
     return digits;
 }
 
-void HPTParser::skipBlock(ZStringView src, size_t& pos, int depth, bool shouldConsumeClosing) {
+void HPTParser::skipBlock(std::string_view src, size_t& pos, int depth, bool shouldConsumeClosing) {
     bool inQuote = false;
     char quoteChar = '\0';
 
     while (pos < src.size()) {
-        char c = src.view()[pos];
+        char c = src[pos];
 
         if (inQuote) {
             if (c == '\\' && pos + 1 < src.size()) {
@@ -1458,7 +1458,7 @@ void HPTParser::skipBlock(ZStringView src, size_t& pos, int depth, bool shouldCo
     }
 }
 
-void HPTParser::skip(std::shared_ptr<HPTNode> parent, ZStringView src, size_t& pos, CCNode* parentNode) {
+void HPTParser::skip(std::shared_ptr<HPTNode> parent, std::string_view src, size_t& pos, CCNode* parentNode) {
     skipWhitespace(src, pos);
 
     if (matchChar(src, pos, '{')) {
@@ -1485,40 +1485,40 @@ void HPTParser::skip(std::shared_ptr<HPTNode> parent, ZStringView src, size_t& p
     }
     else {
         while (pos < src.size()) {
-            char c = src.view()[pos];
+            char c = src[pos];
             if (c == '\n' || c == '\r' || c == '}') break;
             ++pos;
         }
     }
 }
 
-bool HPTParser::matchChar(ZStringView src, size_t& pos, char c) {
-    if (pos < src.size() && src.view()[pos] == c) {
+bool HPTParser::matchChar(std::string_view src, size_t& pos, char c) {
+    if (pos < src.size() && src[pos] == c) {
         ++pos;
         return true;
     }
     return false;
 }
 
-CCNode* HPTParser::resolveSelector(CCNode* parent, ZStringView selector) {
+CCNode* HPTParser::resolveSelector(CCNode* parent, std::string_view selector) {
     if (!parent) return nullptr;
     if (selector.empty()) return parent;
 
-    if (selector.view()[0] == '#') {
-        return parent->getChildByID(selector.view().substr(1));
-    } else if (selector.view()[0] == '.') {
+    if (selector[0] == '#') {
+        return parent->getChildByID(selector.substr(1));
+    } else if (selector[0] == '.') {
         int index = 0;
-        size_t paren = selector.view().find('(');
-        if (paren != std::string::npos) index = numFromString<int>(selector.view().substr(paren+1, selector.size()-paren-2)).unwrapOr(0);
-        return alpha::utils::cocos::getChildByClassName(parent, std::string(selector.view().substr(1, paren-1)), index).value_or(nullptr);
-    } else if (selector.view()[0] == '?') {
-        return Utils::nodeForQuery(parent, std::string(selector.view().substr(1)));
+        size_t paren = selector.find('(');
+        if (paren != std::string::npos) index = numFromString<int>(selector.substr(paren+1, selector.size()-paren-2)).unwrapOr(0);
+        return alpha::utils::cocos::getChildByClassName(parent, std::string(selector.substr(1, paren-1)), index).value_or(nullptr);
+    } else if (selector[0] == '?') {
+        return Utils::nodeForQuery(parent, std::string(selector.substr(1)));
     } else {
         return nullptr;
     }
 }
 
-void HPTParser::applyAttribute(std::shared_ptr<HPTNode> node, ZStringView key, ZStringView value) {
+void HPTParser::applyAttribute(std::shared_ptr<HPTNode> node, std::string_view key, std::string_view value) {
     if (std::find(node->skippedAttributes.begin(), node->skippedAttributes.end(), key) != node->skippedAttributes.end() || node->skip) {
         return;
     }
@@ -1527,12 +1527,12 @@ void HPTParser::applyAttribute(std::shared_ptr<HPTNode> node, ZStringView key, Z
     if (it != m_attributeHandlers.end()) it->second(node->targetNode, node, value);
 }
 
-void HPTParser::runCommand(std::shared_ptr<HPTNode> node, ZStringView key, const std::vector<ZStringView>& args) {
+void HPTParser::runCommand(std::shared_ptr<HPTNode> node, std::string_view key, const std::vector<std::string_view>& args) {
     auto it = m_commandHandlers.find(key);
     if (it != m_commandHandlers.end()) it->second(node->targetNode, node, args);
 }
 
-void HPTParser::setVar(std::shared_ptr<HPTNode> node, ZStringView name, ZStringView value) {
+void HPTParser::setVar(std::shared_ptr<HPTNode> node, std::string_view name, std::string_view value) {
     for (HPTNode* cur = node.get(); cur; cur = cur->getParent()) {
         auto it = cur->variables.find(name);
         if (it != cur->variables.end()) {
@@ -1544,7 +1544,7 @@ void HPTParser::setVar(std::shared_ptr<HPTNode> node, ZStringView name, ZStringV
     node->variables.emplace(name, value);
 };
 
-Result<ZStringView> HPTParser::getVar(std::shared_ptr<HPTNode> node, ZStringView name) {
+Result<std::string_view> HPTParser::getVar(std::shared_ptr<HPTNode> node, std::string_view name) {
     for (HPTNode* cur = node.get(); cur; cur = cur->getParent()) {
         auto it = cur->variables.find(name);
         if (it != cur->variables.end()) {
@@ -1572,18 +1572,18 @@ std::string HPTParser::processOnce(std::shared_ptr<HPTNode> node, std::string va
     return value;
 }
 
-std::vector<ZStringView> HPTParser::parseArguments(std::shared_ptr<HPTNode> node, ZStringView src, size_t& pos, char startSym, char endSym, int depth) {
-    std::vector<ZStringView> args;
+std::vector<std::string_view> HPTParser::parseArguments(std::shared_ptr<HPTNode> node, std::string_view src, size_t& pos, char startSym, char endSym, int depth) {
+    std::vector<std::string_view> args;
     std::string arg;
     bool inQuote = false;
     bool quotedArg = false;
     char quoteChar = '\0';
 
     while (pos < src.size()) {
-        char c = src.view()[pos];
+        char c = src[pos];
 
         if (inQuote) {
-            if (c == '\\' && pos + 1 < src.size() && src.view()[pos + 1] == quoteChar) {
+            if (c == '\\' && pos + 1 < src.size() && src[pos + 1] == quoteChar) {
                 arg.push_back(quoteChar);
                 pos += 2;
                 continue;

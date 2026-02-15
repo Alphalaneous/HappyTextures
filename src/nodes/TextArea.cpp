@@ -4,13 +4,12 @@
 #include "TextArea.hpp"
 #include "../Macros.hpp"
 #include "../LabelValues.hpp"
-#include "Geode/utils/ZStringView.hpp"
 
 void MyTextArea::onModify(auto& self) {
     HOOK_LATEST("TextArea::setString");
 }
 
-std::string MyTextArea::riftString(ZStringView input) {
+std::string MyTextArea::riftString(std::string_view input) {
 
     auto fields = m_fields.self();
 
@@ -31,7 +30,7 @@ std::string MyTextArea::riftString(ZStringView input) {
             }
         }
     }
-    return input;
+    return std::string(input);
 }
 
 void MyTextArea::setString(gd::string p0) {

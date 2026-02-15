@@ -1,10 +1,8 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
 #include "FileWatcher.hpp"
-#include "Geode/utils/ZStringView.hpp"
 #include "Geode/utils/cocos.hpp"
 #include "Utils.hpp"
-#include "alphalaneous.alphas_geode_utils/include/Utils.hpp"
 #include "nodes/CCLabelBMFont.hpp"
 #include "nodes/FLAlertLayer.hpp"
 #include "nodes/CCNode.hpp"
@@ -16,7 +14,7 @@
 #include "Config.hpp"
 #include "HPTParser.hpp"
 #include "HPTCCNode.hpp"
-#include <alphalaneous.pages_api/include/PagesAPI.h>
+#include <raydeeux.pages_api/include/PagesAPI.h>
 #include "LabelValues.hpp"
 
 using namespace geode::prelude;
@@ -94,7 +92,7 @@ void UIModding::recursiveModify(CCNode* node, const matjson::Value& elements) {
 
     for (auto* child : CCArrayExt<CCNode*>(children)) {
         auto myChild = static_cast<MyCCNode*>(child);
-        std::string id = myChild->getBaseID().empty() ? child->getID() : myChild->getBaseID();
+        std::string id = std::string(myChild->getBaseID().empty() ? child->getID() : myChild->getBaseID());
 
         if (elements.contains(id)) {
             auto nodeValue = elements[id];
@@ -1584,7 +1582,7 @@ void UIModding::loadNodeFiles() {
     }
 }
 
-void UIModding::doUICheckForType(ZStringView type, CCNode* node) {
+void UIModding::doUICheckForType(std::string_view type, CCNode* node) {
     if (skipCheck) return;
 
     auto it = uiCache.find(type);

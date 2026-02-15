@@ -17,7 +17,7 @@ class $modify(MyTextArea, TextArea) {
         bool m_compiled = false;
     };
 
-    std::string riftString(ZStringView input);
+    std::string riftString(std::string_view input);
     void setString(gd::string p0);
     void setHappyTexturesModified(bool refresh = false);
 };

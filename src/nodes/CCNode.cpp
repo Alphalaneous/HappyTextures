@@ -1,10 +1,10 @@
 #include "CCNode.hpp"
 
-void MyCCNode::setBaseID(ZStringView ID) {
+void MyCCNode::setBaseID(std::string_view ID) {
     m_fields->m_baseID = ID;
 }
 
-ZStringView MyCCNode::getBaseID() {
+std::string_view MyCCNode::getBaseID() {
     return m_fields->m_baseID;
 }
 

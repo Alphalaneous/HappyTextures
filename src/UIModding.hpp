@@ -3,7 +3,6 @@
 #include <Geode/Geode.hpp>
 #include <unordered_map>
 #include "FileWatcher.hpp"
-#include "Geode/utils/ZStringView.hpp"
 
 using namespace geode::prelude;
 
@@ -95,7 +94,7 @@ public:
 
     void loadNodeFiles();
     void doUICheck(CCNode* node, bool afterTransition = false);
-    void doUICheckForType(ZStringView type, CCNode* node);
+    void doUICheckForType(std::string_view type, CCNode* node);
     std::vector<std::filesystem::path> getActivePacks();
     void startFileListeners();
     AxisAlignment getAxisAlignment(const std::string& name);

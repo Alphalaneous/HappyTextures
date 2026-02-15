@@ -1,12 +1,12 @@
 #include "HPTCCNode.hpp"
 
-void HPTCCNode::resetAllFromPack(ZStringView packName) {
+void HPTCCNode::resetAllFromPack(std::string_view packName) {
     auto scene = CCScene::get();
     if (!scene) return;
     resetChildren(packName, scene);
 }
 
-void HPTCCNode::resetChildren(ZStringView packName, CCNode* child) {
+void HPTCCNode::resetChildren(std::string_view packName, CCNode* child) {
     reinterpret_cast<HPTCCNode*>(child)->resetByPack(packName);
     for (auto node : CCArrayExt<CCNode*>(child->getChildren())) {
         resetChildren(packName, node);
@@ -29,7 +29,7 @@ void HPTCCNode::enableTouch() {
     }
 }
 
-void HPTCCNode::resetByPack(ZStringView packName) {
+void HPTCCNode::resetByPack(std::string_view packName) {
     auto fields = m_fields.self();
 
     auto erase = [&packName] (std::vector<std::shared_ptr<HPTNode>>& vec) {
@@ -66,7 +66,7 @@ void HPTCCNode::resetByPack(ZStringView packName) {
     //resetByPackJson(packName);
 }
 
-void HPTCCNode::resetByPackJson(ZStringView packName) {
+void HPTCCNode::resetByPackJson(std::string_view packName) {
     auto fields = m_fields.self();
 
     auto erase = [&packName] (std::vector<matjson::Value>& vec) {
