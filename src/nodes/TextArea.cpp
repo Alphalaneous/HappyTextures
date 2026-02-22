@@ -5,10 +5,6 @@
 #include "../Macros.hpp"
 #include "../LabelValues.hpp"
 
-void MyTextArea::onModify(auto& self) {
-    HOOK_LATEST("TextArea::setString");
-}
-
 std::string MyTextArea::riftString(std::string_view input) {
 
     auto fields = m_fields.self();
