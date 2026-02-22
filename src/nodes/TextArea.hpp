@@ -8,10 +8,12 @@ using namespace geode::prelude;
 
 class $modify(MyTextArea, TextArea) {
 
-    static void onModify(auto& self);
+    static void onModify(auto& self) {
+        HOOK_LATEST("TextArea::setString");
+    }
 
     struct Fields {
-        bool m_isHappyTexturesModified;
+        bool m_isHappyTexturesModified = false;
         std::string m_string;
         std::unique_ptr<rift::Script> m_riftScript;
         bool m_compiled = false;
