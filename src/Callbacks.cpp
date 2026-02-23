@@ -44,6 +44,10 @@ struct MenuLayerCallbacks : public CCNode {
         }, true);
     }
 
+    void onGeode(CCObject* obj) {
+        geode::openModsList();
+    }
+
 };
 
 void Callbacks::generateMenuLayerCallbacks() {
@@ -52,6 +56,8 @@ void Callbacks::generateMenuLayerCallbacks() {
     m_callbacks["MenuLayer"]["onGarage"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onGarage));
     m_callbacks["MenuLayer"]["onCreator"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onCreator));
     m_callbacks["MenuLayer"]["onQuit"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onQuit));
+    m_callbacks["MenuLayer"]["onGeode"] = std::pair<CCNode*, cocos2d::SEL_MenuHandler>(self, menu_selector(MenuLayerCallbacks::onGeode));
+    
     REGISTER_CALLBACK(MenuLayer, onAchievements);
     REGISTER_CALLBACK(MenuLayer, onDaily);
     REGISTER_CALLBACK(MenuLayer, onMoreGames);

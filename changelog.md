@@ -1,3 +1,6 @@
+# 2.1.2
+- Add onGeode callback to MenuLayer
+
 # 2.1.1
 - Fix some crashes
 
