@@ -1,4 +1,5 @@
 #include "Callbacks.hpp"
+#include <Geode/ui/GeodeUI.hpp>
 #include "Macros.hpp"
 #include "UIModding.hpp"
 
