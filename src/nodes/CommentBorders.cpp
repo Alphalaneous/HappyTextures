@@ -183,7 +183,7 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
         CCPoint nodePos = getPosition();
         CCPoint innerPos = {nodePos.x + nodeSize.width/2, nodePos.y + nodeSize.height/2};
 
-        CCScale9Sprite* innerCurve = CCScale9Sprite::create("borderStencil.png"_spr);
+        geode::NineSlice* innerCurve = geode::NineSlice::create("borderStencil.png"_spr);
         innerCurve->setContentSize({nodeSize.width + 5, nodeSize.height + 5});
         innerCurve->setPosition(innerPos);
         innerCurve->setZOrder(20);

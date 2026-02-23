@@ -1,5 +1,5 @@
 {
-    "geode": "5.0.0-beta.1",
+    "geode": "5.0.0",
     "gd": {
         "win": "2.2081",
         "android": "2.2081",
@@ -16,12 +16,12 @@
         "geode.node-ids": ">=v1.15.0",
         "alphalaneous.alphas_geode_utils": ">=v1.2.0-beta.2",
         "prevter.imageplus": {
-            "required": false,
+            "required": true,
             "version": ">=v1.0.0"
         },
         "geode.texture-loader": {
-            "required": false,
-            "version": ">=v1.7.0"
+            "required": true,
+            "version": ">=v1.9.0"
         },
         "raydeeux.pages_api": {
             "required": false,
