@@ -2,6 +2,7 @@
 
 #include <Geode/Geode.hpp>
 #include <Geode/modify/TextArea.hpp>
+#include "../Macros.hpp"
 #include <rift.hpp>
 
 using namespace geode::prelude;
