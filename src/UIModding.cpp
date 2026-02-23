@@ -763,7 +763,7 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
     auto res = alpha::utils::cocos::getSprite(spriteName);
     if (!res) res = alpha::utils::cocos::getSpriteByFrameName(spriteName);
     if (!res) return;
-    spr = res.value();
+    if (res) spr = res.value();
 
     if (auto spriteNode = typeinfo_cast<CCSprite*>(node)) {
         spriteNode->setTexture(spr->getTexture());
@@ -1248,7 +1248,7 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                     auto res = alpha::utils::cocos::getSprite(spriteName);
                     if (!res) res = alpha::utils::cocos::getSpriteByFrameName(spriteName);
                     if (!res) newNode = CCSprite::create();
-                    newNode = res.value();
+                    if (res) newNode = res.value();
                 }
             } else if (type == "CCNode") {
                 newNode = CCNode::create();
@@ -1271,7 +1271,7 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                     auto res = alpha::utils::cocos::getSprite(spriteName);
                     if (!res) res = alpha::utils::cocos::getSpriteByFrameName(spriteName);
                     if (!res) spr = CCSprite::create();
-                    spr = res.value();
+                    if (res) spr = res.value();
                 }
                 newNode = CCMenuItemSpriteExtra::create(spr, nullptr, nullptr, nullptr);
             } else if (type == "CCScale9Sprite") {

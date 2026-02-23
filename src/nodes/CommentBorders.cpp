@@ -42,17 +42,17 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
             fields->m_setBorder = true;
             bool brownBorder = true;
 
-            if (CCSprite* node = typeinfo_cast<CCSprite*>(getChildByID("left-border"))) {
+            if (auto node = typeinfo_cast<CCSprite*>(getChildByID("left-border"))) {
                 brownBorder = Utils::getSpriteName(node) == "GJ_commentSide_001.png";
                 node->setVisible(false);
             }
-            if (CCNode* node = getChildByID("right-border")) {
+            if (auto node = getChildByID("right-border")) {
                 node->setVisible(false);
             }
-            if (CCNode* node = getChildByID("top-border")) {
+            if (auto node = getChildByID("top-border")) {
                 node->setVisible(false);
             }
-            if (CCNode* node = getChildByID("bottom-border")) {
+            if (auto node = getChildByID("bottom-border")) {
                 node->setVisible(false);
             }
         
@@ -64,15 +64,15 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
 
             schedule(fields->m_posSchedule);
 
-            CCSize size = getContentSize();
+            auto size = getContentSize();
     
-            CCPoint pos = {size.width/2, size.height/2};
+            auto pos = CCPoint{size.width/2, size.height/2};
 
-            CCScale9Sprite* outlineSprite = CCScale9Sprite::create("commentBorder.png"_spr);
+            auto outlineSprite = CCScale9Sprite::create("commentBorder.png"_spr);
             outlineSprite->setContentSize({size.width + 1.6f, size.height + 1.6f});
             outlineSprite->setPosition({pos.x, pos.y});
             outlineSprite->setZOrder(20);
-            outlineSprite->setID("outline");
+            outlineSprite->setID("outline"_spr);
 
             if (brownBorder) {
                 outlineSprite->setColor({130, 64, 32});
@@ -101,28 +101,26 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
         }
     }
 
-    void revert(bool showBorders) {
-        log::info("revered");
-        
+    void revert(bool showBorders) {        
         unschedule(m_fields->m_posSchedule);
 
         if (showBorders) {
-            if (CCNode* node = getChildByID("left-border")) {
+            if (auto node = getChildByID("left-border")) {
                 node->setVisible(true);
             }
-            if (CCNode* node = getChildByID("right-border")) {
+            if (auto node = getChildByID("right-border")) {
                 node->setVisible(true);
             }
-            if (CCNode* node = getChildByID("top-border")) {
+            if (auto node = getChildByID("top-border")) {
                 node->setVisible(true);
             }
-            if (CCNode* node = getChildByID("bottom-border")) {
+            if (auto node = getChildByID("bottom-border")) {
                 node->setVisible(true);
             }
         }
 
-        removeChildByID("outline");
-        removeChildByID("special-border");
+        removeChildByID("outline"_spr);
+        removeChildByID("special-border"_spr);
     }
 
     void revert() {
@@ -132,7 +130,7 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
     void listenForPosition(float dt) {
         auto fields = m_fields.self();
         if (fields->m_hasBorder && fields->m_lastPos != getPosition()) {
-            if (CCNode* parent = getParent()) {
+            if (auto parent = getParent()) {
                 updateBordersWithParent(parent);
             }
             fields->m_lastPos = getPosition();
@@ -142,7 +140,7 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
     void updateBordersWithParent(CCNode* parent) {
         if (!parent) return;
 
-        if (CCNode* bg = parent->getChildByID("background")) {
+        if (auto bg = parent->getChildByID("background")) {
             if (bg->getChildByType<CCLayerGradient>(0)) {
                 revert(false);
                 return;
@@ -159,14 +157,14 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
             return;
         }
 
-        if (CCScale9Sprite* bg = typeinfo_cast<CCScale9Sprite*>(parent->getChildByID("background"))) {
+        if (auto bg = typeinfo_cast<CCScale9Sprite*>(parent->getChildByID("background"))) {
             createMask(bg);
         }
-        else if (CCScale9Sprite* bg = parent->getChildByType<CCScale9Sprite>(0)) {
+        else if (auto bg = parent->getChildByType<CCScale9Sprite>(0)) {
             createMask(bg);
         }
         else {
-            auto newBg = CCScale9Sprite::create("GJ_square01-uhd.png");
+            auto newBg = CCScale9Sprite::create("GJ_square01.png");
             newBg->setContentSize({440, 290});
             newBg->setPosition(parent->getContentSize() / 2);
             createMask(newBg);
@@ -178,40 +176,42 @@ class $classModify(MyGJCommentListLayer, GJCommentListLayer) {
         removeChildByID("special-border"_spr);
         m_fields->m_hasBorder = true;
 
-        CCSize winSize = CCDirector::get()->getWinSize();
-        CCSize nodeSize = getContentSize();
-        CCPoint nodePos = getPosition();
-        CCPoint innerPos = {nodePos.x + nodeSize.width/2, nodePos.y + nodeSize.height/2};
+        auto winSize = CCDirector::get()->getWinSize();
+        auto nodeSize = getContentSize();
+        auto nodePos = getPosition();
+        auto innerPos = CCPoint{nodePos.x + nodeSize.width/2, nodePos.y + nodeSize.height/2};
 
-        geode::NineSlice* innerCurve = geode::NineSlice::create("borderStencil.png"_spr);
+        auto innerCurve = geode::NineSlice::create("borderStencil.png"_spr);
         innerCurve->setContentSize({nodeSize.width + 5, nodeSize.height + 5});
         innerCurve->setPosition(innerPos);
         innerCurve->setZOrder(20);
 
-        MyCCScale9Sprite* myBG = static_cast<MyCCScale9Sprite*>(bg);
+        auto myBG = static_cast<MyCCScale9Sprite*>(bg);
 
-        CCScale9Sprite* newBG = CCScale9Sprite::create(myBG->m_fields->textureName.c_str(), myBG->m_fields->rect, myBG->m_fields->capInsets);
-        newBG->setContentSize(myBG->getContentSize());
-        newBG->setPosition(bg->getPosition());
+        auto newBG = CCScale9Sprite::create(myBG->m_fields->textureName.c_str(), myBG->m_fields->rect, myBG->m_fields->capInsets);
+        if (newBG) {
+            newBG->setContentSize(myBG->getContentSize());
+            newBG->setPosition(bg->getPosition());
 
-        CCNode* parentNode = CCNode::create();
+            auto parentNode = CCNode::create();
 
-        CCClippingNode* clippingNode = CCClippingNode::create();
-        clippingNode->addChild(newBG);
-        clippingNode->setStencil(innerCurve);
-        clippingNode->setContentSize(winSize);
-        clippingNode->setPosition(-nodePos.x + 5, -nodePos.y + 5);
-        clippingNode->setAnchorPoint({0, 0});
-        clippingNode->setAlphaThreshold(0.7f);
+            auto clippingNode = CCClippingNode::create();
+            clippingNode->addChild(newBG);
+            clippingNode->setStencil(innerCurve);
+            clippingNode->setContentSize(winSize);
+            clippingNode->setPosition(-nodePos.x + 5, -nodePos.y + 5);
+            clippingNode->setAnchorPoint({0, 0});
+            clippingNode->setAlphaThreshold(0.7f);
 
-        parentNode->setAnchorPoint({0, 0});
-        parentNode->setContentSize({nodeSize.width+10, nodeSize.height+10});
-        parentNode->setPosition({-5, -5});
-        parentNode->setID("special-border"_spr);
-        parentNode->setZOrder(19);
-        parentNode->addChild(clippingNode);
+            parentNode->setAnchorPoint({0, 0});
+            parentNode->setContentSize({nodeSize.width+10, nodeSize.height+10});
+            parentNode->setPosition({-5, -5});
+            parentNode->setID("special-border"_spr);
+            parentNode->setZOrder(19);
+            parentNode->addChild(clippingNode);
 
-        addChild(parentNode);
+            addChild(parentNode);
+        }
     }
 };
 
