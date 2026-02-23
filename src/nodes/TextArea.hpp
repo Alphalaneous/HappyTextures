@@ -3,12 +3,15 @@
 #include <Geode/Geode.hpp>
 #include <Geode/modify/TextArea.hpp>
 #include <rift.hpp>
+#include "../Macros.hpp"
 
 using namespace geode::prelude;
 
 class $modify(MyTextArea, TextArea) {
 
-    static void onModify(auto& self);
+    static void onModify(auto& self) {
+        HOOK_LATEST("TextArea::setString");
+    }
 
     struct Fields {
         bool m_isHappyTexturesModified;

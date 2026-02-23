@@ -10,7 +10,10 @@ using namespace geode::prelude;
 
 class $modify(MyCCScale9Sprite, CCScale9Sprite) {
 
-    static void onModify(auto& self);
+    static void onModify(auto& self) {
+        HOOK_LATEST("cocos2d::CCScale9Sprite::initWithFile");
+        HOOK_LATEST("cocos2d::CCScale9Sprite::visit");
+    }
 
     struct Fields {
         std::string textureName;

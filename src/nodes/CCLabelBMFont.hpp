@@ -9,8 +9,11 @@ using namespace geode::prelude;
 
 class $modify(MyCCLabelBMFont, CCLabelBMFont) {
 
-    static void onModify(auto& self);
-
+    static void onModify(auto& self) {
+        HOOK_LATEST("cocos2d::CCLabelBMFont::setString");
+        HOOK_LATEST("cocos2d::CCLabelBMFont::limitLabelWidth");
+    }
+    
     struct Fields {
         float m_limitWidth = 1;
         float m_limitDefaultScale = 1;

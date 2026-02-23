@@ -1,10 +1,5 @@
 #include "CCScale9Sprite.hpp"
 
-void MyCCScale9Sprite::onModify(auto& self) {
-    HOOK_LATEST("cocos2d::CCScale9Sprite::initWithFile");
-    HOOK_LATEST("cocos2d::CCScale9Sprite::visit");
-}
-
 bool MyCCScale9Sprite::initWithFile(const char* file, CCRect rect, CCRect capInsets) {
     if(!CCScale9Sprite::initWithFile(file, rect, capInsets)) return false;
     m_fields->textureName = std::string(file);

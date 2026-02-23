@@ -2,11 +2,6 @@
 #include "../LabelValues.hpp"
 #include <Geode/modify/LabelGameObject.hpp>
 
-void MyCCLabelBMFont::onModify(auto& self) {
-    HOOK_LATEST("cocos2d::CCLabelBMFont::setString");
-    HOOK_LATEST("cocos2d::CCLabelBMFont::limitLabelWidth");
-}
-
 std::string MyCCLabelBMFont::riftString(std::string_view input) {
     auto fields = m_fields.self();
 

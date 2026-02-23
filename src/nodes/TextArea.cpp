@@ -2,12 +2,7 @@
 #include <Geode/modify/TextArea.hpp>
 #include <rift.hpp>
 #include "TextArea.hpp"
-#include "../Macros.hpp"
 #include "../LabelValues.hpp"
-
-void MyTextArea::onModify(auto& self) {
-    HOOK_LATEST("TextArea::setString");
-}
 
 std::string MyTextArea::riftString(std::string_view input) {
 
