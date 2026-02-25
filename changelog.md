@@ -1,3 +1,6 @@
+# 2.1.3
+- Fix bug where getting by index required the full namespace of the type
+
 # 2.1.2
 - Add onGeode callback to MenuLayer
 

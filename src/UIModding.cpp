@@ -1224,7 +1224,7 @@ void UIModding::modifyChildByIndex(CCNode* node, const matjson::Value& value) {
         }
     }
     
-    UIModding::get()->handleModifications(alpha::utils::cocos::getChildByClassName(node, type, index).value_or(nullptr), value);
+    UIModding::get()->handleModifications(Utils::getChildByClassName(node, type, index).value_or(nullptr), value);
 }
 
 void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newChildVal) {

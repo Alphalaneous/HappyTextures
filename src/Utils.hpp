@@ -236,6 +236,35 @@ namespace Utils {
         return extract(std::string(name));
     }
 
+    static std::optional<cocos2d::CCNode*> getChildByClassName(cocos2d::CCNode* node, geode::ZStringView name, int index = 0) {
+        if (!node || node->getChildrenCount() == 0) return nullptr;
+
+        size_t indexCounter = 0;
+        const size_t childrenCount = node->getChildrenCount();
+
+        bool isNegativeIndex = (index < 0);
+        if (isNegativeIndex) {
+            index = -index - 1; 
+        }
+
+        for (size_t i = (isNegativeIndex ? childrenCount - 1 : 0); 
+            isNegativeIndex ? i >= 0 : i < childrenCount; 
+            isNegativeIndex ? --i : ++i) {
+
+            auto idxNode = node->getChildrenExt()[i];
+            if (getObjectName(idxNode) == name) {
+                if (indexCounter == index) {
+                    return idxNode;
+                }
+                ++indexCounter;
+            }
+
+            if (isNegativeIndex && i == 0) break;
+        }
+
+        return std::nullopt;
+    }
+
     static CCNode* nodeForQuery(CCNode* node, const std::string& queryStr) {
         auto res = NodeQuery::parse(queryStr);
         if (!res) return nullptr;
