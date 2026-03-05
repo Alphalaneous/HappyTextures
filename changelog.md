@@ -1,3 +1,6 @@
+# 2.1.5
+- Fix a crash
+
 # 2.1.4
 - Add custom spritesheet support (Experimental)
 - Add `cascade-color` and `cascade-opacity` bools

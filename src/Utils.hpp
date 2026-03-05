@@ -420,6 +420,8 @@ namespace Utils {
             if (!std::filesystem::is_directory(path)) continue;
 
             auto spritesheetsDir = path / "spritesheets";
+            
+            if (!std::filesystem::is_directory(spritesheetsDir)) continue;
 
             const auto packStr = utils::string::pathToString(path);
             const size_t baseLen = packStr.length() + 1;
