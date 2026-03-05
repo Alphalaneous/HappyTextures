@@ -1,10 +1,6 @@
 #pragma once
 
 #include <Geode/Geode.hpp>
-#include "Geode/cocos/cocoa/CCObject.h"
-#include "Geode/utils/cocos.hpp"
-#include "Geode/utils/random.hpp"
-#include "Geode/utils/string.hpp"
 #include "UIModding.hpp"
 #include "Macros.hpp"
 #include <geode.texture-loader/include/TextureLoader.hpp>
@@ -14,6 +10,17 @@
 using namespace geode::prelude;
 
 namespace Utils {
+
+    static std::string_view extract(std::string_view s) {
+        if (auto pos = s.rfind("::"); pos != std::string_view::npos)
+            return s.substr(pos + 2);
+        return s;
+    }
+
+    static std::string_view getObjectName(CCObject* obj) {
+        auto name = cocos::getObjectName(obj);
+        return extract(std::string(name));
+    }
 
     class BFSNodeTreeCrawler final {
     private:
@@ -160,7 +167,7 @@ namespace Utils {
             }
 
             if (!m_targetClass.empty()) {
-                if (getObjectName(node) != m_targetClass) {
+                if (Utils::getObjectName(node) != m_targetClass) {
                     return nullptr;
                 }
 
@@ -168,7 +175,7 @@ namespace Utils {
                     int matchCount = 0;
                     bool found = false;
                     for (auto c : CCArrayExt<CCNode*>(parent->getChildren())) {
-                        if (getObjectName(node) == m_targetClass) {
+                        if (Utils::getObjectName(node) == m_targetClass) {
                             if (matchCount == m_targetIndex) {
                                 if (c != node) return nullptr;
                                 found = true;
@@ -225,17 +232,6 @@ namespace Utils {
         }
     };
 
-    static std::string_view extract(std::string_view s) {
-        if (auto pos = s.rfind("::"); pos != std::string_view::npos)
-            return s.substr(pos + 2);
-        return s;
-    }
-
-    static std::string_view getObjectName(CCObject* obj) {
-        auto name = cocos::getObjectName(obj);
-        return extract(std::string(name));
-    }
-
     static std::optional<cocos2d::CCNode*> getChildByClassName(cocos2d::CCNode* node, geode::ZStringView name, int index = 0) {
         if (!node || node->getChildrenCount() == 0) return nullptr;
 
@@ -252,7 +248,7 @@ namespace Utils {
             isNegativeIndex ? --i : ++i) {
 
             auto idxNode = node->getChildrenExt()[i];
-            if (getObjectName(idxNode) == name) {
+            if (Utils::getObjectName(idxNode) == name) {
                 if (indexCounter == index) {
                     return idxNode;
                 }
@@ -412,6 +408,37 @@ namespace Utils {
 
                 geode::utils::string::replaceIP(subStr, "\\", "/");
                 filenameCache[std::move(subStr)] = true;
+            }
+        }
+    }
+
+    static void loadCustomSpriteSheets() {
+        auto& filenameCache = UIModding::get()->filenameCache;
+
+        for (const auto& pack : Utils::getActivePacks()) {
+            auto path = pack.resourcesPath;
+            if (!std::filesystem::is_directory(path)) continue;
+
+            auto spritesheetsDir = path / "spritesheets";
+
+            const auto packStr = utils::string::pathToString(path);
+            const size_t baseLen = packStr.length() + 1;
+
+            for (auto& entry : std::filesystem::recursive_directory_iterator(spritesheetsDir)) {
+                if (!entry.is_regular_file()) continue;
+
+                auto extension = utils::string::pathToString(entry.path().extension());
+                utils::string::toLowerIP(extension);
+
+                if (extension != ".plist") continue;
+
+                auto full = utils::string::pathToString(entry.path());
+
+                qualityToNormal(full);
+
+                if (CCSpriteFrameCache::get()->m_pLoadedFileNames->contains(full)) continue;
+
+                CCSpriteFrameCache::get()->addSpriteFramesWithFile(full.c_str());
             }
         }
     }

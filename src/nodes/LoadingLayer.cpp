@@ -16,6 +16,7 @@ class $modify(MyLoadingLayer, LoadingLayer) {
         UIModding::get()->firstMenuLayer = true;
         Utils::clearCaches();
         Utils::reloadFileNames();
+        Utils::loadCustomSpriteSheets();
         UIModding::get()->loadNodeFiles();
         Config::get()->loadPackJsons();
         return LoadingLayer::init(p1);

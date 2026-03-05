@@ -1,3 +1,9 @@
+# 2.1.4
+- Add custom spritesheet support (Experimental)
+- Add `cascade-color` and `cascade-opacity` bools
+- Attempt to fix random sprites not working
+- Fix getting by index not working with query selectors
+
 # 2.1.3
 - Fix bug where getting by index required the full namespace of the type
 

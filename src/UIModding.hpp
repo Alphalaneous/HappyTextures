@@ -59,6 +59,8 @@ public:
     void setFlip(CCNode* node, const matjson::Value& attributes);
     void setBlending(CCNode* node, const matjson::Value& attributes);
     void setSprite(CCNode* node, const matjson::Value& attributes);
+    void setCascadeColor(CCNode* node, const matjson::Value& attributes);
+    void setCascadeOpacity(CCNode* node, const matjson::Value& attributes);
     void setOpacity(CCNode* node, const matjson::Value& attributes);
     void setShow(CCNode* node, const matjson::Value& attributes);
     void setDisablePages(CCNode* node, const matjson::Value& attributes);

@@ -731,8 +731,7 @@ std::vector<std::string> UIModding::generateValidSprites(const std::string& path
 void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("sprite") && !attributes.contains("sprite-frame")) return;
 
-    matjson::Value sprite = attributes["sprite"];
-    if (attributes.contains("sprite-frame")) sprite = attributes["sprite-frame"];
+    matjson::Value sprite = attributes.contains("sprite-frame") ? attributes["sprite-frame"] : attributes["sprite"];
     std::string spriteName;
     CCSprite* spr = nullptr;
 
@@ -820,6 +819,40 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
     }
 }
 
+void UIModding::setCascadeColor(CCNode* node, const matjson::Value& attributes) {
+    if (!attributes.contains("cascade-color")) return;
+
+    if (auto cascade = attributes["cascade-color"]; cascade.isBool()) {
+        if (auto node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+            node1->setCascadeColorEnabled(cascade.asBool().unwrap());
+            if (auto node2 = node1->getChildByType<ButtonSprite>(0)) {
+                node2->setCascadeColorEnabled(cascade.asBool().unwrap());
+            }
+        }
+
+        if (auto rgba = typeinfo_cast<CCRGBAProtocol*>(node)) {
+            rgba->setCascadeColorEnabled(cascade.asBool().unwrap());
+        }
+    }
+}
+
+void UIModding::setCascadeOpacity(CCNode* node, const matjson::Value& attributes) {
+    if (!attributes.contains("cascade-opacity")) return;
+
+    if (auto cascade = attributes["cascade-opacity"]; cascade.isBool()) {
+        if (auto node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
+            node1->setCascadeOpacityEnabled(cascade.asBool().unwrap());
+            if (auto node2 = node1->getChildByType<ButtonSprite>(0)) {
+                node2->setCascadeOpacityEnabled(cascade.asBool().unwrap());
+            }
+        }
+
+        if (auto rgba = typeinfo_cast<CCRGBAProtocol*>(node)) {
+            rgba->setCascadeOpacityEnabled(cascade.asBool().unwrap());
+        }
+    }
+}
+
 void UIModding::setOpacity(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("opacity")) return;
 
@@ -835,11 +868,8 @@ void UIModding::setOpacity(CCNode* node, const matjson::Value& attributes) {
             }
         }
 
-        if (auto nodeRGBA = typeinfo_cast<CCNodeRGBA*>(node)) {
-            nodeRGBA->setOpacity(opacityNum);
-        }
-        if (auto layerRGBA = typeinfo_cast<CCLayerRGBA*>(node)) {
-            layerRGBA->setOpacity(opacityNum);
+        if (auto rgba = typeinfo_cast<CCRGBAProtocol*>(node)) {
+            rgba->setOpacity(opacityNum);
         }
     }
 
@@ -908,72 +938,53 @@ void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
     }
 
     if (auto fit = scale["fit"]; fit.isObject()) {
-        std::string fitRelative = fit["relative"].asString().unwrapOrDefault();
-        float scaleMultiplier = fit["multiplier"].asDouble().unwrapOr(1.f);
-        CCSize targetSize = {-1, -1};
-        CCSize screenSize = CCDirector::get()->getWinSize();
-        CCSize parentSize = targetSize;
-        if (auto parent = node->getParent()) {
-            parentSize = parent->getContentSize();
-        }
-        if (fitRelative == "screen") {
-            targetSize = screenSize;
-        }
-        if (fitRelative == "screen-width") {
-            targetSize.width = screenSize.width;
-        }
-        if (fitRelative == "screen-height") {
-            targetSize.height = screenSize.height;
-        }
-        if (fitRelative == "parent") {
-            targetSize = parentSize;
-        }
-        if (fitRelative == "parent-width") {
-            targetSize.width = parentSize.width;
-        }
-        if (fitRelative == "parent-height") {
-            targetSize.height = parentSize.height;
-        }
-        if (fitRelative == "size") {
-            if (auto size = fit["size"]; fit.isObject()) {
-                if (auto widthVal = size["width"]; widthVal.isNumber()) {
-                    targetSize.width = widthVal.asDouble().unwrapOr(-1.f);
+        std::string relative = fit["relative"].asString().unwrapOr("screen");
+        std::string mode = fit["mode"].asString().unwrapOr("fit");
+        float multiplier = fit["multiplier"].asDouble().unwrapOr(1.f);
+
+        CCSize screen = CCDirector::get()->getWinSize();
+        CCSize parent = node->getParent() ? node->getParent()->getContentSize() : CCSize{0,0};
+        CCSize target = {-1, -1};
+
+        if (relative == "screen") target = screen;
+        else if (relative == "screen-width") target.width = screen.width;
+        else if (relative == "screen-height") target.height = screen.height;
+        else if (relative == "parent") target = parent;
+        else if (relative == "parent-width") target.width = parent.width;
+        else if (relative == "parent-height") target.height = parent.height;
+        else if (relative == "size") {
+            if (auto size = fit["size"]; size.isObject()) {
+                if (size["width"].isNumber()) {
+                    target.width = size["width"].asDouble().unwrapOr(-1.f);
                 }
-                if (auto heightVal = size["height"]; heightVal.isNumber()) {
-                    targetSize.height = heightVal.asDouble().unwrapOr(-1.f);
+                if (size["height"].isNumber()) {
+                    target.height = size["height"].asDouble().unwrapOr(-1.f);
                 }
             }
         }
 
-        CCSize contentSize = node->getContentSize();
+        CCSize content = node->getContentSize();
 
-        float largestSide = -1;
-        float largestContentSide = -1;
+        float scaleX = target.width  > 0 ? target.width  / content.width  : -1.f;
+        float scaleY = target.height > 0 ? target.height / content.height : -1.f;
 
-        if (targetSize.width != -1 && targetSize.height != -1) {
-            if (targetSize.width > targetSize.height) {
-                largestSide = targetSize.width;
-                largestContentSide = contentSize.width;
-            }
-            else {
-                largestSide = targetSize.height;
-                largestContentSide = contentSize.height;
-            }
-        }
-        else if (targetSize.width != -1 ) {
-            largestSide = targetSize.width;
-            largestContentSide = contentSize.width;
-        }
-        else if (targetSize.height != -1 ) {
-            largestSide = targetSize.height;
-            largestContentSide = contentSize.height;
+        if (mode == "stretch") {
+            if (scaleX > 0) node->setScaleX(scaleX * multiplier);
+            if (scaleY > 0) node->setScaleY(scaleY * multiplier);
+            return;
         }
 
-        if (largestSide != -1) {
-            float scale = largestSide / largestContentSide;
-            node->setScale(scale * scaleMultiplier);
+        float finalScale = -1.f;
+
+        if (scaleX > 0 && scaleY > 0) {
+            finalScale = (mode == "fill") ? std::max(scaleX, scaleY) : std::min(scaleX, scaleY);
         }
-        return;
+        else {
+            finalScale = std::max(scaleX, scaleY);
+        }
+        if (finalScale > 0) {
+            node->setScale(finalScale * multiplier);
+        }
     }
 }
 
@@ -1080,6 +1091,8 @@ void UIModding::handleAttributes(CCNode* node, const matjson::Value& attributes)
     nodesFor(setContentSize);
     nodesFor(setVisible);
     nodesFor(setIgnoreAnchorPos);
+    nodesFor(setCascadeColor);
+    nodesFor(setCascadeOpacity);
     nodesFor(setColor);
     nodesFor(setOpacity);
     nodesFor(setPosition);
