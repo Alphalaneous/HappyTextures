@@ -28,7 +28,7 @@ $execute {
 
 void UIModding::updateColors(CCNode* node, const std::string& name) {
     if (auto* bg = typeinfo_cast<CCScale9Sprite*>(node->getChildByIDRecursive(name))) {
-        if (auto dataOpt = getColors(name)) {
+        if (const auto& dataOpt = getColors(name)) {
             const auto& data = dataOpt.value();
             bg->setColor(data.color);
             bg->setOpacity(data.alpha);
@@ -168,12 +168,12 @@ void UIModding::runCallback(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("layout")) return;
 
-    if (matjson::Value layoutValue = attributes["layout"]; layoutValue.isObject()) {
+    if (const auto& layoutValue = attributes["layout"]; layoutValue.isObject()) {
         Layout* layout;
 
         if (node->getLayout()) {
             if (layoutValue.contains("remove")) {
-                matjson::Value removeValue = layoutValue["remove"];
+                const auto& removeValue = layoutValue["remove"];
                 if (removeValue.isBool() && removeValue.asBool().unwrapOr(false)) {
                     node->setLayout(nullptr);
                 }
@@ -188,7 +188,7 @@ void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
 
         if (auto simpleAxisLayout = typeinfo_cast<SimpleAxisLayout*>(layout)) {
             if (layoutValue.contains("axis")) {
-                if (matjson::Value axisValue = layoutValue["axis"]; axisValue.isString()) {
+                if (const auto& axisValue = layoutValue["axis"]; axisValue.isString()) {
                     std::string axis = axisValue.asString().unwrapOr("");
                     if (axis == "row") {
                         simpleAxisLayout->setAxis(Axis::Row);
@@ -198,38 +198,38 @@ void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
                 }
             }
             if (layoutValue.contains("flip-axis")) {
-                if (matjson::Value flipAxisValue = layoutValue["flip-axis"]; flipAxisValue.isBool()) {
+                if (const auto& flipAxisValue = layoutValue["flip-axis"]; flipAxisValue.isBool()) {
                     bool flipAxis = flipAxisValue.asBool().unwrapOr(false);
                     simpleAxisLayout->setMainAxisDirection(flipAxis ? AxisDirection::RightToLeft : AxisDirection::LeftToRight);
                 }
             }
             if (layoutValue.contains("ignore-invisible")) {
-                if (matjson::Value ignoreInvisibleValue = layoutValue["ignore-invisible"]; ignoreInvisibleValue.isBool()) {
+                if (const auto& ignoreInvisibleValue = layoutValue["ignore-invisible"]; ignoreInvisibleValue.isBool()) {
                     bool ignoreInvisible = ignoreInvisibleValue.asBool().unwrapOr(false);
                     simpleAxisLayout->ignoreInvisibleChildren(ignoreInvisible);
                 }
             }
             if (layoutValue.contains("flip-cross-axis")) {
-                if (matjson::Value flipCrossAxisValue = layoutValue["flip-cross-axis"]; flipCrossAxisValue.isBool()) {
+                if (const auto& flipCrossAxisValue = layoutValue["flip-cross-axis"]; flipCrossAxisValue.isBool()) {
                     bool flipCrossAxis = flipCrossAxisValue.asBool().unwrapOr(false);
                     simpleAxisLayout->setCrossAxisDirection(flipCrossAxis ? AxisDirection::RightToLeft : AxisDirection::LeftToRight);
                 }
             }
             if (layoutValue.contains("gap")) {
-                if (matjson::Value gapValue = layoutValue["gap"]; gapValue.isNumber()) {
+                if (const auto& gapValue = layoutValue["gap"]; gapValue.isNumber()) {
                     float gap = gapValue.asDouble().unwrapOr(0);
                     simpleAxisLayout->setGap(gap);
                 }
             }
             if (layoutValue.contains("axis-alignment")) {
-                if (matjson::Value axisAlignmentValue = layoutValue["axis-alignment"]; axisAlignmentValue.isString()) {
+                if (const auto& axisAlignmentValue = layoutValue["axis-alignment"]; axisAlignmentValue.isString()) {
                     std::string axisAlignmentStr = axisAlignmentValue.asString().unwrapOr("");
                     MainAxisAlignment axisAlignment = getSimpleMainAxisAlignment(axisAlignmentStr);
                     simpleAxisLayout->setMainAxisAlignment(axisAlignment);
                 }
             }
             if (layoutValue.contains("cross-axis-alignment")) {
-                if (matjson::Value crossAxisAlignmentValue = layoutValue["cross-axis-alignment"]; crossAxisAlignmentValue.isString()) {
+                if (const auto& crossAxisAlignmentValue = layoutValue["cross-axis-alignment"]; crossAxisAlignmentValue.isString()) {
                     std::string crossAxisAlignmentStr = crossAxisAlignmentValue.asString().unwrapOr("");
                     CrossAxisAlignment axisAlignment = getSimpleCrossAxisAlignment(crossAxisAlignmentStr);
                     simpleAxisLayout->setCrossAxisAlignment(axisAlignment);
@@ -239,7 +239,7 @@ void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
 
         if (auto axisLayout = typeinfo_cast<AxisLayout*>(layout)) {
             if (layoutValue.contains("axis")) {
-                if (matjson::Value axisValue = layoutValue["axis"]; axisValue.isString()) {
+                if (const auto& axisValue = layoutValue["axis"]; axisValue.isString()) {
                     std::string axis = axisValue.asString().unwrapOr("");
                     if (axis == "row") {
                         axisLayout->setAxis(Axis::Row);
@@ -249,63 +249,63 @@ void UIModding::setLayout(CCNode* node, const matjson::Value& attributes) {
                 }
             }
             if (layoutValue.contains("flip-axis")) {
-                if (matjson::Value flipAxisValue = layoutValue["flip-axis"]; flipAxisValue.isBool()) {
+                if (const auto& flipAxisValue = layoutValue["flip-axis"]; flipAxisValue.isBool()) {
                     bool flipAxis = flipAxisValue.asBool().unwrapOr(false);
                     axisLayout->setAxisReverse(flipAxis);
                 }
             }
             if (layoutValue.contains("ignore-invisible")) {
-                if (matjson::Value ignoreInvisibleValue = layoutValue["ignore-invisible"]; ignoreInvisibleValue.isBool()) {
+                if (const auto& ignoreInvisibleValue = layoutValue["ignore-invisible"]; ignoreInvisibleValue.isBool()) {
                     bool ignoreInvisible = ignoreInvisibleValue.asBool().unwrapOr(false);
                     axisLayout->ignoreInvisibleChildren(ignoreInvisible);
                 }
             }
             if (layoutValue.contains("flip-cross-axis")) {
-                if (matjson::Value flipCrossAxisValue = layoutValue["flip-cross-axis"]; flipCrossAxisValue.isBool()) {
+                if (const auto& flipCrossAxisValue = layoutValue["flip-cross-axis"]; flipCrossAxisValue.isBool()) {
                     bool flipCrossAxis = flipCrossAxisValue.asBool().unwrapOr(false);
                     axisLayout->setCrossAxisReverse(flipCrossAxis);
                 }
             }
             if (layoutValue.contains("auto-scale")) {
-                if (matjson::Value autoScaleValue = layoutValue["auto-scale"]; autoScaleValue.isBool()) {
+                if (const auto& autoScaleValue = layoutValue["auto-scale"]; autoScaleValue.isBool()) {
                     bool autoScale = autoScaleValue.asBool().unwrapOr(false);
                     axisLayout->setAutoScale(autoScale);
                 }
             }
             if (layoutValue.contains("grow-cross-axis")) {
-                if (matjson::Value growCrossAxisValue = layoutValue["grow-cross-axis"]; growCrossAxisValue.isBool()) {
+                if (const auto& growCrossAxisValue = layoutValue["grow-cross-axis"]; growCrossAxisValue.isBool()) {
                     bool growCrossAxis = growCrossAxisValue.asBool().unwrapOr(false);
                     axisLayout->setGrowCrossAxis(growCrossAxis);
                 }
             }
             if (layoutValue.contains("allow-cross-axis-overflow")) {
-                if (matjson::Value allowCrossAxisOverflowValue = layoutValue["allow-cross-axis-overflow"]; allowCrossAxisOverflowValue.isBool()) {
+                if (const auto& allowCrossAxisOverflowValue = layoutValue["allow-cross-axis-overflow"]; allowCrossAxisOverflowValue.isBool()) {
                     bool allowCrossAxisOverflow = allowCrossAxisOverflowValue.asBool().unwrapOr(false);
                     axisLayout->setCrossAxisOverflow(allowCrossAxisOverflow);
                 }
             }
             if (layoutValue.contains("gap")) {
-                if (matjson::Value gapValue = layoutValue["gap"]; gapValue.isNumber()) {
+                if (const auto& gapValue = layoutValue["gap"]; gapValue.isNumber()) {
                     float gap = gapValue.asDouble().unwrapOr(0);
                     axisLayout->setGap(gap);
                 }
             }
             if (layoutValue.contains("axis-alignment")) {
-                if (matjson::Value axisAlignmentValue = layoutValue["axis-alignment"]; axisAlignmentValue.isString()) {
+                if (const auto& axisAlignmentValue = layoutValue["axis-alignment"]; axisAlignmentValue.isString()) {
                     std::string axisAlignmentStr = axisAlignmentValue.asString().unwrapOr("");
                     AxisAlignment axisAlignment = getAxisAlignment(axisAlignmentStr);
                     axisLayout->setAxisAlignment(axisAlignment);
                 }
             }
             if (layoutValue.contains("cross-axis-alignment")) {
-                if (matjson::Value crossAxisAlignmentValue = layoutValue["cross-axis-alignment"]; crossAxisAlignmentValue.isString()) {
+                if (const auto& crossAxisAlignmentValue = layoutValue["cross-axis-alignment"]; crossAxisAlignmentValue.isString()) {
                     std::string crossAxisAlignmentStr = crossAxisAlignmentValue.asString().unwrapOr("");
                     AxisAlignment axisAlignment = getAxisAlignment(crossAxisAlignmentStr);
                     axisLayout->setCrossAxisAlignment(axisAlignment);
                 }
             }
             if (layoutValue.contains("cross-axis-line-alignment")) {
-                if (matjson::Value crossAxisLineAlignmentValue = layoutValue["cross-axis-line-alignment"]; crossAxisLineAlignmentValue.isString()) {
+                if (const auto& crossAxisLineAlignmentValue = layoutValue["cross-axis-line-alignment"]; crossAxisLineAlignmentValue.isString()) {
                     std::string crossAxisLineAlignmentStr = crossAxisLineAlignmentValue.asString().unwrapOr("");
                     AxisAlignment axisAlignment = getAxisAlignment(crossAxisLineAlignmentStr);
                     axisLayout->setCrossAxisLineAlignment(axisAlignment);
@@ -352,15 +352,15 @@ void UIModding::playSound(CCNode* node, const matjson::Value& attributes) {
 void UIModding::openLink(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("link")) return;
 
-    matjson::Value linkVal = attributes["link"];
+    const auto& linkVal = attributes["link"];
 
     if (linkVal.isString()) {
         Utils::openURLSafe(linkVal.asString().unwrapOr(""));
     }
     else if (linkVal.isObject()) {
         if (linkVal.contains("type") && linkVal.contains("id")) {
-            matjson::Value typeVal = linkVal["type"];
-            matjson::Value idVal = linkVal["id"];
+            const auto& typeVal = linkVal["type"];
+            const auto& idVal = linkVal["id"];
 
             if (typeVal.isString() && idVal.isNumber()) {
                 std::string type = typeVal.asString().unwrapOr("");
@@ -382,7 +382,7 @@ void UIModding::openLink(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setShow(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("show")) return;
 
-    if (matjson::Value showVal = attributes["show"]; showVal.isBool()) {
+    if (const auto& showVal = attributes["show"]; showVal.isBool()) {
         bool show = showVal.asBool().unwrapOr(false);
         if (FLAlertLayer* alert = typeinfo_cast<FLAlertLayer*>(node)) {
             if (show) alert->show();
@@ -394,7 +394,7 @@ void UIModding::setShow(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setZOrder(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("z-order")) return;
 
-    if (matjson::Value zOrderVal = attributes["z-order"]; zOrderVal.isNumber()) {
+    if (const auto& zOrderVal = attributes["z-order"]; zOrderVal.isNumber()) {
         int zOrder = zOrderVal.asInt().unwrapOr(0);
         node->setZOrder(zOrder);
     }
@@ -403,14 +403,14 @@ void UIModding::setZOrder(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setBlending(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("blending")) return;
 
-    matjson::Value blendingVal = attributes["blending"];
+    const auto& blendingVal = attributes["blending"];
 
     if (!blendingVal.isObject()) return;
 
     if (!blendingVal.contains("source") || !blendingVal.contains("destination")) return;
 
-    matjson::Value sourceVal = blendingVal["source"];
-    matjson::Value destinationVal = blendingVal["destination"];
+    const auto& sourceVal = blendingVal["source"];
+    const auto& destinationVal = blendingVal["destination"];
 
     if (!sourceVal.isString() || !destinationVal.isString()) return;
 
@@ -430,18 +430,18 @@ void UIModding::setBlending(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setFlip(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("flip")) return;
 
-    auto flipVal = attributes["flip"];
+    const auto& flipVal = attributes["flip"];
     if (!flipVal.isObject()) return;
 
     bool flipX = false;
     bool flipY = false;
 
     if (flipVal.contains("x")) {
-        auto xVal = flipVal["x"];
+        const auto& xVal = flipVal["x"];
         if (xVal.isBool()) flipX = xVal.asBool().unwrapOr(false);
     }
     if (flipVal.contains("y")) {
-        auto yVal = flipVal["y"];
+        const auto& yVal = flipVal["y"];
         if (yVal.isBool()) flipY = yVal.asBool().unwrapOr(false);
     }
 
@@ -454,7 +454,7 @@ void UIModding::setFlip(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setFont(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("font")) return;
 
-    auto fontVal = attributes["font"];
+    const auto& fontVal = attributes["font"];
     if (!fontVal.isString()) return;
 
     std::string font = fontVal.asString().unwrapOr("");
@@ -490,7 +490,7 @@ void UIModding::setFont(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setPosition(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("position")) return;
 
-    auto position = attributes["position"];
+    const auto& position = attributes["position"];
     if (!position.isObject()) return;
 
     float x = 0;
@@ -506,13 +506,13 @@ void UIModding::setPosition(CCNode* node, const matjson::Value& attributes) {
     }
 
     if (position.contains("anchor")) {
-        auto anchorValue = position["anchor"];
+        const auto& anchorValue = position["anchor"];
         if (anchorValue.isObject() || anchorValue.isString()) {
             CCNode* parent = node->getParent();
             CCSize nodeSize = parent ? parent->getContentSize() : CCDirector::sharedDirector()->getWinSize();
 
             if (!anchorValue.isString() && anchorValue.contains("relative")) {
-                auto relativeValue = anchorValue["relative"];
+                const auto& relativeValue = anchorValue["relative"];
                 if (relativeValue.isString()) {
                     std::string relative = relativeValue.asString().unwrapOr("");
                     if (relative == "screen") nodeSize = CCDirector::sharedDirector()->getWinSize();
@@ -559,7 +559,7 @@ void UIModding::setPosition(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setColor(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("color")) return;
 
-    auto color = attributes["color"];
+    const auto& color = attributes["color"];
 
     if (color.isObject() && color.contains("r") && color.contains("g") && color.contains("b")) {
         auto r = color["r"].asInt().unwrapOr(0);
@@ -614,7 +614,7 @@ void UIModding::setColor(CCNode* node, const matjson::Value& attributes) {
 void UIModding::removeChild(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("remove")) return;
 
-    if (auto removeVal = attributes["remove"]; removeVal.isBool()) {
+    if (const auto& removeVal = attributes["remove"]; removeVal.isBool()) {
         bool remove = removeVal.asBool().unwrapOr(false);
         if (remove) removalQueue.push_back(node);
     }
@@ -623,7 +623,7 @@ void UIModding::removeChild(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setScaleMult(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("scale-multiplier")) return;
 
-    if (auto mulVal = attributes["scale-multiplier"]; mulVal.isNumber()) {
+    if (const auto& mulVal = attributes["scale-multiplier"]; mulVal.isNumber()) {
         float multiplier = mulVal.asDouble().unwrapOr(0);
         if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
             button->m_scaleMultiplier = multiplier;
@@ -634,7 +634,7 @@ void UIModding::setScaleMult(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setScaleBase(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("base-scale")) return;
 
-    if (auto baseVal = attributes["base-scale"]; baseVal.isNumber()) {
+    if (const auto& baseVal = attributes["base-scale"]; baseVal.isNumber()) {
         float base = baseVal.asDouble().unwrapOr(0);
         if (auto button = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
             button->m_baseScale = base;
@@ -645,7 +645,7 @@ void UIModding::setScaleBase(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setDisablePages(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("disable-pages")) return;
 
-    if (auto pagesVal = attributes["disable-pages"]; pagesVal.isBool()) {
+    if (const auto& pagesVal = attributes["disable-pages"]; pagesVal.isBool()) {
         if (!pagesVal.asBool().unwrap()) {
             PagesAPI::enablePages(typeinfo_cast<CCMenu*>(node), false);
         }
@@ -655,7 +655,7 @@ void UIModding::setDisablePages(CCNode* node, const matjson::Value& attributes) 
 void UIModding::setText(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("text")) return;
 
-    if (auto textVal = attributes["text"]; textVal.isString()) {
+    if (const auto& textVal = attributes["text"]; textVal.isString()) {
         std::string text = textVal.asString().unwrapOr("");
 
         CCLabelBMFont* textObject = nullptr;
@@ -731,16 +731,16 @@ std::vector<std::string> UIModding::generateValidSprites(const std::string& path
 void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("sprite") && !attributes.contains("sprite-frame")) return;
 
-    matjson::Value sprite = attributes.contains("sprite-frame") ? attributes["sprite-frame"] : attributes["sprite"];
+    const auto& sprite = attributes.contains("sprite-frame") ? attributes["sprite-frame"] : attributes["sprite"];
     std::string spriteName;
     CCSprite* spr = nullptr;
 
     if (sprite.isObject()) {
-        matjson::Value randomObject = sprite["random"];
+        const auto& randomObject = sprite["random"];
         std::string mode = randomObject["mode"].asString().unwrapOr("load");
         std::string id = randomObject["id"].asString().unwrapOr("");
         std::string path = randomObject["path"].asString().unwrapOr("");
-        matjson::Value spriteList = randomObject["sprites"];
+        const auto& spriteList = randomObject["sprites"];
 
         if (mode == "load" || id.empty()) {
             std::vector<std::string> validSprites = generateValidSprites(path, spriteList);
@@ -772,7 +772,7 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
 
     if (auto buttonNode = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
         if (attributes.contains("button-info")) {
-            matjson::Value infoVal = attributes["button-info"];
+            const auto& infoVal = attributes["button-info"];
             if (infoVal.isObject() && infoVal.contains("type")) {
                 std::string type = infoVal["type"].asString().unwrapOr("");
 
@@ -790,7 +790,7 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
                     setSpriteVarNum(scale, scale, Double, 0);
                     setSpriteVar(absolute, absolute, Bool, false);
 
-                    if (auto res = alpha::utils::cocos::getSprite(texture)) {
+                    if (const auto& res = alpha::utils::cocos::getSprite(texture)) {
                         if (FNTConfigLoadFile(font.c_str())) {
                             auto buttonSprite = ButtonSprite::create(caption.c_str(), width, absolute, font.c_str(), texture.c_str(), height, scale);
                             buttonNode->setNormalImage(buttonSprite);
@@ -822,7 +822,7 @@ void UIModding::setSprite(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setCascadeColor(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("cascade-color")) return;
 
-    if (auto cascade = attributes["cascade-color"]; cascade.isBool()) {
+    if (const auto& cascade = attributes["cascade-color"]; cascade.isBool()) {
         if (auto node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
             node1->setCascadeColorEnabled(cascade.asBool().unwrap());
             if (auto node2 = node1->getChildByType<ButtonSprite>(0)) {
@@ -839,7 +839,7 @@ void UIModding::setCascadeColor(CCNode* node, const matjson::Value& attributes) 
 void UIModding::setCascadeOpacity(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("cascade-opacity")) return;
 
-    if (auto cascade = attributes["cascade-opacity"]; cascade.isBool()) {
+    if (const auto& cascade = attributes["cascade-opacity"]; cascade.isBool()) {
         if (auto node1 = typeinfo_cast<CCMenuItemSpriteExtra*>(node)) {
             node1->setCascadeOpacityEnabled(cascade.asBool().unwrap());
             if (auto node2 = node1->getChildByType<ButtonSprite>(0)) {
@@ -856,7 +856,7 @@ void UIModding::setCascadeOpacity(CCNode* node, const matjson::Value& attributes
 void UIModding::setOpacity(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("opacity")) return;
 
-    auto opacity = attributes["opacity"];
+    const auto& opacity = attributes["opacity"];
 
     if (opacity.isNumber()) {
         auto opacityNum = static_cast<GLubyte>(opacity.asInt().unwrapOr(0));
@@ -889,13 +889,13 @@ void UIModding::setOpacity(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setVisible(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("visible")) return;
 
-    if (auto visible = attributes["visible"]; visible.isBool()) {
+    if (const auto& visible = attributes["visible"]; visible.isBool()) {
         node->setVisible(visible.asBool().unwrapOr(false));
     }
 }
 
 void UIModding::updateLayout(CCNode* node, const matjson::Value& attributes) {
-    auto update = attributes["update-layout"];
+    const auto& update = attributes["update-layout"];
     if (update.isBool() && update.asBool().unwrapOr(false)) {
         if (auto parent = node->getParent()) parent->updateLayout();
         return;
@@ -913,7 +913,7 @@ void UIModding::updateLayout(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setIgnoreAnchorPos(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("ignore-anchor-pos")) return;
 
-    if (auto ignore = attributes["ignore-anchor-pos"]; ignore.isBool()) {
+    if (const auto& ignore = attributes["ignore-anchor-pos"]; ignore.isBool()) {
         node->ignoreAnchorPointForPosition(ignore.asBool().unwrapOr(false));
     }
 }
@@ -921,7 +921,7 @@ void UIModding::setIgnoreAnchorPos(CCNode* node, const matjson::Value& attribute
 void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("scale")) return;
 
-    auto scale = attributes["scale"];
+    const auto& scale = attributes["scale"];
 
     if (scale.isNumber()) {
         node->setScale(scale.asDouble().unwrapOr(0.0f));
@@ -930,14 +930,16 @@ void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
 
     if (!scale.isObject()) return;
 
-    if (auto xVal = scale["x"]; xVal.isNumber()) {
+    if (const auto& xVal = scale["x"]; xVal.isNumber()) {
         node->setScaleX(xVal.asDouble().unwrapOr(0.0f));
     }
-    if (auto yVal = scale["y"]; yVal.isNumber()) {
+    if (const auto& yVal = scale["y"]; yVal.isNumber()) {
         node->setScaleY(yVal.asDouble().unwrapOr(0.0f));
     }
 
-    if (auto fit = scale["fit"]; fit.isObject()) {
+    if (!scale.contains("fit")) return;
+    
+    if (const auto& fit = scale["fit"]; fit.isObject()) {
         std::string relative = fit["relative"].asString().unwrapOr("screen");
         std::string mode = fit["mode"].asString().unwrapOr("fit");
         float multiplier = fit["multiplier"].asDouble().unwrapOr(1.f);
@@ -991,7 +993,7 @@ void UIModding::setScale(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setRotation(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("rotation")) return;
 
-    auto rotation = attributes["rotation"];
+    const auto& rotation = attributes["rotation"];
 
     if (rotation.isNumber()) {
         node->setRotation(rotation.asDouble().unwrapOr(0.0f));
@@ -1000,10 +1002,10 @@ void UIModding::setRotation(CCNode* node, const matjson::Value& attributes) {
 
     if (!rotation.isObject()) return;
 
-    if (auto xVal = rotation["x"]; xVal.isNumber()) {
+    if (const auto& xVal = rotation["x"]; xVal.isNumber()) {
         node->setRotationX(xVal.asDouble().unwrapOr(0.0f));
     }
-    if (auto yVal = rotation["y"]; yVal.isNumber()) {
+    if (const auto& yVal = rotation["y"]; yVal.isNumber()) {
         node->setRotationY(yVal.asDouble().unwrapOr(0.0f));
     }
 }
@@ -1011,25 +1013,25 @@ void UIModding::setRotation(CCNode* node, const matjson::Value& attributes) {
 void UIModding::setSkew(CCNode* node, const matjson::Value& attributes) {
     if (!attributes.contains("skew")) return;
 
-    auto skew = attributes["skew"];
+    const auto& skew = attributes["skew"];
     if (!skew.isObject()) return;
 
-    if (auto xVal = skew["x"]; xVal.isNumber()) {
+    if (const auto& xVal = skew["x"]; xVal.isNumber()) {
         node->setSkewX(xVal.asDouble().unwrapOr(0.0f));
     }
 
-    if (auto yVal = skew["y"]; yVal.isNumber()) {
+    if (const auto& yVal = skew["y"]; yVal.isNumber()) {
         node->setSkewY(yVal.asDouble().unwrapOr(0.0f));
     }
 }
 
 void UIModding::setAnchorPoint(CCNode* node, const matjson::Value& attributes) {
     if (attributes.contains("anchor-point")) {
-        matjson::Value anchorPoint = attributes["anchor-point"];
+        const matjson::Value& anchorPoint = attributes["anchor-point"];
         
         if (anchorPoint.isObject()) {
-            matjson::Value xVal = anchorPoint["x"];
-            matjson::Value yVal = anchorPoint["y"];
+            const matjson::Value& xVal = anchorPoint["x"];
+            const matjson::Value& yVal = anchorPoint["y"];
 
             if (xVal.isNumber() && yVal.isNumber()) {
                 float x = xVal.asDouble().unwrapOr(0.0f);
@@ -1043,11 +1045,11 @@ void UIModding::setAnchorPoint(CCNode* node, const matjson::Value& attributes) {
 
 void UIModding::setContentSize(CCNode* node, const matjson::Value& attributes) {
     if (attributes.contains("content-size")) {
-        matjson::Value contentSize = attributes["content-size"];
+        const matjson::Value& contentSize = attributes["content-size"];
         
         if (contentSize.isObject()) {
-            matjson::Value widthVal = contentSize["width"];
-            matjson::Value heightVal = contentSize["height"];
+            const matjson::Value& widthVal = contentSize["width"];
+            const matjson::Value& heightVal = contentSize["height"];
 
             if (widthVal.isNumber() && heightVal.isNumber()) {
                 float width = widthVal.asDouble().unwrapOr(0.0f);
@@ -1062,7 +1064,7 @@ void UIModding::setContentSize(CCNode* node, const matjson::Value& attributes) {
 void UIModding::evaluateIf(CCNode* node, const matjson::Value& ifArray) {
     if (!node || !ifArray.isArray()) return;
 
-    for (matjson::Value v : ifArray.asArray().unwrap()) {
+    for (const matjson::Value& v : ifArray.asArray().unwrap()) {
         if (v.contains("statement")) {
             if (v["statement"].isString()) {
                 std::string statement = v["statement"].asString().unwrapOrDefault();
@@ -1225,13 +1227,13 @@ void UIModding::modifyChildByIndex(CCNode* node, const matjson::Value& value) {
     int index = 0;
     std::string type = "CCNode";
     if (value.contains("index")) {
-        matjson::Value indexVal = value["index"];
+        const auto& indexVal = value["index"];
         if (indexVal.isNumber()) {
             index = indexVal.asInt().unwrapOr(0);
         }
     }
     if (value.contains("type")) {
-        matjson::Value typeVal = value["type"];
+        const auto& typeVal = value["type"];
         if (typeVal.isString()) {
             type = typeVal.asString().unwrapOr("");
         }
@@ -1245,14 +1247,14 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
     std::string type = "Node";
     
     if (newChildVal.contains("type") && newChildVal.contains("id")) {
-        matjson::Value typeVal = newChildVal["type"];
+        const auto& typeVal = newChildVal["type"];
         if (typeVal.isString()) {
             type = typeVal.asString().unwrapOr("");
 
             CCNode* newNode = nullptr;
 
             if (type == "CCSprite") {
-                matjson::Value attributesVal = newChildVal["attributes"];
+                const auto& attributesVal = newChildVal["attributes"];
                 std::string sprType = "sprite";
                 if (attributesVal.contains("sprite-frame")) sprType = "sprite-frame";
                 if ((attributesVal.contains(sprType) && attributesVal[sprType].isString())) {
@@ -1274,7 +1276,7 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
             } else if (type == "CCLayer") {
                 newNode = CCLayer::create();
             } else if (type == "CCMenuItemSpriteExtra") {
-                matjson::Value attributesVal = newChildVal["attributes"];
+                const auto& attributesVal = newChildVal["attributes"];
                 CCSprite* spr;
                 std::string sprType = "sprite";
                 if (attributesVal.contains("sprite-frame")) sprType = "sprite-frame";
@@ -1289,7 +1291,7 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                 newNode = CCMenuItemSpriteExtra::create(spr, nullptr, nullptr, nullptr);
             } else if (type == "CCScale9Sprite") {
                 if (newChildVal.contains("attributes")) {
-                    matjson::Value attributesVal = newChildVal["attributes"];
+                    const auto& attributesVal = newChildVal["attributes"];
                     if (attributesVal.contains("sprite") && attributesVal["sprite"].isString()) {
                         std::string sprite = attributesVal["sprite"].asString().unwrapOr("");
                         newNode = CCScale9Sprite::create(sprite.c_str());
@@ -1297,7 +1299,7 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                 }
             } else if (type == "Alert") {
                 if (newChildVal.contains("attributes")) {
-                    matjson::Value attributesVal = newChildVal["attributes"];
+                    const auto& attributesVal = newChildVal["attributes"];
                     if (attributesVal.contains("title") && attributesVal.contains("description")) {
                         std::string title = attributesVal["title"].asString().unwrapOr("");
                         std::string description = attributesVal["description"].asString().unwrapOr("");
@@ -1317,12 +1319,12 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
                 float width = 60, height = 60;
 
                 if (newChildVal.contains("attributes")) {
-                    matjson::Value attributesVal = newChildVal["attributes"];
+                    const auto& attributesVal = newChildVal["attributes"];
                     if (attributesVal.contains("sprite") && attributesVal["sprite"].isString()) {
                         sprite = attributesVal["sprite"].asString().unwrapOr("");
                     }
                     if (attributesVal.contains("popup-size") && attributesVal["popup-size"].isObject()) {
-                        matjson::Value size = attributesVal["popup-size"];
+                        const auto& size = attributesVal["popup-size"];
                         width = size["width"].asDouble().unwrapOr(60);
                         height = size["height"].asDouble().unwrapOr(60);
                     }
@@ -1338,7 +1340,7 @@ void UIModding::createAndModifyNewChild(CCNode* node, const matjson::Value& newC
 
             if (newNode) {
                 MyCCNode* myNode = static_cast<MyCCNode*>(newNode);
-                matjson::Value idVal = newChildVal["id"];
+                const auto& idVal = newChildVal["id"];
                 std::string fullID;
                 std::string id;
                 if (idVal.isString()) {
@@ -1401,37 +1403,37 @@ void UIModding::handleModifications(CCNode* node, matjson::Value nodeObject, boo
     }
 
     if (nodeObject.contains("attributes") && nodeObject["attributes"].isObject()) {
-        matjson::Value nodeAttributes = nodeObject["attributes"];
+        auto& nodeAttributes = nodeObject["attributes"];
         nodeAttributes["_pack-name"] = packName;
         handleAttributes(node, nodeAttributes);
     }
 
     if (nodeObject.contains("schedule") && nodeObject["schedule"].isObject()) {
-        matjson::Value scheduleVal = nodeObject["schedule"];
+        auto& scheduleVal = nodeObject["schedule"];
         scheduleVal["_pack-name"] = packName;
         handleSchedule(node, scheduleVal);
     }
 
     if (nodeObject.contains("event") && nodeObject["event"].isObject()) {
-        matjson::Value eventVal = nodeObject["event"];
+        auto& eventVal = nodeObject["event"];
         eventVal["_pack-name"] = packName;
         handleEvent(node, eventVal);
     }
 
     if (nodeObject.contains("parent") && nodeObject["parent"].isObject()) {
-        matjson::Value parentVal = nodeObject["parent"];
+        auto& parentVal = nodeObject["parent"];
         parentVal["_pack-name"] = packName;
         handleParent(node, parentVal);
     }
 
     if (nodeObject.contains("root") && nodeObject["root"].isObject()) {
-        matjson::Value rootVal = nodeObject["root"];
+        auto& rootVal = nodeObject["root"];
         rootVal["_pack-name"] = packName;
         handleRoot(node, rootVal);
     }
 
     if (nodeObject.contains("children") && nodeObject["children"].isObject()) {
-        matjson::Value childrenVal = nodeObject["children"];
+        auto& childrenVal = nodeObject["children"];
         childrenVal["_pack-name"] = packName;
         handleChildren(node, childrenVal);
     }

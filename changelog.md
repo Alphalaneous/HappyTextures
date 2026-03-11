@@ -1,3 +1,6 @@
+# 2.1.6
+- Bug fixes and performance improvements
+
 # 2.1.5
 - Fix a crash
 
