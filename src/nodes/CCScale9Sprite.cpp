@@ -1,7 +1,7 @@
 #include "CCScale9Sprite.hpp"
 
 bool MyCCScale9Sprite::initWithFile(const char* file, CCRect rect, CCRect capInsets) {
-    if(!CCScale9Sprite::initWithFile(file, rect, capInsets)) return false;
+    if (!CCScale9Sprite::initWithFile(file, rect, capInsets)) return false;
     m_fields->textureName = std::string(file);
     m_fields->rect = rect;
     m_fields->capInsets = capInsets;
