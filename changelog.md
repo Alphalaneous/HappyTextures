@@ -1,3 +1,6 @@
+# 2.1.8
+- Make it even more clear that this is not Texture Workshop
+
 # 2.1.7
 - Show alert that Happy Textures is not Texture Workshop to try and reduce the amount of reports I get about a mod I did not make since people lack reading comprehension skills. 
 

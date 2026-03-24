@@ -1,5 +1,7 @@
 # Happy Textures :3
 
+# <cr>**NOT TEXTURE WORKSHOP, YOU CANNOT DOWNLOAD TEXTURE PACKS WITH THIS MOD**</c>
+
 A Geometry Dash mod that brings texture packs to the next level!
 
 ## Features
@@ -10,3 +12,5 @@ A Geometry Dash mod that brings texture packs to the next level!
 - Extensive Data Driven UI support with JSON
 
 Check the [Wiki](https://github.com/Alphalaneous/HappyTextures/wiki) on how to use.
+
+# <cr>**NOT TEXTURE WORKSHOP, YOU CANNOT DOWNLOAD TEXTURE PACKS WITH THIS MOD**</c>
