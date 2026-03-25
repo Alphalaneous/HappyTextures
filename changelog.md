@@ -1,3 +1,6 @@
+# 2.1.9
+- Remove intrusive notices
+
 # 2.1.8
 - Make it even more clear that this is not Texture Workshop
 

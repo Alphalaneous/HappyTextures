@@ -6,11 +6,11 @@
         "mac": "2.2081",
         "ios": "2.2081"
     },
-    "version": "v2.1.8",
+    "version": "v2.1.9",
     "id": "alphalaneous.happy_textures",
-    "name": "Happy Textures :3 (NOT TEXTURE WORKSHOP)",
+    "name": "Happy Textures x3c",
     "developer": "Alphalaneous",
-    "description": "Texture Packs on a whole new level!",
+    "description": "Texture Packs with more tools uwu mrrp :333",
     "early-load": true,
     "dependencies": {
         "geode.node-ids": ">=v1.15.0",
@@ -43,11 +43,6 @@
     },
     "tags": ["universal", "interface", "enhancement", "bugfix", "offline", "utility", "customization"],
     "settings": {
-        "disable-texture-workshop-info": {
-            "name": "Disable Texture Workshop Notice on Menu",
-            "type": "bool",
-            "default": false
-        },
         "ccscale9sprite-fix": {
             "name": "CCScale9Sprite Fix",
             "description": "Fix sprite overlapping when you have transparent CCScale9Sprites (Such as on the level search page).",
