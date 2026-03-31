@@ -1,3 +1,6 @@
+# 2.1.10
+- Look what you did :(
+
 # 2.1.9
 - Remove intrusive notices
 
