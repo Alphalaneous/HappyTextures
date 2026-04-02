@@ -1,3 +1,6 @@
+# 2.1.11
+- The textures are happy again yay!!
+
 # 2.1.10
 - Look what you did :(
 
